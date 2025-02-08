@@ -13,7 +13,8 @@ import validator from "validator";
 import { AxiosError } from "axios";
 import FingerPrint from "@/assets/icons/fingerPrint";
 import TopBarTabs from "@/components/topBar/tabs";
-import SkinnyLink from "@/components/links/skinny";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -103,6 +104,36 @@ const Login = () => {
     }
   };
 
+  const handleLoginWithGoogle = async () => {
+    // Create the redirect URI using your custom scheme
+    const redirectUri = Linking.createURL("auth"); // e.g., myapp://auth
+
+    const authUrl = `https://test.ylf-eg.org/api/auth/google`;
+
+    // Open the backend URL in a browser session
+    const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+
+    if (result.type === "success") {
+      const { queryParams } = Linking.parse(result.url);
+      console.log(queryParams);
+
+      if (queryParams && queryParams.token) {
+        // Save the token and navigate to the app’s main feed
+        if (typeof queryParams.token === "string") {
+          await save("token", queryParams.token);
+          router.replace("/feed");
+        } else {
+          Alert.alert("Authentication Error", "Invalid token received.");
+        }
+        // For example, using Expo Router:
+      } else {
+        Alert.alert("Authentication Error", "No token received.");
+      }
+    } else {
+      Alert.alert("Authentication cancelled or failed");
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 w-full container bg-white">
       <TopBarTabs
@@ -143,7 +174,7 @@ const Login = () => {
           </TouchableOpacity>
         )}
       </View>
-      {/* <View className="mt-8 flex-row items-center gap-4 justify-center">
+      <View className="mt-8 flex-row items-center gap-4 justify-center">
         <View
           className="h-0.5 w-24"
           style={{ backgroundColor: Colors.light.border }}
@@ -157,6 +188,7 @@ const Login = () => {
         ></View>
       </View>
       <TouchableOpacity
+        onPress={handleLoginWithGoogle}
         className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
         style={{ borderColor: Colors.light.border }}
       >
@@ -167,7 +199,7 @@ const Login = () => {
         <Text className="text-center font-bold" style={{ fontFamily: "Inter" }}>
           Login with Google
         </Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };

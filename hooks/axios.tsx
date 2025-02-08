@@ -10,7 +10,7 @@ export const get = async (
   url: string,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse> => {
-  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  const apiUrl = `https://test.ylf-eg.org/api/`;
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.get(apiUrl + url, { ...config, headers });
@@ -21,7 +21,7 @@ export const post = async (
   data: any,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse> => {
-  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  const apiUrl = `https://test.ylf-eg.org/api/`;
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.post(apiUrl + url, data, {
@@ -29,4 +29,3 @@ export const post = async (
     headers,
   });
 };
-
