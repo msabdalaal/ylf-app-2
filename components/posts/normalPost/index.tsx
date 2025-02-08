@@ -1,0 +1,115 @@
+import {
+  View,
+  Text,
+  useColorScheme,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import React, { useCallback } from "react";
+import { Colors } from "@/constants/Colors";
+import Dots from "@/assets/icons/dots";
+import Comments from "@/assets/icons/comments";
+import Heart from "@/assets/icons/Heart";
+import { Post } from "@/constants/types";
+import dayjs from "dayjs";
+import { useRouter } from "expo-router";
+import { post as AxiosPost } from "@/hooks/axios";
+import { AxiosError } from "axios";
+type Props = {
+  post: Post;
+  handleLike: (id: string) => void;
+};
+
+const NormalPost = ({
+  post = {
+    id: "",
+    content:
+      "The program follows three structured phases; Filtration, Development, Implementation",
+    likeCounter: 122,
+    commentCounter: 10,
+    createdAt: new Date(),
+    hasLiked: false,
+    userId: "",
+    likedUsers: [],
+    user: {
+      name: "YLF",
+      email: "ylf",
+      image: require("@/assets/images/avatar.png"),
+    },
+    imageId: null,
+  },
+  handleLike,
+}: Props) => {
+  const colorScheme = useColorScheme();
+  const router = useRouter();
+
+  return (
+    <View
+      className="rounded-[2rem] p-3 w-full h-fit "
+      style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
+    >
+      <TouchableOpacity
+        onPress={() => {
+          router.push(`/post/${post.id}`);
+        }}
+      >
+        <View className="flex-row items-center gap-3 mb-3">
+          <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
+            <Image
+              source={post.user.image ?? require("@/assets/images/avatar.png")}
+              className="w-full h-full object-cover"
+            />
+          </View>
+          <View className="flex-row flex-1 items-start justify-between">
+            <View>
+              <Text>{post.user.name ?? "YLF"}</Text>
+              <Text className="text-xs">{post.user.email ?? "@ylf"}</Text>
+            </View>
+            <TouchableOpacity>
+              <Dots />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <Text className="mb-8">{post.content}</Text>
+      </TouchableOpacity>
+      <View
+        className="py-3 px-4 rounded-b-3xl flex-row justify-between items-center"
+        style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+      >
+        <View className="flex-row gap-2.5">
+          <TouchableOpacity
+            onPress={() => {
+              router.push(`/post/${post.id}`);
+            }}
+            className="flex-row items-center gap-1.5"
+          >
+            <Comments />
+            <Text
+              className="text-white"
+              style={{ fontFamily: "Poppins_Medium", lineHeight: 20 }}
+            >
+              {post.commentCounter}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleLike(post.id)}
+            className="flex-row items-center gap-1.5"
+          >
+            <Heart />
+            <Text
+              className="text-white"
+              style={{ fontFamily: "Poppins_Medium", lineHeight: 20 }}
+            >
+              {post.likeCounter}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Text className="text-xs text-white">
+          {dayjs(post.createdAt).format("hh:mm A - D/M")}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+export default NormalPost;
