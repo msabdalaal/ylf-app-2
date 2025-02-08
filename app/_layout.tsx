@@ -6,8 +6,6 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 SplashScreen.preventAutoHideAsync();
 import "../global.css";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -34,6 +32,7 @@ export default function RootLayout() {
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen name="post/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="program/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="dark" />
     </>

@@ -13,10 +13,18 @@ import validator from "validator";
 import { AxiosError } from "axios";
 import FingerPrint from "@/assets/icons/fingerPrint";
 import TopBarTabs from "@/components/topBar/tabs";
-import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
 
-const Login = () => {
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * This component is used to log in to the app.
+ *
+ * @component
+ * @example
+ * <Login />
+ */
+/******  104487b7-2173-4ddf-90e6-ebf6f48d836a  *******/ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,7 +50,6 @@ const Login = () => {
     checkBiometricSupport();
   }, []);
 
-  // Handle Email/Password Login
   const handleLogin = async ({
     email = formData.email,
     password = formData.password,
@@ -96,42 +103,19 @@ const Login = () => {
         alert("No credentials found. Please log in manually first.");
         return;
       }
-
-      // Log in using stored credentials
       handleLogin({ email: storedEmail, password: storedPassword });
     } else {
       alert("Biometric authentication failed.");
     }
   };
 
-  const handleLoginWithGoogle = async () => {
-    // Create the redirect URI using your custom scheme
-    const redirectUri = Linking.createURL("auth"); // e.g., myapp://auth
+  const handleGoogleSignIn = async () => {
+    const redirect = Linking.createURL("/");
 
-    const authUrl = `https://test.ylf-eg.org/api/auth/google`;
-
-    // Open the backend URL in a browser session
-    const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-
-    if (result.type === "success") {
-      const { queryParams } = Linking.parse(result.url);
-      console.log(queryParams);
-
-      if (queryParams && queryParams.token) {
-        // Save the token and navigate to the app’s main feed
-        if (typeof queryParams.token === "string") {
-          await save("token", queryParams.token);
-          router.replace("/feed");
-        } else {
-          Alert.alert("Authentication Error", "Invalid token received.");
-        }
-        // For example, using Expo Router:
-      } else {
-        Alert.alert("Authentication Error", "No token received.");
-      }
-    } else {
-      Alert.alert("Authentication cancelled or failed");
-    }
+    await WebBrowser.openAuthSessionAsync(
+      `https://test.ylf-eg.org/api/auth/google`,
+      redirect
+    );
   };
 
   return (
@@ -188,7 +172,7 @@ const Login = () => {
         ></View>
       </View>
       <TouchableOpacity
-        onPress={handleLoginWithGoogle}
+        onPress={handleGoogleSignIn}
         className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
         style={{ borderColor: Colors.light.border }}
       >
