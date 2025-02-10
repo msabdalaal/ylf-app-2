@@ -14,5 +14,14 @@ export interface Post {
 export interface User {
   name: string;
   email: string;
-  image: any;
+  avatar: any;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  postId: string;
+  user: User;
+  userId: string;
+  createdAt: Date;
 }

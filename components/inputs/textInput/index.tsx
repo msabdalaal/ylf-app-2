@@ -18,6 +18,7 @@ type Props = {
   secure?: boolean;
   disabled?: boolean;
   className?: string;
+  onEnter?: () => void;
 };
 
 const TextInputComponent = ({
@@ -27,23 +28,26 @@ const TextInputComponent = ({
   onChange,
   secure,
   disabled,
-  className
+  className,
+  onEnter,
 }: Props) => {
   const colorScheme = useColorScheme();
   const [showPassword, setShowPassword] = useState(true);
   const [focused, setFocused] = useState(false);
   return (
     <View className={`w-full ${className}`}>
-      <Text
-        className="mb-2 font-semibold"
-        style={{
-          color: focused
-            ? Colors[colorScheme ?? "light"].primary
-            : Colors[colorScheme ?? "light"].text,
-        }}
-      >
-        {label}
-      </Text>
+      {label ? (
+        <Text
+          className="mb-2 font-semibold"
+          style={{
+            color: focused
+              ? Colors[colorScheme ?? "light"].primary
+              : Colors[colorScheme ?? "light"].text,
+          }}
+        >
+          {label}
+        </Text>
+      ) : null}
       <View className="relative">
         {secure ? (
           <TouchableOpacity
@@ -89,6 +93,11 @@ const TextInputComponent = ({
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          onSubmitEditing={() => {
+            if (onEnter) {
+              onEnter();
+            }
+          }}
         />
       </View>
     </View>

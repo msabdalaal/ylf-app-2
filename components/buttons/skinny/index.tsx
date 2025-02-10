@@ -6,14 +6,21 @@ interface PrimaryButtonProps {
   children: React.ReactNode;
   onPress: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
-const SkinnyButton = ({ children, onPress, className }: PrimaryButtonProps) => {
+const SkinnyButton = ({
+  children,
+  onPress,
+  className,
+  disabled = false,
+}: PrimaryButtonProps) => {
   const colorScheme = useColorScheme();
   return (
     <TouchableOpacity
       onPress={onPress}
       className={`px-4 py-[18px] rounded-lg ${className}`}
+      disabled={disabled}
     >
       <Text
         style={{

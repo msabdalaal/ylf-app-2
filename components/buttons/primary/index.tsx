@@ -7,6 +7,7 @@ interface PrimaryButtonProps {
   onPress: () => void;
   className?: string;
   disabled?: boolean;
+  style?: any;
 }
 
 const PrimaryButton = ({
@@ -14,6 +15,7 @@ const PrimaryButton = ({
   onPress,
   className,
   disabled = false,
+  style = {},
 }: PrimaryButtonProps) => {
   const colorScheme = useColorScheme();
   return (
@@ -25,6 +27,7 @@ const PrimaryButton = ({
         backgroundColor: disabled
           ? Colors[colorScheme ?? "light"].secondary
           : Colors[colorScheme ?? "light"].primary,
+        ...style,
       }}
     >
       <Text

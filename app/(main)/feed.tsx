@@ -54,6 +54,7 @@ function Feed({}: Props) {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
       });
   };
+  
   return (
     <View className="bg-white flex-1">
       <FlatList

@@ -18,6 +18,7 @@ import { AxiosError } from "axios";
 type Props = {
   post: Post;
   handleLike: (id: string) => void;
+  className?: string;
 };
 
 const NormalPost = ({
@@ -34,43 +35,46 @@ const NormalPost = ({
     user: {
       name: "YLF",
       email: "ylf",
-      image: require("@/assets/images/avatar.png"),
+      avatar: require("@/assets/images/avatar.png"),
     },
     imageId: null,
   },
   handleLike,
+  className = "",
 }: Props) => {
   const colorScheme = useColorScheme();
   const router = useRouter();
 
   return (
     <View
-      className="rounded-[2rem] p-3 w-full h-fit "
+      className={`rounded-[2rem] p-3 w-full h-fit ${className}`}
       style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
     >
       <TouchableOpacity
         onPress={() => {
-          router.push(`/post/${post.id}`);
+          router.push(`/post/${post?.id}`);
         }}
       >
         <View className="flex-row items-center gap-3 mb-3">
           <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
             <Image
-              source={post.user.image ?? require("@/assets/images/avatar.png")}
+              source={
+                post?.user?.avatar ?? require("@/assets/images/avatar.png")
+              }
               className="w-full h-full object-cover"
             />
           </View>
           <View className="flex-row flex-1 items-start justify-between">
             <View>
-              <Text>{post.user.name ?? "YLF"}</Text>
-              <Text className="text-xs">{post.user.email ?? "@ylf"}</Text>
+              <Text>{post?.user?.name ?? "YLF"}</Text>
+              <Text className="text-xs">{post?.user?.email ?? "@ylf"}</Text>
             </View>
             <TouchableOpacity>
               <Dots />
             </TouchableOpacity>
           </View>
         </View>
-        <Text className="mb-8">{post.content}</Text>
+        <Text className="mb-8">{post?.content}</Text>
       </TouchableOpacity>
       <View
         className="py-3 px-4 rounded-b-3xl flex-row justify-between items-center"
@@ -79,7 +83,7 @@ const NormalPost = ({
         <View className="flex-row gap-2.5">
           <TouchableOpacity
             onPress={() => {
-              router.push(`/post/${post.id}`);
+              router.push(`/post/${post?.id}`);
             }}
             className="flex-row items-center gap-1.5"
           >
@@ -88,11 +92,11 @@ const NormalPost = ({
               className="text-white"
               style={{ fontFamily: "Poppins_Medium", lineHeight: 20 }}
             >
-              {post.commentCounter}
+              {post?.commentCounter}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => handleLike(post.id)}
+            onPress={() => handleLike(post?.id)}
             className="flex-row items-center gap-1.5"
           >
             <Heart />
@@ -100,12 +104,12 @@ const NormalPost = ({
               className="text-white"
               style={{ fontFamily: "Poppins_Medium", lineHeight: 20 }}
             >
-              {post.likeCounter}
+              {post?.likeCounter}
             </Text>
           </TouchableOpacity>
         </View>
         <Text className="text-xs text-white">
-          {dayjs(post.createdAt).format("hh:mm A - D/M")}
+          {dayjs(post?.createdAt).format("hh:mm A - D/M")}
         </Text>
       </View>
     </View>
