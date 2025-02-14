@@ -86,19 +86,9 @@ export default function Post({}: Props) {
           post={post!}
           handleLike={(id) => handleLikePost(id)}
           className="mt-8"
+          showAll={true}
         />
       )}
-      {/* <Text
-        className="mt-2 mb-8"
-        style={{ fontFamily: "Poppins_Medium", color: Colors.light.primary }}
-      >
-        Likes
-      </Text>
-      <FlatList
-        horizontal
-        data={post?.likedUsers}
-        renderItem={(user) => <Text>{user.item}</Text>}
-      /> */}
       <Text
         className="mt-6"
         style={{ fontFamily: "Poppins_Medium", color: Colors.light.primary }}

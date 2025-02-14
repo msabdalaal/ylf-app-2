@@ -19,6 +19,7 @@ type Props = {
   post: Post;
   handleLike: (id: string) => void;
   className?: string;
+  showAll?: boolean;
 };
 
 const NormalPost = ({
@@ -41,6 +42,7 @@ const NormalPost = ({
   },
   handleLike,
   className = "",
+  showAll = false,
 }: Props) => {
   const colorScheme = useColorScheme();
   const router = useRouter();
@@ -74,7 +76,9 @@ const NormalPost = ({
             </TouchableOpacity>
           </View>
         </View>
-        <Text className="mb-8">{post?.content}</Text>
+        <Text className="mb-8" numberOfLines={showAll ? undefined : 3}>
+          {post?.content}
+        </Text>
       </TouchableOpacity>
       <View
         className="py-3 px-4 rounded-b-3xl flex-row justify-between items-center"

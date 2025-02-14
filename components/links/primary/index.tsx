@@ -9,6 +9,7 @@ interface PrimaryLinkProps {
   href: Href;
   className?: string;
   replace?: boolean;
+  style?: object;
 }
 
 const PrimaryLink = ({
@@ -16,6 +17,7 @@ const PrimaryLink = ({
   href,
   className,
   replace = false,
+  style = {},
 }: PrimaryLinkProps) => {
   const colorScheme = useColorScheme();
   return (
@@ -25,6 +27,7 @@ const PrimaryLink = ({
       className={`px-4 py-[18px] rounded-xl w-full ${className}`}
       style={{
         backgroundColor: Colors[colorScheme ?? "light"].primary,
+        ...style,
       }}
     >
       <Text

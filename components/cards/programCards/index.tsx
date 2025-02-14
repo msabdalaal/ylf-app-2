@@ -19,7 +19,7 @@ const ProgramCard = ({
   return (
     <TouchableOpacity className="relative h-24 rounded-2xl bg-white overflow-hidden">
       <View style={{ filter: "brightness(0.5)" }}>
-        <Image source={image} className="w-full h-full object-cover" />
+        <Image src={image} className="w-full h-full object-cover" />
       </View>
       <Link href={link} className="absolute inset-0">
         <View className="w-full h-full justify-center px-5">

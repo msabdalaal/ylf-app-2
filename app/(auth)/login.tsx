@@ -16,15 +16,7 @@ import TopBarTabs from "@/components/topBar/tabs";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * This component is used to log in to the app.
- *
- * @component
- * @example
- * <Login />
- */
-/******  104487b7-2173-4ddf-90e6-ebf6f48d836a  *******/ const Login = () => {
+ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",

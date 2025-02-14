@@ -1,7 +1,10 @@
 import ProgramCard from "@/components/cards/programCards";
 import { Colors } from "@/constants/Colors";
+import { Program } from "@/constants/types";
+import { get } from "@/hooks/axios";
+import imageUrl from "@/utils/imageUrl";
 import { RelativePathString } from "expo-router";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 
 type Props = {};
@@ -39,6 +42,20 @@ const programs: {
 ];
 
 function Programs({}: Props) {
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const getPrograms = useCallback(async () => {
+    await get("programs/getAll")
+      .then((res) => {
+        setPrograms(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+  useEffect(() => {
+    getPrograms();
+  }, []);
   return (
     <View className="container bg-white flex-1">
       <Text
@@ -51,7 +68,9 @@ function Programs({}: Props) {
         data={programs}
         renderItem={(post) => (
           <ProgramCard
-            {...post.item}
+            color={post.item.accentColor}
+            image={imageUrl(post.item.Image[0].path)}
+            linkText={post.item.name}
             link={("/program/" + post.item.id) as RelativePathString}
           />
         )}

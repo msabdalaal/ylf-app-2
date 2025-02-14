@@ -55,6 +55,7 @@ function Feed({}: Props) {
       });
   };
   
+  
   return (
     <View className="bg-white flex-1">
       <FlatList

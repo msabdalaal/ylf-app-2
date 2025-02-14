@@ -58,6 +58,12 @@
             "kotlinVersion": "1.9.25"
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos for verification."
+        }
       ]
     ],
     "experiments": {

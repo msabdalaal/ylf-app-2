@@ -13,7 +13,7 @@ export const get = async (
   const apiUrl = `https://test.ylf-eg.org/api/`;
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-  return axios.get(apiUrl + url, { ...config, headers });
+  return axios.get(apiUrl + url, { headers, ...config });
 };
 
 export const post = async (
@@ -25,7 +25,7 @@ export const post = async (
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.post(apiUrl + url, data, {
-    ...config,
     headers,
+    ...config,
   });
 };

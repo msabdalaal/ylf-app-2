@@ -1,52 +1,62 @@
 import BackButton from "@/components/buttons/backButton";
 import { Colors } from "@/constants/Colors";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import PrimaryButton from "@/components/buttons/primary";
+import { Program as ProgramType } from "@/constants/types";
+
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
+import PrimaryLink from "@/components/links/primary";
+import { get } from "@/hooks/axios";
+import { useLocalSearchParams } from "expo-router";
+import { AxiosError } from "axios";
+import imageUrl from "@/utils/imageUrl";
 
-// This is the default configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
-  strict: false, // Reanimated runs in strict mode by default
+  strict: false,
 });
-type Props = {
-  program: {
-    name: string;
-    startDate: Date;
-    endDate: Date;
-    patchNumber: number;
-    forGroups: boolean;
-    acceptApplicationDuration: Date;
-    image: any;
-    logo: any;
-    accentColor: string;
-    slogan: string;
-  };
-};
 
-export default function Program({
-  program = {
+export default function Program() {
+  const { id } = useLocalSearchParams();
+  const [expandedDescription, setExpandedDescription] = useState(false);
+  const [expandedVision, setExpandedVision] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const [program, setProgram] = useState<ProgramType>({
+    id: "1",
+    achieve: "",
+    description: "",
+    Image: [],
+    mission: "",
+    more: "",
+    referenceCode: null,
+    vision: "",
     name: "Banan Program",
     startDate: new Date("2022-07-15T00:00:00Z"),
     endDate: new Date("2022-07-26T00:00:00Z"),
     patchNumber: 1,
     forGroups: true,
     acceptApplicationDuration: new Date("2022-07-20T00:00:00Z"),
-    image: require("@/assets/images/program1.png"),
     logo: require("@/assets/images/programLogo.png"),
     accentColor: "rgba(42, 154, 151, 0.8)",
-    slogan: "Jl. Sultan Iskandar Muda, Jakarta selatan",
-  },
-}: Props) {
-  const [expandedDescription, setExpandedDescription] = useState(false);
-  const [expandedVision, setExpandedVision] = useState(false);
-  const [showHeader, setShowHeader] = useState(true);
+  });
+
+  const getProgram = useCallback(async () => {
+    await get("programs/get/" + id)
+      .then((res) => {
+        setProgram(res.data);
+      })
+      .catch((err) => {
+        if (err instanceof AxiosError) console.log(err.response?.data.message);
+      });
+  }, []);
+  useEffect(() => {
+    getProgram();
+  }, []);
   return (
     <SafeAreaView className="bg-white flex-1">
       {showHeader ? (
@@ -71,7 +81,7 @@ export default function Program({
         >
           <View style={{ filter: "brightness(0.7)" }} className="w-full">
             <Image
-              source={program.image}
+              src={imageUrl(program.Image[0].path)}
               className="w-full h-full object-cover"
             />
           </View>
@@ -91,7 +101,7 @@ export default function Program({
                 }}
               />
               <Image
-                source={program.logo}
+                src={imageUrl(program.logo.path)}
                 className="h-48 w-full"
                 resizeMode="contain"
               />
@@ -105,7 +115,7 @@ export default function Program({
                 className=" text-[#D4D4D4] text-xs mt-2"
                 style={{ fontFamily: "Inter" }}
               >
-                {program.slogan}
+                {program.name}
               </Text>
             </View>
           </View>
@@ -128,16 +138,7 @@ export default function Program({
           ellipsizeMode="tail"
           numberOfLines={expandedDescription ? undefined : 8}
         >
-          Banan (بَنَان) is a program Launched in 2023 by Youth Leaders
-          Foundation, in collaboration with Attijariwafa Bank Egypt and under
-          the auspices of the National Council for Women. Banan focuses on
-          empowering all female entrepreneurs, with no limitations or
-          restrictions for the female graduates of vocational schools for
-          professional and sustainable transformation to expand and maintain
-          their businesses, Banan focuses on empowering all female
-          entrepreneurs, with no limitations or restrictions for the female
-          graduates of vocational schools for professional and sustainable
-          transformation to expand and maintain their businesses
+          {program.description}
         </Text>
         <Text
           className="mt-1"
@@ -159,12 +160,7 @@ export default function Program({
           ellipsizeMode="tail"
           numberOfLines={expandedVision ? undefined : 3}
         >
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female,
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female,
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female
+          {program.vision}
         </Text>
         <Text
           className="mt-1"
@@ -186,12 +182,7 @@ export default function Program({
           ellipsizeMode="tail"
           numberOfLines={expandedVision ? undefined : 3}
         >
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female,
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female,
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female
+          {program.mission}
         </Text>
         <Text
           className="mt-1"
@@ -213,12 +204,7 @@ export default function Program({
           ellipsizeMode="tail"
           numberOfLines={expandedVision ? undefined : 3}
         >
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female,
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female,
-          "Banan" is formulated and implemented based on an extensive on ground
-          research that reflected deep and concrete understanding of female
+          {program.more}
         </Text>
         <Text
           className="mt-1"
@@ -231,12 +217,12 @@ export default function Program({
         </Text>
       </ScrollView>
       <View className="py-6 px-7 bg-[#F0F5FA] mt-2">
-        <PrimaryButton
+        <PrimaryLink
           style={{ backgroundColor: program.accentColor }}
-          onPress={() => {}}
+          href={`/program/${program.id}/application`}
         >
           Apply Now
-        </PrimaryButton>
+        </PrimaryLink>
       </View>
     </SafeAreaView>
   );

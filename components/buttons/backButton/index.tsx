@@ -6,9 +6,10 @@ import { Colors } from "@/constants/Colors";
 
 type Props = {
   onClick?: () => void;
+  className?: string;
 };
 
-const BackButton = ({ onClick }: Props) => {
+const BackButton = ({ onClick, className }: Props) => {
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
   const handleGoBack = () => {
@@ -18,7 +19,7 @@ const BackButton = ({ onClick }: Props) => {
   return (
     <TouchableOpacity
       onPress={handleGoBack}
-      className="rounded-full w-11 h-11 flex justify-center items-center mt-5"
+      className={`rounded-full w-11 h-11 flex justify-center items-center ${className}`}
       style={{
         backgroundColor: Colors[colorScheme ?? "light"].bg_primary,
       }}
