@@ -25,6 +25,8 @@ export default function Program() {
   const { id } = useLocalSearchParams();
   const [expandedDescription, setExpandedDescription] = useState(false);
   const [expandedVision, setExpandedVision] = useState(false);
+  const [expandedMission, setExpandedMission] = useState(false);
+  const [expandedMore, setExpandedMore] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [program, setProgram] = useState<ProgramType>({
     id: "1",
@@ -35,20 +37,19 @@ export default function Program() {
     more: "",
     referenceCode: null,
     vision: "",
-    name: "Banan Program",
+    name: "",
     startDate: new Date("2022-07-15T00:00:00Z"),
     endDate: new Date("2022-07-26T00:00:00Z"),
     patchNumber: 1,
     forGroups: true,
     acceptApplicationDuration: new Date("2022-07-20T00:00:00Z"),
-    logo: require("@/assets/images/programLogo.png"),
-    accentColor: "rgba(42, 154, 151, 0.8)",
+    logo: { path: "" },
+    accentColor: "rgba(42, 154, 151, 0)",
   });
-
   const getProgram = useCallback(async () => {
     await get("programs/get/" + id)
       .then((res) => {
-        setProgram(res.data);
+        setProgram(res.data.data);
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
@@ -81,7 +82,7 @@ export default function Program() {
         >
           <View style={{ filter: "brightness(0.7)" }} className="w-full">
             <Image
-              src={imageUrl(program.Image[0].path)}
+              src={imageUrl(program.Image?.[0]?.path)}
               className="w-full h-full object-cover"
             />
           </View>
@@ -101,7 +102,7 @@ export default function Program() {
                 }}
               />
               <Image
-                src={imageUrl(program.logo.path)}
+                src={imageUrl(program.logo?.path)}
                 className="h-48 w-full"
                 resizeMode="contain"
               />
@@ -180,7 +181,7 @@ export default function Program() {
         <Text
           className="mt-2.5"
           ellipsizeMode="tail"
-          numberOfLines={expandedVision ? undefined : 3}
+          numberOfLines={expandedMission ? undefined : 3}
         >
           {program.mission}
         </Text>
@@ -188,7 +189,7 @@ export default function Program() {
           className="mt-1"
           style={{ fontFamily: "Inter", color: program.accentColor }}
           onPress={() => {
-            setExpandedVision((prev) => !prev);
+            setExpandedMission((prev) => !prev);
           }}
         >
           {expandedVision ? "Read Less" : "Read More"}
@@ -202,7 +203,7 @@ export default function Program() {
         <Text
           className="mt-2.5"
           ellipsizeMode="tail"
-          numberOfLines={expandedVision ? undefined : 3}
+          numberOfLines={expandedMore ? undefined : 3}
         >
           {program.more}
         </Text>
@@ -210,7 +211,7 @@ export default function Program() {
           className="mt-1"
           style={{ fontFamily: "Inter", color: program.accentColor }}
           onPress={() => {
-            setExpandedVision((prev) => !prev);
+            setExpandedMore((prev) => !prev);
           }}
         >
           {expandedVision ? "Read Less" : "Read More"}
