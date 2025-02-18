@@ -71,9 +71,9 @@ const NormalPost = ({
               <Text>{post?.user?.name ?? "YLF"}</Text>
               <Text className="text-xs">{post?.user?.email ?? "@ylf"}</Text>
             </View>
-            <TouchableOpacity>
+            {/* <TouchableOpacity>
               <Dots />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
         <Text className="mb-8" numberOfLines={showAll ? undefined : 3}>
@@ -103,7 +103,7 @@ const NormalPost = ({
             onPress={() => handleLike(post?.id)}
             className="flex-row items-center gap-1.5"
           >
-            <Heart />
+            <Heart color={post?.hasLiked ? Colors.light.primary : "#fff"} />
             <Text
               className="text-white"
               style={{ fontFamily: "Poppins_Medium", lineHeight: 20 }}

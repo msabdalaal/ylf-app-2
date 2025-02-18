@@ -1,14 +1,28 @@
+import Dots from "@/assets/icons/dots";
 import { Colors } from "@/constants/Colors";
 import { Comment as CommentType } from "@/constants/types";
+import { ApplicationContext } from "@/context";
+import { del } from "@/hooks/axios";
 import dayjs from "dayjs";
-import React from "react";
-import { Image, Text, View } from "react-native";
+import React, { useContext } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   comment: CommentType;
+  onDelete: (commentId: string) => void;
 };
 
-export default function Comment({ comment }: Props) {
+export default function Comment({ comment, onDelete }: Props) {
+  const [showMenu, setShowMenu] = React.useState(false);
+
+  const handlePress = () => setShowMenu((prev) => !prev);
+  const { state } = useContext(ApplicationContext);
+
+  const handleDelete = () => {
+    onDelete(comment.id);
+    setShowMenu(false);
+  };
+
   return (
     <View key={comment.id} className="flex-row gap-2">
       <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
@@ -25,9 +39,23 @@ export default function Comment({ comment }: Props) {
           backgroundColor: Colors.light.postBackground,
         }}
       >
-        <Text style={{ color: Colors.light.primary }} className="font-medium">
-          {comment?.user?.name || "Profile Name"}{" "}
-        </Text>
+        <View className="flex-row items-center justify-between">
+          <Text style={{ color: Colors.light.primary }} className="font-medium">
+            {comment?.user?.name || "Profile Name"}{" "}
+          </Text>
+          {state.user?.email === comment?.user?.email && (
+            <TouchableOpacity onPress={handlePress}>
+              <Dots />
+              {showMenu && (
+                <View className="absolute right-0 top-8 bg-white rounded-md shadow-lg px-2 py-1">
+                  <TouchableOpacity onPress={handleDelete} className="w-20">
+                    <Text className="text-red-500">Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
         <Text className="text-xs font-light">
           {dayjs(comment?.createdAt).format("DD MMM hh:mm A")}
         </Text>

@@ -29,3 +29,12 @@ export const post = async (
     ...config,
   });
 };
+export const del = async (
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<AxiosResponse> => {
+  const apiUrl = `https://test.ylf-eg.org/api/`;
+  const token = await getValueFor("token");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return axios.delete(apiUrl + url, { headers, ...config });
+};

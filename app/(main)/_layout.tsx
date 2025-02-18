@@ -11,17 +11,17 @@ import { getValueFor } from "@/hooks/storage";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const router = useRouter();
-  const checkToken = async () => {
-    const token = await getValueFor("token");
-    if (!token) {
-      router.replace("/");
-    }
-  };
+  // const router = useRouter();
+  // const checkToken = async () => {
+  //   const token = await getValueFor("token");
+  //   if (!token) {
+  //     router.replace("/");
+  //   }
+  // };
 
-  useEffect(() => {
-    checkToken();
-  }, []);
+  // useEffect(() => {
+  //   checkToken();
+  // }, []);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <Tabs

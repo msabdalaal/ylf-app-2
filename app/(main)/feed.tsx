@@ -20,7 +20,7 @@ function Feed({}: Props) {
   const router = useRouter();
   const logout = async () => {
     await remove("token");
-    router.replace("/");
+    router.replace("/login");
   };
   const [page, setPage] = useState(1);
   const getFeed = async () => {
@@ -54,8 +54,7 @@ function Feed({}: Props) {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
       });
   };
-  
-  
+
   return (
     <View className="bg-white flex-1">
       <FlatList

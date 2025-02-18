@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBarTabs from "@/components/topBar/tabs";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -7,7 +7,7 @@ import PrimaryButton from "@/components/buttons/primary";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import BackButton from "@/components/buttons/backButton";
-import { post } from "@/hooks/axios";
+import { get, post } from "@/hooks/axios";
 import { save } from "@/hooks/storage";
 import validator from "validator";
 import axios, { AxiosError } from "axios";
@@ -16,6 +16,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as ImagePicker from "expo-image-picker";
 import Upload from "@/assets/icons/upload";
 import CloseIcon from "@/assets/icons/close";
+import { ApplicationContext } from "@/context";
 
 const SignUp = () => {
   const [emailIsUnique, setEmailIsUnique] = useState(false);
@@ -37,6 +38,15 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { updateState } = useContext(ApplicationContext);
+
+    const getProfile = useCallback(async () => {
+      await get("users/profile").then((res) => {
+        const user = res.data.data;
+        updateState("user", user);
+      });
+    }, []);
+
   const handleSignUp = async () => {
     if (isIdUploaded) {
       if (

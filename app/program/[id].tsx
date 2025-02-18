@@ -61,16 +61,15 @@ export default function Program() {
   return (
     <SafeAreaView className="bg-white flex-1">
       {showHeader ? (
-        <View className=" container flex-row items-center gap-3 mb-6">
+        <View className=" container flex-row items-center gap-3 mb-6 mt-5">
           <BackButton />
           <Text
-            className="mt-5"
             style={{
               fontFamily: "Poppins_Medium",
               color: Colors.light.primary,
             }}
           >
-            Banan Program
+            {program.name}
           </Text>
         </View>
       ) : null}
@@ -192,7 +191,7 @@ export default function Program() {
             setExpandedMission((prev) => !prev);
           }}
         >
-          {expandedVision ? "Read Less" : "Read More"}
+          {expandedMission ? "Read Less" : "Read More"}
         </Text>
         <Text
           className="font-bold text-lg mt-2"
@@ -214,7 +213,7 @@ export default function Program() {
             setExpandedMore((prev) => !prev);
           }}
         >
-          {expandedVision ? "Read Less" : "Read More"}
+          {expandedMore ? "Read Less" : "Read More"}
         </Text>
       </ScrollView>
       <View className="py-6 px-7 bg-[#F0F5FA] mt-2">

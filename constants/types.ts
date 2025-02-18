@@ -12,9 +12,22 @@ export interface Post {
 }
 
 export interface User {
+  id?: string;
   name: string;
   email: string;
-  avatar: any;
+  phoneNumber?: null;
+  jobTitle?: null;
+  age?: null;
+  address?: null;
+  dateOfBirth?: null;
+  experiences?: any[];
+  languages?: any[];
+  skills?: any[];
+  education?: any[];
+  groupId?: null;
+  idFront?: null;
+  idBack?: null;
+  avatar?: null;
 }
 
 export interface Comment {
@@ -47,4 +60,13 @@ export interface Program {
 
 export interface Logo {
   path: string;
+}
+
+export interface Question {
+  createdAt: string;
+  id: string;
+  programId: string;
+  question: string;
+  required: boolean;
+  type: "complete" | "upload" | "rightWrong" | "mcq";
 }

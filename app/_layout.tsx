@@ -1,29 +1,67 @@
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
-import { useEffect } from "react";
+import { Stack, useRouter } from "expo-router";
+import { useCallback, useContext, useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 SplashScreen.preventAutoHideAsync();
 import "../global.css";
+import { getValueFor, save } from "@/hooks/storage";
+import { get } from "@/hooks/axios";
+
+import { ApplicationContext, ApplicationProvider } from "@/context";
 
 export default function RootLayout() {
+  return (
+    <ApplicationProvider>
+      <RootLayoutComponent />
+    </ApplicationProvider>
+  );
+}
+
+function RootLayoutComponent() {
   const [loaded] = useFonts({
     SF_pro: require("../assets/fonts/SF-Pro.ttf"),
     Inter: require("../assets/fonts/Inter.ttf"),
     Poppins: require("../assets/fonts/Poppins.ttf"),
     Poppins_Medium: require("../assets/fonts/Poppins-Medium.ttf"),
   });
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+
+  const router = useRouter();
+  const { updateState } = useContext(ApplicationContext);
+  const getProfile = useCallback(async () => {
+    await get("users/profile").then((res) => {
+      const user = res.data.data;
+      updateState("user", user);
+    });
+  }, []);
+  const checkToken = async () => {
+    const token = await getValueFor("token");
+    const hasViewedWelcome = await getValueFor("hasViewedWelcome");
+    if (token) {
+      await getProfile();
+      router.replace("/feed");
+    } else if (hasViewedWelcome == "true") {
+      router.replace("/login");
+    } else {
+      router.replace("/");
+      await save("hasViewedWelcome", "true");
     }
+  };
+
+  useEffect(() => {
+    const initialize = async () => {
+      if (loaded) {
+        await checkToken();
+        SplashScreen.hideAsync();
+      }
+    };
+    initialize();
   }, [loaded]);
 
   if (!loaded) {
     return null;
   }
-  // const colorScheme = useColorScheme();
   return (
     <>
       <Stack>
@@ -34,6 +72,10 @@ export default function RootLayout() {
         <Stack.Screen name="program/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="program/[id]/application"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="program/[id]/submitSuccess"
           options={{ headerShown: false }}
         />
         <Stack.Screen name="auth/index" options={{ headerShown: false }} />

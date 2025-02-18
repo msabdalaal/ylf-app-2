@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
 import { useRouter } from "expo-router";
@@ -7,7 +7,7 @@ import * as SecureStore from "expo-secure-store";
 import TextInputComponent from "@/components/inputs/textInput";
 import PrimaryButton from "@/components/buttons/primary";
 import { Colors } from "@/constants/Colors";
-import { post } from "@/hooks/axios";
+import { get, post } from "@/hooks/axios";
 import { save } from "@/hooks/storage";
 import validator from "validator";
 import { AxiosError } from "axios";
@@ -15,6 +15,7 @@ import FingerPrint from "@/assets/icons/fingerPrint";
 import TopBarTabs from "@/components/topBar/tabs";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
+import { ApplicationContext } from "@/context";
 
  const Login = () => {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ import * as WebBrowser from "expo-web-browser";
   });
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const router = useRouter();
+  const { updateState } = useContext(ApplicationContext);
 
   // Check if biometrics are available
   useEffect(() => {
@@ -40,6 +42,13 @@ import * as WebBrowser from "expo-web-browser";
     };
 
     checkBiometricSupport();
+  }, []);
+
+  const getProfile = useCallback(async () => {
+    await get("users/profile").then((res) => {
+      const user = res.data.data;
+      updateState("user", user);
+    });
   }, []);
 
   const handleLogin = async ({
@@ -63,7 +72,7 @@ import * as WebBrowser from "expo-web-browser";
 
       await SecureStore.setItemAsync("email", email);
       await SecureStore.setItemAsync("password", password);
-
+      await getProfile()
       router.replace("/feed");
     } catch (error) {
       if (error instanceof AxiosError) {
