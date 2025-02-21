@@ -8,13 +8,15 @@ type Props = {
   linkText?: string;
   color?: string;
   image?: any;
+  logo?: any;
 };
 
 const ProgramCard = ({
   link = "/login" as RelativePathString,
   linkText = "Banan Program",
   color = "rgba(42, 154, 151, 0.8)",
-  image = require("@/assets/images/postImage.jpg"),
+  image = "",
+  logo = "",
 }: Props) => {
   return (
     <TouchableOpacity className="relative h-24 rounded-2xl bg-white overflow-hidden">
@@ -31,13 +33,19 @@ const ProgramCard = ({
               position: "absolute",
               inset: 0,
             }}
+            className=""
           />
-          <Text
-            className="text-white font-bold text-xl"
-            style={{ fontFamily: "Inter" }}
-          >
-            {linkText}
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text
+              className="text-white font-bold text-xl"
+              style={{ fontFamily: "Inter" }}
+            >
+              {linkText}
+            </Text>
+            <View className="py-2">
+              <Image src={logo} className="h-full w-20" resizeMode="contain" />
+            </View>
+          </View>
         </View>
       </Link>
     </TouchableOpacity>

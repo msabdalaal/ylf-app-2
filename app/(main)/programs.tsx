@@ -71,6 +71,7 @@ function Programs({}: Props) {
             image={imageUrl(post.item.Image[0].path)}
             linkText={post.item.name}
             link={("/program/" + post.item.id) as RelativePathString}
+            logo={imageUrl(post.item.logo.path)}
           />
         )}
         keyExtractor={(post) => post.id.toString()}
