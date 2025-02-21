@@ -16,8 +16,9 @@ import TopBarTabs from "@/components/topBar/tabs";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { ApplicationContext } from "@/context";
+import SkinnyLink from "@/components/links/skinny";
 
- const Login = () => {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -72,7 +73,7 @@ import { ApplicationContext } from "@/context";
 
       await SecureStore.setItemAsync("email", email);
       await SecureStore.setItemAsync("password", password);
-      await getProfile()
+      await getProfile();
       router.replace("/feed");
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -142,9 +143,9 @@ import { ApplicationContext } from "@/context";
           onChange={(text) => setFormData({ ...formData, password: text })}
         />
       </View>
-      {/* <SkinnyLink bold href={"/forgotPassword"} TextClassName="text-right">
+      <SkinnyLink bold href={"/forgotPassword"} TextClassName="text-right">
         Forgot password?
-      </SkinnyLink> */}
+      </SkinnyLink>
       <View className="flex-row gap-2 mt-5">
         <PrimaryButton className="flex-1" onPress={() => handleLogin({})}>
           Log In

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, usePathname, useRouter } from "expo-router";
 import { Alert, BackHandler, Platform, useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HapticTab } from "@/components/buttons/hapticTab";
@@ -10,27 +10,34 @@ import Settings from "@/assets/icons/settings";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-useEffect(() => {
-  const backHandler = () => {
-    Alert.alert(
-      "Exit App",
-      "Are you sure you want to exit?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Exit", onPress: () => BackHandler.exitApp() },
-      ],
-      { cancelable: false }
+  const pathname = usePathname();
+  useEffect(() => {
+    const backHandler = () => {
+      if (
+        pathname === "/feed" ||
+        pathname === "/programs" ||
+        pathname === "/settings"
+      ) {
+        Alert.alert(
+          "Exit App",
+          "Are you sure you want to exit?",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Exit", onPress: () => BackHandler.exitApp() },
+          ],
+          { cancelable: false }
+        );
+        return true;
+      }
+    };
+
+    const backHandlerListener = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backHandler
     );
-    return true;
-  };
 
-  const backHandlerListener = BackHandler.addEventListener(
-    "hardwareBackPress",
-    backHandler
-  );
-
-  return () => backHandlerListener.remove();
-}, []);
+    return () => backHandlerListener.remove();
+  }, [pathname]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>

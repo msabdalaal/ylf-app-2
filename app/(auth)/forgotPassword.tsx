@@ -8,6 +8,7 @@ import PrimaryButton from "@/components/buttons/primary";
 import OTP from "@/components/inputs/otp";
 import SkinnyLink from "@/components/links/skinny";
 import SkinnyButton from "@/components/buttons/skinny";
+import { post } from "@/hooks/axios";
 
 type Props = {};
 
@@ -20,10 +21,13 @@ const SignUp = (props: Props) => {
   const [otp_fourth, setOtp_fourth] = useState("");
   const [otp_fifth, setOtp_fifth] = useState("");
   const handleSendEmail = async () => {
-    setEmailSent(true);
+    await post("auth/forgetPassword", { email: Email }).then((res) => {
+      alert(res.data.message);
+      setEmailSent(true);
+    });
   };
   return (
-    <SafeAreaView className="flex-1 w-full container bg-white">
+    <SafeAreaView className="flex-1 w-full container bg-white pt-5">
       {emailSent ? (
         <>
           <BackButton onClick={() => setEmailSent(false)} />
