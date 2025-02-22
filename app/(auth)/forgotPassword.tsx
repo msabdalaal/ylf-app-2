@@ -9,6 +9,7 @@ import OTP from "@/components/inputs/otp";
 import SkinnyLink from "@/components/links/skinny";
 import SkinnyButton from "@/components/buttons/skinny";
 import { post } from "@/hooks/axios";
+import { useRouter } from "expo-router";
 
 type Props = {};
 
@@ -20,15 +21,96 @@ const SignUp = (props: Props) => {
   const [otp_third, setOtp_third] = useState("");
   const [otp_fourth, setOtp_fourth] = useState("");
   const [otp_fifth, setOtp_fifth] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [token, setToken] = useState("");
   const handleSendEmail = async () => {
     await post("auth/forgetPassword", { email: Email }).then((res) => {
       alert(res.data.message);
       setEmailSent(true);
     });
   };
+  const router = useRouter();
+  const handleVerifyOtp = async () => {
+    if (
+      otp_first.length !== 1 ||
+      otp_second.length !== 1 ||
+      otp_third.length !== 1 ||
+      otp_fourth.length !== 1 ||
+      otp_fifth.length !== 1
+    ) {
+      alert("Please enter the complete otp");
+      return;
+    }
+    setToken("");
+    await post("auth/verifyOtp", {
+      email: Email,
+      otp: `${otp_first}${otp_second}${otp_third}${otp_fourth}${otp_fifth}`,
+    }).then((res) => {
+      setToken(res.data.data.resetPasswordToken);
+    });
+  };
+
+  const handleResetPassword = async () => {
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    if (password.length < 6)
+      return alert("Password has to be at least 6 characters long");
+
+    await post("auth/resetPassword", {
+      password,
+      confirmPassword,
+      token,
+    }).then((res) => {
+      alert(res.data.message);
+      router.replace("/login");
+    });
+  };
+
   return (
     <SafeAreaView className="flex-1 w-full container bg-white pt-5">
-      {emailSent ? (
+      {token ? (
+        <>
+          <Text
+            className="mt-6 text-xl"
+            style={{
+              fontFamily: "Poppins_Medium",
+              color: Colors.light.primary,
+            }}
+          >
+            Create a password
+          </Text>
+          <Text className="mt-4" style={{ fontFamily: "Inter" }}>
+            In order to keep your account safe you need to create a strong
+            password.
+          </Text>
+          <View className="gap-4 mt-8">
+            <TextInputComponent
+              label="Password"
+              secure={true}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(text) => setPassword(text)}
+            />
+            <TextInputComponent
+              label="Confirm Password"
+              secure={true}
+              placeholder="Re-enter password"
+              value={confirmPassword}
+              onChange={(text) => setConfirmPassword(text)}
+            />
+            <PrimaryButton
+              onPress={handleResetPassword}
+              disabled={!password || !confirmPassword}
+              className="mt-6"
+            >
+              Reset Password
+            </PrimaryButton>
+          </View>
+        </>
+      ) : emailSent ? (
         <>
           <BackButton onClick={() => setEmailSent(false)} />
           <Text
@@ -58,7 +140,7 @@ const SignUp = (props: Props) => {
             className="mt-8"
           />
           <PrimaryButton
-            onPress={handleSendEmail}
+            onPress={handleVerifyOtp}
             disabled={
               !(otp_first && otp_second && otp_third && otp_fourth && otp_fifth)
             }
