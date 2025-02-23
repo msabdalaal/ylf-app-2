@@ -7,6 +7,7 @@ interface PrimaryButtonProps {
   onPress: () => void;
   className?: string;
   disabled?: boolean;
+  textClassName?: string;
 }
 
 const SkinnyButton = ({
@@ -14,6 +15,7 @@ const SkinnyButton = ({
   onPress,
   className,
   disabled = false,
+  textClassName,
 }: PrimaryButtonProps) => {
   const colorScheme = useColorScheme();
   return (
@@ -27,7 +29,7 @@ const SkinnyButton = ({
           fontFamily: "Inter",
           color: Colors[colorScheme ?? "light"].primary,
         }}
-        className={`text-center`}
+        className={`text-center ${textClassName}`}
       >
         {children}
       </Text>

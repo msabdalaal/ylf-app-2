@@ -13,21 +13,21 @@ export interface Post {
 
 export interface User {
   id?: string;
-  name: string;
-  email: string;
-  phoneNumber?: null;
-  jobTitle?: null;
-  age?: null;
-  address?: null;
-  dateOfBirth?: null;
-  experiences?: any[];
-  languages?: any[];
-  skills?: any[];
-  education?: any[];
-  groupId?: null;
-  idFront?: null;
-  idBack?: null;
-  avatar?: null;
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  jobTitle?: string;
+  age?: string;
+  address?: string;
+  dateOfBirth?: string;
+  experiences?: string[];
+  languages?: string[];
+  skills?: string[];
+  education?: string[];
+  groupId?: string;
+  idFront?: string;
+  idBack?: string;
+  avatar?: string;
 }
 
 export interface Comment {

@@ -1,15 +1,13 @@
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
-import { useCallback, useContext, useEffect } from "react";
+import { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 SplashScreen.preventAutoHideAsync();
 import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
-import { get } from "@/hooks/axios";
-
-import { ApplicationContext, ApplicationProvider } from "@/context";
+import { ApplicationProvider } from "@/context";
 
 export default function RootLayout() {
   return (
@@ -28,20 +26,13 @@ function RootLayoutComponent() {
   });
 
   const router = useRouter();
-  const { updateState } = useContext(ApplicationContext);
-  const getProfile = useCallback(async () => {
-    await get("users/profile").then((res) => {
-      const user = res.data.data;
-      updateState("user", user);
-    });
-  }, []);
+
   const checkToken = async () => {
     const token = await getValueFor("token");
     const hasViewedWelcome = await getValueFor("hasViewedWelcome");
     if (token) {
-      await getProfile();
       router.replace("/feed");
-    } else if (hasViewedWelcome == "true") {
+    } else if (hasViewedWelcome === "true") {
       router.replace("/login");
     } else {
       router.replace("/");
@@ -50,24 +41,46 @@ function RootLayoutComponent() {
   };
 
   useEffect(() => {
-    const initialize = async () => {
-      if (loaded) {
-        await checkToken();
+    const initializeApp = async () => {
+      await checkToken();
+      SplashScreen.hideAsync();
+    };
+
+    let timer: NodeJS.Timeout | null = null;
+    if (loaded) {
+      initializeApp();
+    } else {
+      timer = setTimeout(() => {
         SplashScreen.hideAsync();
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
       }
     };
-    initialize();
-  }, [loaded]);
+  }, [loaded]); // dependency on loaded ensures this effect runs when fonts finish loading
 
+  // Optionally, you could render a fallback if fonts aren’t loaded,
+  // but since the splash screen will hide after 2 seconds, this is fine.
   if (!loaded) {
     return null;
   }
+
   return (
     <>
       <Stack>
         <Stack.Screen name="(welcome)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="settings/profile/index"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="settings/profile/edit"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="post/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="program/[id]" options={{ headerShown: false }} />
         <Stack.Screen

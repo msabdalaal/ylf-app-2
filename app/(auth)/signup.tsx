@@ -40,13 +40,6 @@ const SignUp = () => {
   const router = useRouter();
   const { updateState } = useContext(ApplicationContext);
 
-    const getProfile = useCallback(async () => {
-      await get("users/profile").then((res) => {
-        const user = res.data.data;
-        updateState("user", user);
-      });
-    }, []);
-
   const handleSignUp = async () => {
     if (isIdUploaded) {
       if (

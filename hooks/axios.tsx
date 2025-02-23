@@ -29,6 +29,21 @@ export const post = async (
     ...config,
   });
 };
+
+export const patch = async (
+  url: string,
+  data: any,
+  config?: AxiosRequestConfig
+): Promise<AxiosResponse> => {
+  const apiUrl = `https://test.ylf-eg.org/api/`;
+  const token = await getValueFor("token");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return axios.patch(apiUrl + url, data, {
+    headers,
+    ...config,
+  });
+};
+
 export const del = async (
   url: string,
   config?: AxiosRequestConfig

@@ -90,6 +90,7 @@ const TextInputComponent = ({
             color: focused
               ? Colors[colorScheme ?? "light"].primary
               : Colors[colorScheme ?? "light"].text,
+            backgroundColor: disabled ? "#F0F5FA" : "transparent",
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
