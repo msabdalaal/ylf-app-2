@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { useRouter } from "expo-router";
 import { post as AxiosPost } from "@/hooks/axios";
 import { AxiosError } from "axios";
+import imageUrl from "@/utils/imageUrl";
 type Props = {
   post: Post;
   handleLike: (id: string) => void;
@@ -60,9 +61,7 @@ const NormalPost = ({
         <View className="flex-row items-center gap-3 mb-3">
           <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
             <Image
-              source={
-                post?.user?.avatar ?? require("@/assets/images/avatar.png")
-              }
+              src={imageUrl(post?.user?.avatar?.path ?? "")}
               className="w-full h-full object-cover"
             />
           </View>

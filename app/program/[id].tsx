@@ -15,6 +15,7 @@ import { get } from "@/hooks/axios";
 import { useLocalSearchParams } from "expo-router";
 import { AxiosError } from "axios";
 import imageUrl from "@/utils/imageUrl";
+import dayjs from "dayjs";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -218,10 +219,19 @@ export default function Program() {
       </ScrollView>
       <View className="py-6 px-7 bg-[#F0F5FA] mt-2">
         <PrimaryLink
-          style={{ backgroundColor: program.accentColor }}
+          style={{
+            backgroundColor: dayjs(new Date()).isAfter(
+              dayjs(program.acceptApplicationDuration)
+            )
+              ? "#D4D4D4"
+              : program.accentColor,
+          }}
           href={`/program/${program.id}/application`}
+          disabled={new Date() > program.acceptApplicationDuration}
         >
-          Apply Now
+          {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
+            ? "Application Closed"
+            : "Apply Now"}
         </PrimaryLink>
       </View>
     </SafeAreaView>

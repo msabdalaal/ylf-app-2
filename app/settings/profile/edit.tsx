@@ -26,7 +26,7 @@ export default function Edit({}: Props) {
   } = useContext(ApplicationContext);
   const [isEditing, setIsEditing] = useState(false);
   const [edits, setEdits] = useState<User>({});
-
+  console.log(user);
   const handleUpdateProfile = async () => {
     await patch("users/editProfile", edits)
       .then((res) => {
@@ -44,6 +44,8 @@ export default function Edit({}: Props) {
       mediaTypes: ["images"],
       aspect: [1, 1],
       quality: 1,
+      allowsEditing: true,
+      base64: true,
     });
 
     if (!result.canceled) {
@@ -66,9 +68,8 @@ export default function Edit({}: Props) {
           }
         );
         const data = await response.json();
-        console.log(data);
         if (response.ok) {
-          updateState("user", { ...user, avatar: "" });
+          updateState("user", { ...user, avatar: data.filePath });
         } else {
           alert(data.message);
         }
@@ -101,8 +102,11 @@ export default function Edit({}: Props) {
           </SkinnyButton>
         </View>
         <View className="justify-center items-center w-fit mx-auto">
-          <View className="w-32 h-32 bg-[#80ADD1] rounded-full">
-            <Image src={imageUrl(user?.avatar || "")} />
+          <View className="w-32 h-32 bg-[#80ADD1] rounded-full overflow-hidden">
+            <Image
+              src={imageUrl(user?.avatar?.path || "")}
+              className="w-full h-full object-cover"
+            />
           </View>
           {isEditing && (
             <TouchableOpacity

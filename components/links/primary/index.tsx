@@ -10,6 +10,7 @@ interface PrimaryLinkProps {
   className?: string;
   replace?: boolean;
   style?: object;
+  disabled?: boolean;
 }
 
 const PrimaryLink = ({
@@ -18,6 +19,7 @@ const PrimaryLink = ({
   className,
   replace = false,
   style = {},
+  disabled
 }: PrimaryLinkProps) => {
   const colorScheme = useColorScheme();
   return (
@@ -29,6 +31,7 @@ const PrimaryLink = ({
         backgroundColor: Colors[colorScheme ?? "light"].primary,
         ...style,
       }}
+      disabled={disabled}
     >
       <Text
         style={{ fontFamily: "Inter" }}

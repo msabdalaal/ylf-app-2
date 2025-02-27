@@ -29,9 +29,9 @@ const profile = (props: Props) => {
         </Text>
       </View>
       <View className="flex-row items-center gap-5">
-        <View className="h-24 w-24 bg-[#015CA480] rounded-full">
+        <View className="h-24 w-24 bg-[#015CA480] rounded-full overflow-hidden">
           <Image
-            src={imageUrl(user?.avatar || "")}
+            src={imageUrl(user?.avatar?.path || "")}
             className="w-full h-full object-cover"
           />
         </View>

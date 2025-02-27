@@ -27,7 +27,7 @@ export interface User {
   groupId?: string;
   idFront?: string;
   idBack?: string;
-  avatar?: string;
+  avatar?: { path: string };
 }
 
 export interface Comment {

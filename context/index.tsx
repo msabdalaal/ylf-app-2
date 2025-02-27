@@ -9,15 +9,17 @@ import {
 } from "react";
 import { produce } from "immer";
 import { User } from "@/constants/types";
-import { get } from "@/hooks/axios";
+import { get, post } from "@/hooks/axios";
 
 export type State = {
   user: User | null;
+  expoPushToken: string | null;
   [key: string]: any;
 };
 
 export const initialState: State = {
   user: null,
+  expoPushToken: null,
 };
 
 export const reducer = (
@@ -46,13 +48,28 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     () => (type: string, payload: any) => dispatch({ type, payload }),
     [dispatch]
   );
-
   const getProfile = useCallback(async () => {
     await get("users/profile").then((res) => {
       const user = res.data.data;
       updateState("user", user);
     });
   }, []);
+
+  const saveToken = async () => {
+    await post("users/registerNotification", {
+      token: state.expoPushToken,
+    })
+      .then((response) => {})
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    if (state.expoPushToken) {
+      saveToken();
+    }
+  }, [state.expoPushToken]);
 
   useEffect(() => {
     if (state.user === null) {

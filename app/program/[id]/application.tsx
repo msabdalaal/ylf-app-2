@@ -92,8 +92,8 @@ export default function Application() {
     });
     return realFormData;
   };
+
   const router = useRouter();
-  // Submit the form data
   const handleSubmit = async () => {
     if (!validateForm()) {
       Alert.alert("Validation Error", "Please fill all required fields.");
@@ -101,10 +101,10 @@ export default function Application() {
     }
     try {
       const realFormData = buildRealFormData();
-      // await post("programs/submitApplication", realFormData);
-      // Alert.alert("Success", "Application submitted successfully!");
-      router.replace(`/program/${id}/submitSuccess`);
-      router;
+      console.log(realFormData);
+      await post("programs/submitApplication", realFormData).then((res) => {
+        router.replace(`/program/${id}/submitSuccess`);
+      });
     } catch (error) {
       console.error("Error submitting application: ", error);
       Alert.alert("Error", "There was an error submitting your application.");

@@ -1,13 +1,14 @@
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 SplashScreen.preventAutoHideAsync();
 import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
-import { ApplicationProvider } from "@/context";
+import { ApplicationContext, ApplicationProvider } from "@/context";
+import { usePushNotifications } from "../hooks/useExpoNotification";
 
 export default function RootLayout() {
   return (
@@ -18,14 +19,15 @@ export default function RootLayout() {
 }
 
 function RootLayoutComponent() {
+  const { updateState, state } = useContext(ApplicationContext);
   const [loaded] = useFonts({
     SF_pro: require("../assets/fonts/SF-Pro.ttf"),
     Inter: require("../assets/fonts/Inter.ttf"),
     Poppins: require("../assets/fonts/Poppins.ttf"),
     Poppins_Medium: require("../assets/fonts/Poppins-Medium.ttf"),
   });
-
   const router = useRouter();
+  const { expoPushToken: newToken, notification } = usePushNotifications();
 
   const checkToken = async () => {
     const token = await getValueFor("token");
@@ -59,10 +61,18 @@ function RootLayoutComponent() {
         clearTimeout(timer);
       }
     };
-  }, [loaded]); // dependency on loaded ensures this effect runs when fonts finish loading
+  }, [loaded]);
 
-  // Optionally, you could render a fallback if fonts aren’t loaded,
-  // but since the splash screen will hide after 2 seconds, this is fine.
+  useEffect(() => {
+    if (
+      newToken?.data &&
+      state?.user &&
+      state.expoPushToken !== newToken?.data
+    ) {
+      updateState("expoPushToken", newToken?.data);
+    }
+  }, [newToken, updateState, state?.user, state.expoPushToken]);
+
   if (!loaded) {
     return null;
   }
