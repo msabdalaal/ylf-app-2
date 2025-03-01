@@ -22,14 +22,15 @@ export default function index() {
         className="text-center text-lg mb-5"
         style={{ fontFamily: "SF_pro", fontWeight: "bold" }}
       >
-        Hangout with with Friends
+        Our Mission
       </Text>
       <Text
         className="text-center text-lg font-light mb-5"
         style={{ fontFamily: "SF_pro" }}
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Erat vitae quis
-        quam augue quam a.
+        To Empower potential youth to positively engage in the community by
+        developing their leadership skills through the latest national and
+        international assessment and development tools.
       </Text>
       <View className="w-full flex-row justify-center items-center gap-2 mb-8">
         <View
@@ -48,7 +49,9 @@ export default function index() {
       <PrimaryLink href="/welcome3" className="mt-5">
         Next
       </PrimaryLink>
-      <SkinnyLink  replace={true} href="/login">Skip</SkinnyLink>
+      <SkinnyLink replace={true} href="/login">
+        Skip
+      </SkinnyLink>
     </SafeAreaView>
   );
 }

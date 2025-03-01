@@ -80,7 +80,11 @@ export default function Application() {
     const uploadPromises = questions.map(async (question) => {
       const answer = formData[question.id];
       if (question.type === "upload" && answer) {
-        const uploadResult = await uploadFile(answer, "image/png", question.id);
+        const uploadResult = await uploadFile(
+          answer,
+          "image/png",
+          `${question.id}.png`
+        );
         // application[question.id] = uploadResult;
         application.push({ questionId: question.id, answer: uploadResult });
       } else {

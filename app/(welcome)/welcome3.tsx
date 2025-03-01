@@ -6,6 +6,7 @@ import { Colors } from "@/constants/Colors";
 import React from "react";
 import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView } from "react-native";
 
 export default function index() {
   return (
@@ -22,15 +23,52 @@ export default function index() {
         className="text-center text-lg mb-5"
         style={{ fontFamily: "SF_pro", fontWeight: "bold" }}
       >
-        Find Friends & Get Inspiration
+        Our Vision
       </Text>
       <Text
         className="text-center text-lg font-light mb-5"
         style={{ fontFamily: "SF_pro" }}
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Erat vitae quis
-        quam augue quam a.
+        To develop potential Youth Leaders to inspire and drive change in Egypt
       </Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        className="mb-5 max-h-24"
+      >
+        {[
+          { number: "8,000+", label: "training hours" },
+          { number: "109", label: "universities" },
+          { number: "611+", label: "student activities" },
+          { number: "300,000+", label: "students" },
+          { number: "5,000+", label: "vocational school girls" },
+        ].map((stat, index) => (
+          <View
+            key={index}
+            className="items-center h-full justify-center mx-3 bg-white/10 px-4 py-2 rounded-lg"
+            style={{ minWidth: 120 }}
+          >
+            <Text
+              className="text-xl mb-1"
+              style={{
+                fontFamily: "SF_pro",
+                fontWeight: "bold",
+                color: Colors.light.primary,
+              }}
+            >
+              {stat.number}
+            </Text>
+            <Text
+              className="text-center text-sm"
+              style={{ fontFamily: "SF_pro" }}
+            >
+              {stat.label}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+
       <View className="w-full flex-row justify-center items-center gap-2 mb-8">
         <View
           className="h-2 w-2 rounded-full"

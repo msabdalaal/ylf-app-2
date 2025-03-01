@@ -11,7 +11,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function index() {
   const router = useRouter();
 
-
   return (
     <SafeAreaView className="flex-1 w-full container justify-center gap-2">
       <Backdrop />
@@ -32,8 +31,9 @@ export default function index() {
         className="text-center text-lg font-light mb-5"
         style={{ fontFamily: "SF_pro" }}
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Erat vitae quis
-        quam augue quam a.
+        Youth Leaders Foundation (YLF) is a non-profit organization with a
+        registered number 809 for 2017 providing targeted services to find
+        hidden calibers to support and strengthen Egypt's youth segment.
       </Text>
       <View className="w-full flex-row justify-center items-center gap-2 mb-8">
         <View
