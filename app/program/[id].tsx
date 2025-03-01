@@ -50,7 +50,7 @@ export default function Program() {
   const getProgram = useCallback(async () => {
     await get("programs/get/" + id)
       .then((res) => {
-        setProgram(res.data.data);
+        setProgram({ ...res.data.data, isRegistered: res.data.isRegistered });
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
@@ -220,17 +220,24 @@ export default function Program() {
       <View className="py-6 px-7 bg-[#F0F5FA] mt-2">
         <PrimaryLink
           style={{
-            backgroundColor: dayjs(new Date()).isAfter(
-              dayjs(program.acceptApplicationDuration)
-            )
-              ? "#D4D4D4"
-              : program.accentColor,
+            backgroundColor:
+              dayjs(new Date()).isAfter(
+                dayjs(program.acceptApplicationDuration)
+              ) || program.isRegistered
+                ? "#D4D4D4"
+                : program.accentColor,
           }}
           href={`/program/${program.id}/application`}
-          disabled={new Date() > program.acceptApplicationDuration}
+          disabled={
+            dayjs(new Date()).isAfter(
+              dayjs(program.acceptApplicationDuration)
+            ) || program.isRegistered
+          }
         >
           {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
             ? "Application Closed"
+            : program.isRegistered
+            ? "You are already registered"
             : "Apply Now"}
         </PrimaryLink>
       </View>

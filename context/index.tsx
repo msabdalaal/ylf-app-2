@@ -69,7 +69,7 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     if (state.expoPushToken) {
       saveToken();
     }
-  }, [state.expoPushToken]);
+  }, [state.expoPushToken,state.user]);
 
   useEffect(() => {
     if (state.user === null) {

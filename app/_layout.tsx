@@ -91,6 +91,10 @@ function RootLayoutComponent() {
           name="settings/profile/edit"
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="settings/profile/qrCode"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="post/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="program/[id]" options={{ headerShown: false }} />
         <Stack.Screen

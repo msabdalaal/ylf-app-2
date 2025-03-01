@@ -56,6 +56,7 @@ export interface Program {
   achieve: string;
   Image: Logo[];
   logo: Logo;
+  isRegistered?: boolean;
 }
 
 export interface Logo {

@@ -9,6 +9,7 @@ import { get, post } from "@/hooks/axios"; // Make sure you have a post function
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import PrimaryButton from "@/components/buttons/primary";
+import uploadFile from "@/utils/uploadFile";
 
 export default function Application() {
   const { id } = useLocalSearchParams();
@@ -74,23 +75,22 @@ export default function Application() {
     return valid;
   };
 
-  const buildRealFormData = () => {
-    const realFormData = new FormData();
-    questions.forEach((question) => {
+  const buildRealFormData = async () => {
+    const application: { questionId: string; answer: string }[] = [];
+    const uploadPromises = questions.map(async (question) => {
       const answer = formData[question.id];
-      if (question.type === "upload") {
-        if (answer) {
-          realFormData.append(question.id, {
-            uri: answer,
-            type: "image/png",
-            name: `${question.id}.png`,
-          } as any);
-        }
+      if (question.type === "upload" && answer) {
+        const uploadResult = await uploadFile(answer, "image/png", question.id);
+        // application[question.id] = uploadResult;
+        application.push({ questionId: question.id, answer: uploadResult });
       } else {
-        realFormData.append(question.id, answer);
+        // application[question.id] = answer;
+        application.push({ questionId: question.id, answer: answer });
       }
     });
-    return realFormData;
+
+    await Promise.all(uploadPromises);
+    return application;
   };
 
   const router = useRouter();
@@ -100,9 +100,10 @@ export default function Application() {
       return;
     }
     try {
-      const realFormData = buildRealFormData();
-      console.log(realFormData);
-      await post("programs/submitApplication", realFormData).then((res) => {
+      const realFormData = await buildRealFormData();
+      await post("programs/submitApplication/" + id, {
+        questions: realFormData,
+      }).then(() => {
         router.replace(`/program/${id}/submitSuccess`);
       });
     } catch (error) {
