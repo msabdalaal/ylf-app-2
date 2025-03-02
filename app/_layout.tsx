@@ -96,6 +96,10 @@ function RootLayoutComponent() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="post/[id]" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="opportunities/[id]/index"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="program/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="program/[id]/application"

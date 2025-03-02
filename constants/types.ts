@@ -9,6 +9,14 @@ export interface Post {
   imageId: null;
   user: User;
   hasLiked: boolean;
+  images: Image[];
+  type: "event" | "program" | "normal";
+  eventId?: string;
+  isRegistered?: boolean;
+}
+
+interface Image {
+  path: string;
 }
 
 export interface User {
@@ -70,4 +78,13 @@ export interface Question {
   question: string;
   required: boolean;
   type: "complete" | "upload" | "rightWrong" | "mcq";
+}
+
+export interface Opportunity {
+  id?:              string;
+  name:            string;
+  tags:            string[];
+  description:     string;
+  opportunitySpec: string[];
+  isVisible:       boolean;
 }

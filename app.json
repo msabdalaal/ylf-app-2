@@ -60,11 +60,19 @@
         }
       ],
       [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos for verification."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

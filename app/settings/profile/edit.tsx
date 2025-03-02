@@ -26,7 +26,6 @@ export default function Edit({}: Props) {
   } = useContext(ApplicationContext);
   const [isEditing, setIsEditing] = useState(false);
   const [edits, setEdits] = useState<User>({});
-  console.log(user);
   const handleUpdateProfile = async () => {
     await patch("users/editProfile", edits)
       .then((res) => {

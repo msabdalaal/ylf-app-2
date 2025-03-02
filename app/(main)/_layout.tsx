@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Programs from "@/assets/icons/programs";
 import Home from "@/assets/icons/home";
 import Settings from "@/assets/icons/settings";
+import Opportunities from "@/assets/icons/opportunities";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -66,6 +67,13 @@ export default function TabLayout() {
           options={{
             title: "Programs",
             tabBarIcon: ({ color }) => <Programs color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="opportunities"
+          options={{
+            title: "Opportunities",
+            tabBarIcon: ({ color }) => <Opportunities color={color} />,
           }}
         />
         <Tabs.Screen

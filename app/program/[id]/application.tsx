@@ -5,7 +5,7 @@ import BackButton from "@/components/buttons/backButton";
 import TextInputComponent from "@/components/inputs/textInput";
 import { Colors } from "@/constants/Colors";
 import { Question } from "@/constants/types";
-import { get, post } from "@/hooks/axios"; // Make sure you have a post function
+import { get, post } from "@/hooks/axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import PrimaryButton from "@/components/buttons/primary";

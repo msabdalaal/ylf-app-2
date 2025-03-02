@@ -5,23 +5,23 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import React, { useCallback } from "react";
+import React from "react";
 import { Colors } from "@/constants/Colors";
 import Dots from "@/assets/icons/dots";
 import Comments from "@/assets/icons/comments";
 import Heart from "@/assets/icons/Heart";
 import { Post } from "@/constants/types";
-import dayjs from "dayjs";
-import { useRouter } from "expo-router";
 import imageUrl from "@/utils/imageUrl";
+import PrimaryButton from "@/components/buttons/primary";
+import { post as postAxios } from "@/hooks/axios";
+import { useRouter } from "expo-router";
+import { push } from "expo-router/build/global-state/routing";
 type Props = {
   post: Post;
   handleLike: (id: string) => void;
-  className?: string;
-  showAll?: boolean;
 };
 
-const NormalPost = ({
+const EventPost = ({
   post = {
     id: "",
     content:
@@ -42,48 +42,53 @@ const NormalPost = ({
     type: "normal",
   },
   handleLike,
-  className = "",
-  showAll = false,
 }: Props) => {
-  const colorScheme = useColorScheme();
   const router = useRouter();
-
+  const colorScheme = useColorScheme();
+  const handleApply = async () => {
+    await postAxios("events/submitApplication/" + post.eventId, {})
+      .then(() => {
+        router.push("/program/0/submitSuccess");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   return (
     <View
-      className={`rounded-[2rem] p-3 w-full h-fit ${className}`}
+      className="rounded-[2rem] p-3 w-full"
       style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
     >
-      <TouchableOpacity
-        onPress={() => {
-          router.push(`/post/${post?.id}`);
-        }}
-      >
-        <View className="flex-row items-center gap-3 mb-3">
-          <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
-            <Image
-              src={imageUrl(post?.user?.avatar?.path ?? "")}
-              className="w-full h-full object-cover"
-            />
-          </View>
-          <View className="flex-row flex-1 items-start justify-between">
-            <View>
-              <Text>{post?.user?.name ?? "YLF"}</Text>
-              <Text className="text-xs">{post?.user?.email ?? "@ylf"}</Text>
-            </View>
-            {/* <TouchableOpacity>
-              <Dots />
-            </TouchableOpacity> */}
-          </View>
+      <View className="flex-row items-center gap-3 mb-3">
+        <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
+          <Image
+            src={imageUrl(post.user.avatar?.path || "")}
+            className="w-full h-full object-cover"
+          />
         </View>
-        <Text className="mb-8" numberOfLines={showAll ? undefined : 3}>
-          {post?.content}
-        </Text>
-      </TouchableOpacity>
-      <View
-        className="py-3 px-4 rounded-b-3xl flex-row justify-between items-center"
-        style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
-      >
-        <View className="flex-row gap-2.5">
+        <View className="flex-row flex-1 items-start justify-between">
+          <View>
+            <Text>{post.user.name}</Text>
+            <Text className="text-xs">{post.user.email}</Text>
+          </View>
+          <TouchableOpacity>
+            <Dots />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Text className="mb-8">{post.content}</Text>
+      <View className="rounded-3xl">
+        <PrimaryButton
+          disabled={post.isRegistered}
+          onPress={handleApply}
+          className="mb-2"
+        >
+          {post.isRegistered ? "Already Applied" : "Apply Now"}
+        </PrimaryButton>
+        <View
+          className="w-full py-3 px-6 rounded-b-3xl flex-row gap-2.5"
+          style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+        >
           <TouchableOpacity
             onPress={() => {
               router.push(`/post/${post?.id}`);
@@ -111,12 +116,9 @@ const NormalPost = ({
             </Text>
           </TouchableOpacity>
         </View>
-        <Text className="text-xs text-white">
-          {dayjs(post?.createdAt).format("hh:mm A - D/M")}
-        </Text>
       </View>
     </View>
   );
 };
 
-export default NormalPost;
+export default EventPost;

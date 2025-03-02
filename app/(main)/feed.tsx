@@ -10,10 +10,14 @@ import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { produce } from "immer";
 import imageUrl from "@/utils/imageUrl";
 import { TouchableOpacity } from "react-native";
+import ImagePost from "@/components/posts/imagePost";
+import VideoPost from "@/components/posts/videoPost";
+import EventPost from "@/components/posts/eventPost";
 type Props = {};
 
 function Feed({}: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
+  // console.log(posts[0]);
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -29,7 +33,7 @@ function Feed({}: Props) {
   const getFeed = async () => {
     await get("posts/getAll", { params: { page, program: selectedProgram } })
       .then((res) => {
-        setPosts(res.data.data);
+        setPosts((prev) => [...prev, ...res.data.data]);
         setPagination(res.data.pagination);
       })
       .catch((err) => {
@@ -92,7 +96,11 @@ function Feed({}: Props) {
           renderItem={(item) => (
             <TouchableOpacity
               className="w-20 h-20 bg-gray-200 rounded-full p-2 justify-center items-center"
-              onPress={() => setSelectedProgram(item.item.id)}
+              onPress={() => {
+                setPosts([]);
+                setPage(1);
+                setSelectedProgram(item.item.id);
+              }}
             >
               {item.item.logo.path ? (
                 <Image
@@ -117,12 +125,31 @@ function Feed({}: Props) {
       </View>
       <FlatList
         data={posts}
-        renderItem={(post) => (
-          <NormalPost
-            handleLike={(id: string) => handleLikePost(id)}
-            post={post.item}
-          />
-        )}
+        renderItem={(post) =>
+          post.item.type == "event" ? (
+            <EventPost
+              post={post.item}
+              handleLike={(id: string) => handleLikePost(id)}
+            />
+          ) : post.item.images.length > 0 ? (
+            post.item.images[0].path.endsWith(".mp4") ? (
+              <VideoPost
+                handleLike={(id: string) => handleLikePost(id)}
+                post={post.item}
+              />
+            ) : (
+              <ImagePost
+                handleLike={(id: string) => handleLikePost(id)}
+                post={post.item}
+              />
+            )
+          ) : (
+            <NormalPost
+              handleLike={(id: string) => handleLikePost(id)}
+              post={post.item}
+            />
+          )
+        }
         keyExtractor={(post) => post.id}
         onEndReached={() => {
           if (page < pagination.totalPages) setPage(page + 1);

@@ -14,6 +14,9 @@ import Comment from "@/components/posts/comment";
 import TextInputComponent from "@/components/inputs/textInput";
 import SkinnyButton from "@/components/buttons/skinny";
 import { ApplicationContext } from "@/context";
+import ImagePost from "@/components/posts/imagePost";
+import VideoPost from "@/components/posts/videoPost";
+import EventPost from "@/components/posts/eventPost";
 
 export default function Post() {
   const [post, setPost] = useState<Post>();
@@ -106,7 +109,28 @@ export default function Post() {
   return (
     <SafeAreaView className="container bg-white flex-1">
       <BackButton className="mt-5" />
-      {post?.userId && (
+      {post?.userId && post && post.type == "event" ? (
+        <EventPost
+          post={post}
+          handleLike={(id: string) => handleLikePost(id)}
+        />
+      ) : post && post.images.length > 0 ? (
+        post.images[0].path.endsWith(".mp4") ? (
+          <VideoPost
+            handleLike={(id: string) => handleLikePost(id)}
+            post={post}
+            className="mt-8"
+            showAll={true}
+          />
+        ) : (
+          <ImagePost
+            post={post!}
+            handleLike={(id) => handleLikePost(id)}
+            className="mt-8"
+            showAll={true}
+          />
+        )
+      ) : (
         <NormalPost
           post={post!}
           handleLike={(id) => handleLikePost(id)}

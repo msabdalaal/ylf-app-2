@@ -3,6 +3,7 @@ import { Colors } from "@/constants/Colors";
 import { Comment as CommentType } from "@/constants/types";
 import { ApplicationContext } from "@/context";
 import { del } from "@/hooks/axios";
+import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
 import React, { useContext } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -27,9 +28,7 @@ export default function Comment({ comment, onDelete }: Props) {
     <View key={comment.id} className="flex-row gap-2">
       <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
         <Image
-          source={
-            comment?.user?.avatar || require("@/assets/images/avatar.png")
-          }
+          src={imageUrl(comment?.user?.avatar?.path ?? "")}
           className="w-full h-full object-cover"
         />
       </View>
