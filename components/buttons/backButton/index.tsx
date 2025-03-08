@@ -24,7 +24,7 @@ const BackButton = ({ onClick, className }: Props) => {
         backgroundColor: Colors[colorScheme ?? "light"].bg_primary,
       }}
     >
-      <AngleLeft color={colorScheme == "dark" ? "white" : "black"} />
+      <AngleLeft color={colorScheme == "dark" ? "white" : "#015CA4"} />
     </TouchableOpacity>
   );
 };

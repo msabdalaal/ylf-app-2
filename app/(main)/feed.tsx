@@ -21,6 +21,7 @@ import ImagePost from "@/components/posts/imagePost";
 import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
 import { Colors } from "@/constants/Colors";
+import Bell from "@/assets/icons/bell";
 type Props = {};
 
 function Feed({}: Props) {
@@ -91,7 +92,7 @@ function Feed({}: Props) {
         backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
       }}
     >
-      <View className="text-white text-2xl font-bold mt-10 mb-5">
+      <View className="text-white text-2xl font-bold mt-10 mb-5 flex-row justify-between w-full">
         <Image
           source={
             theme === "dark"
@@ -101,6 +102,17 @@ function Feed({}: Props) {
           className="w-24 h-12"
           resizeMode="contain"
         />
+        <TouchableOpacity
+          className={`rounded-full w-11 h-11 flex justify-center items-center`}
+          style={{
+            backgroundColor: Colors[theme ?? "light"].bg_primary,
+          }}
+          onPress={() => {
+            router.push("/notifications");
+          }}
+        >
+          <Bell color={theme === "dark" ? "white" : undefined} />
+        </TouchableOpacity>
       </View>
       <FlatList
         ListHeaderComponent={() => (

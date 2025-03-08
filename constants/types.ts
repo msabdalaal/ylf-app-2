@@ -81,10 +81,18 @@ export interface Question {
 }
 
 export interface Opportunity {
-  id?:              string;
-  name:            string;
-  tags:            string[];
-  description:     string;
+  id?: string;
+  name: string;
+  tags: string[];
+  description: string;
   opportunitySpec: string[];
-  isVisible:       boolean;
+  isVisible: boolean;
+}
+
+export interface Notification {
+  body: string;
+  createdAt: Date;
+  id: string;
+  title: string;
+  userId: string;
 }
