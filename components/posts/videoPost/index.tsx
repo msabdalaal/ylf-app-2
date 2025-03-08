@@ -109,7 +109,10 @@ const VideoPost = ({
           router.push(`/post/${post?.id}`);
         }}
       >
-        <Text className="mb-8" numberOfLines={showAll ? undefined : 3}>
+        <Text
+          className="mb-8 dark:text-white"
+          numberOfLines={showAll ? undefined : 3}
+        >
           {post?.content}
         </Text>
       </TouchableOpacity>

@@ -56,15 +56,15 @@ const FilePost = ({
         </View>
         <View className="flex-row flex-1 items-start justify-between">
           <View>
-            <Text>{user.name}</Text>
-            <Text className="text-xs">{user.name}</Text>
+            <Text className="dark:text-white">{user.name}</Text>
+            <Text className="text-xs dark:text-white">{user.name}</Text>
           </View>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Dots />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
-      <Text className="mb-8">{post.body}</Text>
+      <Text className="mb-8 dark:text-white">{post.body}</Text>
       <View
         className="rounded-3xl"
         style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}

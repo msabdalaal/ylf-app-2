@@ -6,7 +6,13 @@ import { del } from "@/hooks/axios";
 import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
 import React, { useContext } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 
 type Props = {
   comment: CommentType;
@@ -23,6 +29,7 @@ export default function Comment({ comment, onDelete }: Props) {
     onDelete(comment.id);
     setShowMenu(false);
   };
+  const theme = useColorScheme();
 
   return (
     <View key={comment.id} className="flex-row gap-2">
@@ -35,11 +42,14 @@ export default function Comment({ comment, onDelete }: Props) {
       <View
         className="px-3 pt-1 pb-3 flex-1 rounded-lg"
         style={{
-          backgroundColor: Colors.light.postBackground,
+          backgroundColor: Colors[theme ?? "light"].postBackground,
         }}
       >
         <View className="flex-row items-center justify-between">
-          <Text style={{ color: Colors.light.primary }} className="font-medium">
+          <Text
+            style={{ color: Colors[theme ?? "light"].primary }}
+            className="font-medium"
+          >
             {comment?.user?.name || "Profile Name"}{" "}
           </Text>
           {state.user?.email === comment?.user?.email && (
@@ -55,10 +65,12 @@ export default function Comment({ comment, onDelete }: Props) {
             </TouchableOpacity>
           )}
         </View>
-        <Text className="text-xs font-light">
+        <Text className="text-xs font-light dark:text-white">
           {dayjs(comment?.createdAt).format("DD MMM hh:mm A")}
         </Text>
-        <Text className="text-sm mt-2 font-medium">{comment.content}</Text>
+        <Text className="text-sm mt-2 font-medium dark:text-white">
+          {comment.content}
+        </Text>
       </View>
     </View>
   );

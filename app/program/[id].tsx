@@ -16,6 +16,7 @@ import { useLocalSearchParams } from "expo-router";
 import { AxiosError } from "axios";
 import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
+import { useColorScheme } from "react-native";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -59,15 +60,21 @@ export default function Program() {
   useEffect(() => {
     getProgram();
   }, []);
+  const colorScheme = useColorScheme();
   return (
-    <SafeAreaView className="bg-white flex-1">
+    <SafeAreaView
+      className="bg-white flex-1"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       {showHeader ? (
         <View className=" container flex-row items-center gap-3 mb-6 mt-5">
           <BackButton />
           <Text
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
+              color: Colors[colorScheme ?? "light"].primary,
             }}
           >
             {program.name}
@@ -135,7 +142,7 @@ export default function Program() {
           Description
         </Text>
         <Text
-          className="mt-2.5"
+          className="mt-2.5 dark:text-white"
           ellipsizeMode="tail"
           numberOfLines={expandedDescription ? undefined : 8}
         >
@@ -157,7 +164,7 @@ export default function Program() {
           Vision
         </Text>
         <Text
-          className="mt-2.5"
+          className="mt-2.5 dark:text-white"
           ellipsizeMode="tail"
           numberOfLines={expandedVision ? undefined : 3}
         >
@@ -179,7 +186,7 @@ export default function Program() {
           Mission
         </Text>
         <Text
-          className="mt-2.5"
+          className="mt-2.5 dark:text-white"
           ellipsizeMode="tail"
           numberOfLines={expandedMission ? undefined : 3}
         >
@@ -201,7 +208,7 @@ export default function Program() {
           More about the program
         </Text>
         <Text
-          className="mt-2.5"
+          className="mt-2.5 dark:text-white"
           ellipsizeMode="tail"
           numberOfLines={expandedMore ? undefined : 3}
         >
@@ -217,7 +224,12 @@ export default function Program() {
           {expandedMore ? "Read Less" : "Read More"}
         </Text>
       </ScrollView>
-      <View className="py-6 px-7 bg-[#F0F5FA] mt-2">
+      <View
+        className="py-6 px-7 mt-2"
+        style={{
+          backgroundColor: colorScheme == "dark" ? "#21252d" : "#F0F5FA",
+        }}
+      >
         <PrimaryLink
           style={{
             backgroundColor:

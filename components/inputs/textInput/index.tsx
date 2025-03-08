@@ -34,6 +34,9 @@ const TextInputComponent = ({
   const colorScheme = useColorScheme();
   const [showPassword, setShowPassword] = useState(true);
   const [focused, setFocused] = useState(false);
+
+  const isDark = colorScheme === "dark";
+
   return (
     <View className={`w-full ${className}`}>
       {label ? (
@@ -42,7 +45,9 @@ const TextInputComponent = ({
           style={{
             color: focused
               ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
+              : isDark
+              ? "#E5E5E5"
+              : Colors.light.text,
           }}
         >
           {label}
@@ -59,7 +64,9 @@ const TextInputComponent = ({
                 color={
                   focused
                     ? Colors[colorScheme ?? "light"].primary
-                    : Colors[colorScheme ?? "light"].border
+                    : isDark
+                    ? "#6B7280"
+                    : Colors.light.border
                 }
               />
             ) : (
@@ -67,7 +74,9 @@ const TextInputComponent = ({
                 color={
                   focused
                     ? Colors[colorScheme ?? "light"].primary
-                    : Colors[colorScheme ?? "light"].border
+                    : isDark
+                    ? "#6B7280"
+                    : Colors.light.border
                 }
               />
             )}
@@ -79,26 +88,27 @@ const TextInputComponent = ({
           onChangeText={onChange}
           secureTextEntry={secure ? showPassword : false}
           editable={!disabled}
+          placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
           className={`w-full text-left border rounded-xl py-4 px-5`}
           style={{
             borderColor: focused
               ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].border,
+              : isDark
+              ? "#374151"
+              : Colors.light.border,
             borderWidth: 2,
             fontFamily: "Poppins_Medium",
             lineHeight: 20,
-            color: focused
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
-            backgroundColor: disabled ? "#F0F5FA" : "transparent",
+            color: isDark ? "#E5E5E5" : Colors.light.text,
+            backgroundColor: disabled
+              ? isDark
+                ? "#1F2937"
+                : "#F0F5FA"
+              : "transparent",
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          onSubmitEditing={() => {
-            if (onEnter) {
-              onEnter();
-            }
-          }}
+          onSubmitEditing={onEnter}
         />
       </View>
     </View>

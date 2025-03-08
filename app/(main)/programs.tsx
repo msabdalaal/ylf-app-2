@@ -5,7 +5,7 @@ import { get } from "@/hooks/axios";
 import imageUrl from "@/utils/imageUrl";
 import { RelativePathString } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, useColorScheme, View } from "react-native";
 
 type Props = {};
 
@@ -43,6 +43,7 @@ const programs: {
 
 function Programs({}: Props) {
   const [programs, setPrograms] = useState<Program[]>([]);
+  const theme = useColorScheme();
   const getPrograms = useCallback(async () => {
     await get("programs/getAll")
       .then((res) => {
@@ -56,10 +57,18 @@ function Programs({}: Props) {
     getPrograms();
   }, []);
   return (
-    <View className="container bg-white flex-1">
+    <View
+      className="container bg-white flex-1"
+      style={{
+        backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
+      }}
+    >
       <Text
         className="mt-10 mb-8"
-        style={{ fontFamily: "Poppins_Medium", color: Colors.light.primary }}
+        style={{
+          fontFamily: "Poppins_Medium",
+          color: theme == "dark" ? "white" : Colors.light.primary,
+        }}
       >
         Select Your Program
       </Text>

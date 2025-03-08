@@ -10,6 +10,7 @@ import SkinnyLink from "@/components/links/skinny";
 import SkinnyButton from "@/components/buttons/skinny";
 import { post } from "@/hooks/axios";
 import { useRouter } from "expo-router";
+import { useColorScheme } from "react-native";
 
 type Props = {};
 
@@ -68,21 +69,26 @@ const SignUp = (props: Props) => {
       router.replace("/login");
     });
   };
+  const colorScheme = useColorScheme();
 
   return (
-    <SafeAreaView className="flex-1 w-full container bg-white pt-5">
+    <SafeAreaView className="flex-1 w-full container pt-5"
+    style={{
+      backgroundColor: Colors[colorScheme ?? "light"].background,
+    }}
+    >
       {token ? (
         <>
           <Text
             className="mt-6 text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
+              color: Colors[colorScheme ?? "light"].primary,
             }}
           >
             Create a password
           </Text>
-          <Text className="mt-4" style={{ fontFamily: "Inter" }}>
+          <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
             In order to keep your account safe you need to create a strong
             password.
           </Text>
@@ -117,12 +123,12 @@ const SignUp = (props: Props) => {
             className="mt-6 text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
+              color: Colors[colorScheme ?? "light"].primary,
             }}
           >
             Check your email
           </Text>
-          <Text className="mt-4" style={{ fontFamily: "Inter" }}>
+          <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
             We sent a reset link to <Text className="font-bold">{Email}</Text>{" "}
             enter 5 digit code that mentioned in the email
           </Text>
@@ -170,12 +176,12 @@ const SignUp = (props: Props) => {
             className="mt-6 text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
+              color: Colors[colorScheme ?? "light"].primary,
             }}
           >
             Forgot password
           </Text>
-          <Text className="mt-4" style={{ fontFamily: "Inter" }}>
+          <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
             Please enter your email to reset the password
           </Text>
           <TextInputComponent

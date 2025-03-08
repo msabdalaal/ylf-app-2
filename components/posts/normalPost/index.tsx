@@ -67,15 +67,19 @@ const NormalPost = ({
           </View>
           <View className="flex-row flex-1 items-start justify-between">
             <View>
-              <Text>{post?.user?.name ?? "YLF"}</Text>
-              <Text className="text-xs">{post?.user?.email ?? "@ylf"}</Text>
+              <Text className="dark:text-white">
+                {post?.user?.name ?? "YLF"}
+              </Text>
+              <Text className="text-xs dark:text-white">
+                {post?.user?.email ?? "@ylf"}
+              </Text>
             </View>
             {/* <TouchableOpacity>
               <Dots />
             </TouchableOpacity> */}
           </View>
         </View>
-        <Text className="mb-8" numberOfLines={showAll ? undefined : 3}>
+        <Text className="mb-8 dark:text-white" numberOfLines={showAll ? undefined : 3}>
           {post?.content}
         </Text>
       </TouchableOpacity>

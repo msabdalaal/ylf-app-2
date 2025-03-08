@@ -66,15 +66,18 @@ const ImagePost = ({
           </View>
           <View className="flex-row flex-1 items-start justify-between">
             <View>
-              <Text>{post.user.name}</Text>
-              <Text className="text-xs">{post.user.email}</Text>
+              <Text className="dark:text-white">{post.user.name}</Text>
+              <Text className="text-xs dark:text-white">{post.user.email}</Text>
             </View>
-            <TouchableOpacity>
-              <Dots />
-            </TouchableOpacity>
+            {/* <TouchableOpacity>
+              <Dots color={colorScheme === "dark" ? "#fff" : ""} />
+            </TouchableOpacity> */}
           </View>
         </View>
-        <Text className="mb-8" numberOfLines={showAll ? undefined : 3}>
+        <Text
+          className="mb-8 dark:text-white"
+          numberOfLines={showAll ? undefined : 3}
+        >
           {post?.content}
         </Text>
       </TouchableOpacity>

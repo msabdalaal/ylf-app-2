@@ -1,4 +1,10 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  useColorScheme,
+} from "react-native";
 import React, { useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
@@ -17,15 +23,21 @@ const profile = (props: Props) => {
   const {
     state: { user },
   } = useContext(ApplicationContext);
-  const router = useRouter()
+  const router = useRouter();
+  const colorScheme = useColorScheme();
   return (
-    <SafeAreaView className="container bg-white flex-1">
+    <SafeAreaView
+      className="container bg-white flex-1"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       <View className=" flex-row items-center gap-3 mb-6 mt-5">
         <BackButton />
         <Text
           style={{
             fontFamily: "Poppins_Medium",
-            color: Colors.light.primary,
+            color: Colors[colorScheme ?? "light"].primary,
           }}
         >
           Profile
@@ -43,7 +55,7 @@ const profile = (props: Props) => {
             className="text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
+              color: Colors[colorScheme ?? "light"].primary,
             }}
           >
             {user?.name?.split(" ").length === 1
@@ -53,21 +65,26 @@ const profile = (props: Props) => {
                 user?.name?.split(" ")?.[1]?.[0] +
                 "."}
           </Text>
-          <TouchableOpacity onPress={()=>router.push("/settings/profile/qrCode")}>
-            <QrCode />
+          <TouchableOpacity
+            onPress={() => router.push("/settings/profile/qrCode")}
+          >
+            <QrCode color={Colors[colorScheme ?? "light"].primary} />
           </TouchableOpacity>
         </View>
       </View>
-      <View className="bg-[#F6F8FA] gap-4 justify-start mt-6 items-start p-6 rounded-3xl">
+      <View className="bg-[#F6F8FA] dark:bg-[#015CA41A] gap-4 justify-start mt-6 items-start p-6 rounded-3xl">
         <View className="flex-row items-center gap-4">
           <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
             <UserIcon />
           </View>
           <View>
-            <Text style={{ fontFamily: "Poppins_Medium", lineHeight: 16 }}>
+            <Text
+              className="dark:text-white"
+              style={{ fontFamily: "Poppins_Medium", lineHeight: 16 }}
+            >
               Full Name
             </Text>
-            <Text className="text-sm">{user?.name}</Text>
+            <Text className="text-sm dark:text-white">{user?.name}</Text>
           </View>
         </View>
         <View className="flex-row items-center gap-4">
@@ -75,10 +92,13 @@ const profile = (props: Props) => {
             <Email />
           </View>
           <View>
-            <Text style={{ fontFamily: "Poppins_Medium", lineHeight: 16 }}>
+            <Text
+              className="dark:text-white"
+              style={{ fontFamily: "Poppins_Medium", lineHeight: 16 }}
+            >
               Email
             </Text>
-            <Text className="text-sm">{user?.email}</Text>
+            <Text className="text-sm dark:text-white">{user?.email}</Text>
           </View>
         </View>
         <View className="flex-row items-center gap-4">
@@ -86,10 +106,15 @@ const profile = (props: Props) => {
             <Phone />
           </View>
           <View>
-            <Text style={{ fontFamily: "Poppins_Medium", lineHeight: 16 }}>
+            <Text
+              className="dark:text-white"
+              style={{ fontFamily: "Poppins_Medium", lineHeight: 16 }}
+            >
               Phone Number
             </Text>
-            <Text className="text-sm">{user?.phoneNumber ?? "-"}</Text>
+            <Text className="text-sm dark:text-white">
+              {user?.phoneNumber ?? "-"}
+            </Text>
           </View>
         </View>
       </View>

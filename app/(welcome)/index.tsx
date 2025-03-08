@@ -5,14 +5,21 @@ import { Colors } from "@/constants/Colors";
 import { getValueFor, remove, save } from "@/hooks/storage";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
+import { useColorScheme } from "react-native";
 import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function index() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
 
   return (
-    <SafeAreaView className="flex-1 w-full container justify-center gap-2">
+    <SafeAreaView
+      className="flex-1 w-full container justify-center gap-2"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       <Backdrop />
       <View className="h-64 mb-6">
         <Image
@@ -22,13 +29,13 @@ export default function index() {
         />
       </View>
       <Text
-        className="text-center text-lg mb-5"
+        className="text-center text-lg mb-5 dark:text-white"
         style={{ fontFamily: "SF_pro", fontWeight: "bold" }}
       >
         Meet Awesome People & Enjoy yourself
       </Text>
       <Text
-        className="text-center text-lg font-light mb-5"
+        className="text-center text-lg font-light mb-5 dark:text-white"
         style={{ fontFamily: "SF_pro" }}
       >
         Youth Leaders Foundation (YLF) is a non-profit organization with a

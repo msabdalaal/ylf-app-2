@@ -17,8 +17,11 @@ import * as ImagePicker from "expo-image-picker";
 import Upload from "@/assets/icons/upload";
 import CloseIcon from "@/assets/icons/close";
 import { ApplicationContext } from "@/context";
+import { useColorScheme } from "react-native";
 
 const SignUp = () => {
+  const { updateState } = useContext(ApplicationContext);
+
   const [emailIsUnique, setEmailIsUnique] = useState(false);
   const [isIdUploaded, setIsIdUploaded] = useState(false);
   const [formData, setFormData] = useState<{
@@ -38,7 +41,13 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { updateState } = useContext(ApplicationContext);
+
+  const getProfile = useCallback(async () => {
+    await get("users/profile").then((res) => {
+      const user = res.data.data;
+      updateState("user", user);
+    });
+  }, []);
 
   const handleSignUp = async () => {
     if (isIdUploaded) {
@@ -81,6 +90,7 @@ const SignUp = () => {
           const data = await response.json();
           if (response.ok) {
             if (data.access_token) await save("token", data.access_token);
+            await getProfile();
             router.replace("/feed");
           } else {
             alert(data.message || "An error occurred during registration");
@@ -98,6 +108,9 @@ const SignUp = () => {
         setIsIdUploaded(true);
       }
     } else {
+      if (!formData.name) return alert("Name cannot be empty");
+      if (!validator.isEmail(formData.email))
+        return alert("Email is not valid");
       setEmailIsUnique(true);
     }
   };
@@ -129,9 +142,15 @@ const SignUp = () => {
       }
     }
   };
+  const colorScheme = useColorScheme();
 
   return (
-    <SafeAreaView className="flex-1 w-full container bg-white">
+    <SafeAreaView
+      className="flex-1 w-full container"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       {emailIsUnique ? (
         <>
           <BackButton
@@ -280,7 +299,7 @@ const SignUp = () => {
               className="h-6 w-6 object-contain"
             />
             <Text
-              className="text-center font-bold"
+              className="text-center font-bold dark:text-white"
               style={{ fontFamily: "Inter" }}
             >
               Sign Up with Google

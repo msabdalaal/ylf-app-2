@@ -14,5 +14,5 @@ export default function WelcomeLayout() {
   useEffect(() => {
     checkToken();
   }, []);
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack screenOptions={{ headerShown: false}}  />;
 }

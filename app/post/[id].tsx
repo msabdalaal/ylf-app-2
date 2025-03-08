@@ -17,6 +17,7 @@ import { ApplicationContext } from "@/context";
 import ImagePost from "@/components/posts/imagePost";
 import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
+import { useColorScheme } from "react-native";
 
 export default function Post() {
   const [post, setPost] = useState<Post>();
@@ -105,12 +106,18 @@ export default function Post() {
       ]
     );
   };
-
+  const theme = useColorScheme();
   return (
-    <SafeAreaView className="container bg-white flex-1">
+    <SafeAreaView
+      className="container bg-white flex-1"
+      style={{
+        backgroundColor: Colors[theme ?? "light"].background,
+      }}
+    >
       <BackButton className="mt-5" />
       {post?.userId && post && post.type == "event" ? (
         <EventPost
+          className="mt-8"
           post={post}
           handleLike={(id: string) => handleLikePost(id)}
         />
@@ -140,7 +147,10 @@ export default function Post() {
       )}
       <Text
         className="mt-6"
-        style={{ fontFamily: "Poppins_Medium", color: Colors.light.primary }}
+        style={{
+          fontFamily: "Poppins_Medium",
+          color: Colors[theme == "dark" ? "dark" : "light"].primary,
+        }}
       >
         Comments
       </Text>
@@ -151,7 +161,9 @@ export default function Post() {
           <Comment onDelete={deleteComment} comment={comment.item} />
         )}
         keyExtractor={(comment) => comment.id}
-        ListEmptyComponent={() => <Text>There is no comments yet</Text>}
+        ListEmptyComponent={() => (
+          <Text className="dark:text-white">There is no comments yet</Text>
+        )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         showsVerticalScrollIndicator={false}
       />

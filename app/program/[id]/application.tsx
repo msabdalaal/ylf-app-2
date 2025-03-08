@@ -1,5 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, TouchableOpacity, Alert, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  FlatList,
+  useColorScheme,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
 import TextInputComponent from "@/components/inputs/textInput";
@@ -16,6 +23,8 @@ export default function Application() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   // Fetch questions from the API
   const getQuestions = useCallback(async () => {
@@ -122,7 +131,7 @@ export default function Application() {
       case "complete":
         return (
           <View className="mb-4">
-            <Text className="mb-2">
+            <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
             <TextInputComponent
@@ -138,14 +147,14 @@ export default function Application() {
       case "upload":
         return (
           <View className="mb-4">
-            <Text className="mb-2">
+            <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
             <TouchableOpacity
               onPress={() => handleFilePick(question.id)}
               className="border border-gray-300 p-3 rounded-lg"
             >
-              <Text>
+              <Text className="dark:text-white">
                 {formData[question.id] ? "File Selected" : "Select File"}
               </Text>
             </TouchableOpacity>
@@ -157,7 +166,7 @@ export default function Application() {
       case "rightWrong":
         return (
           <View className="mb-4">
-            <Text className="mb-2">
+            <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
             <View className="flex-row">
@@ -211,7 +220,7 @@ export default function Application() {
         ];
         return (
           <View className="mb-4">
-            <Text className="mb-2">
+            <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
             {options.map((option: string, index: number) => (
@@ -235,7 +244,7 @@ export default function Application() {
       default:
         return (
           <View className="mb-4">
-            <Text className="mb-2">
+            <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
             <TextInputComponent
@@ -250,9 +259,13 @@ export default function Application() {
         );
     }
   };
-
   return (
-    <SafeAreaView className="flex-1 container">
+    <SafeAreaView
+      className="flex-1 container"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       <FlatList
         data={questions}
         keyExtractor={(item) => item.id}
@@ -263,7 +276,7 @@ export default function Application() {
             <Text
               style={{
                 fontFamily: "Poppins_Medium",
-                color: Colors.light.primary,
+                color: Colors[colorScheme ?? "light"].primary,
               }}
             >
               Applying Form

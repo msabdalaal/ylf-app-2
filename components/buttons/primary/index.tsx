@@ -26,7 +26,7 @@ const PrimaryButton = ({
       style={{
         backgroundColor: disabled
           ? Colors[colorScheme ?? "light"].secondary
-          : Colors[colorScheme ?? "light"].primary,
+          : Colors[colorScheme ?? "light"].ButtonPrimary,
         ...style,
       }}
     >

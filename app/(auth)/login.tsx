@@ -17,6 +17,7 @@ import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { ApplicationContext } from "@/context";
 import SkinnyLink from "@/components/links/skinny";
+import { useColorScheme } from "react-native";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,6 @@ const Login = () => {
   const router = useRouter();
   const { updateState } = useContext(ApplicationContext);
 
-  // Check if biometrics are available
   useEffect(() => {
     const checkBiometricSupport = async () => {
       const isBiometricAvailable = await LocalAuthentication.hasHardwareAsync();
@@ -119,9 +119,15 @@ const Login = () => {
       redirect
     );
   };
+  const colorScheme = useColorScheme();
 
   return (
-    <SafeAreaView className="flex-1 w-full container bg-white">
+    <SafeAreaView
+      className="flex-1 w-full container bg-white"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       <TopBarTabs
         links={[
           { name: "Log In", link: "/login" },
@@ -182,7 +188,10 @@ const Login = () => {
           source={require("@/assets/images/iconImages/googleIcon.png")}
           className="h-6 w-6 object-contain"
         />
-        <Text className="text-center font-bold" style={{ fontFamily: "Inter" }}>
+        <Text
+          className="text-center font-bold dark:text-white"
+          style={{ fontFamily: "Inter" }}
+        >
           Login with Google
         </Text>
       </TouchableOpacity>

@@ -6,7 +6,14 @@ import { User } from "@/constants/types";
 import { ApplicationContext } from "@/context";
 import imageUrl from "@/utils/imageUrl";
 import React, { useContext, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import dayjs from "dayjs";
 import DatePicker from "@/components/inputs/datePicker";
@@ -78,8 +85,14 @@ export default function Edit({}: Props) {
     }
   };
 
+  const colorScheme = useColorScheme();
   return (
-    <SafeAreaView className="bg-white container flex-1">
+    <SafeAreaView
+      className="bg-white container flex-1"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="flex-row justify-between mb-6 mt-5">
           <View className="flex-row items-center gap-3">
@@ -87,7 +100,7 @@ export default function Edit({}: Props) {
             <Text
               style={{
                 fontFamily: "Poppins_Medium",
-                color: Colors.light.primary,
+                color: Colors[colorScheme ?? "light"].primary,
               }}
             >
               Profile

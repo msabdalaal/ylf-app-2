@@ -4,12 +4,18 @@ import PrimaryLink from "@/components/links/primary";
 import SkinnyLink from "@/components/links/skinny";
 import { Colors } from "@/constants/Colors";
 import React from "react";
-import { Image, Text, View } from "react-native";
+import { Image, Text, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function index() {
+  const colorScheme = useColorScheme();
   return (
-    <SafeAreaView className="flex-1 w-full container justify-center">
+    <SafeAreaView
+      className="flex-1 w-full container justify-center"
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       <Backdrop />
       <View className="h-64 mb-6">
         <Image
@@ -19,13 +25,13 @@ export default function index() {
         />
       </View>
       <Text
-        className="text-center text-lg mb-5"
+        className="text-center text-lg mb-5 dark:text-white"
         style={{ fontFamily: "SF_pro", fontWeight: "bold" }}
       >
         Our Mission
       </Text>
       <Text
-        className="text-center text-lg font-light mb-5"
+        className="text-center text-lg font-light mb-5 dark:text-white"
         style={{ fontFamily: "SF_pro" }}
       >
         To Empower potential youth to positively engage in the community by

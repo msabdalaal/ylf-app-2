@@ -17,6 +17,8 @@ type Props = {
 const DatePicker = ({ onChange, value, label, disabled }: Props) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const colorScheme = useColorScheme();
+  const [focused, setFocused] = useState(false);
+  const isDark = colorScheme === "dark";
 
   const setDate = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type === "set" && date) {
@@ -32,7 +34,11 @@ const DatePicker = ({ onChange, value, label, disabled }: Props) => {
           <Text
             className="mb-2 font-semibold"
             style={{
-              color: Colors[colorScheme ?? "light"].text,
+              color: focused
+                ? Colors[colorScheme ?? "light"].primary
+                : isDark
+                ? "#E5E5E5"
+                : Colors.light.text,
             }}
           >
             {label}
@@ -41,25 +47,37 @@ const DatePicker = ({ onChange, value, label, disabled }: Props) => {
       </View>
       <View>
         <TouchableOpacity
-          onPress={() => setDatePickerOpen(true)}
+          onPress={() => {
+            setDatePickerOpen(true);
+            setFocused(true);
+          }}
+          onBlur={() => setFocused(false)}
           className={`w-full text-left border rounded-xl py-4 px-5 flex-row justify-between`}
           style={{
-            borderColor: Colors[colorScheme ?? "light"].border,
+            borderColor: focused
+              ? Colors[colorScheme ?? "light"].primary
+              : isDark
+              ? "#374151"
+              : Colors.light.border,
             borderWidth: 2,
-            backgroundColor: disabled ? "#F0F5FA" : "transparent",
+            backgroundColor: disabled
+              ? isDark
+                ? "#1F2937"
+                : "#F0F5FA"
+              : "transparent",
           }}
           disabled={disabled}
         >
           <Text
             style={{
-              color: Colors[colorScheme ?? "light"].text,
+              color: isDark ? "#E5E5E5" : Colors.light.text,
               fontFamily: "Poppins_Medium",
               lineHeight: 20,
             }}
           >
             {value ? dayjs(value).format("DD/MM/YYYY") : "Select Date"}
           </Text>
-          <Calendar />
+          <Calendar color={isDark ? "#6B7280" : Colors.light.border} />
         </TouchableOpacity>
       </View>
       {datePickerOpen ? (

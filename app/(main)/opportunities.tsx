@@ -3,10 +3,11 @@ import { Colors } from "@/constants/Colors";
 import { Opportunity } from "@/constants/types";
 import { get } from "@/hooks/axios";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, useColorScheme, View } from "react-native";
 
 function Opportunities() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const theme = useColorScheme();
   const getOpportunities = useCallback(async () => {
     await get("opportunities/getAll")
       .then((res) => {
@@ -19,11 +20,27 @@ function Opportunities() {
   useEffect(() => {
     getOpportunities();
   }, []);
+
+  const getCardColor = (tags: string[]) => {
+    if (tags.includes("scholarships")) return "#E7C11E";
+    if (tags.includes("event")) return "#015CA4";
+    if (tags.includes("job")) return "#EC5D52";
+    return "#015CA4";
+  };
+
   return (
-    <View className="container bg-white flex-1">
+    <View
+      className="container bg-white flex-1"
+      style={{
+        backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
+      }}
+    >
       <Text
         className="mt-10 mb-8"
-        style={{ fontFamily: "Poppins_Medium", color: Colors.light.primary }}
+        style={{
+          fontFamily: "Poppins_Medium",
+          color: theme == "dark" ? "white" : Colors.light.primary,
+        }}
       >
         Select Your Opportunity
       </Text>
@@ -33,7 +50,7 @@ function Opportunities() {
           <OpportunityCard
             link={`/opportunities/${post.item.id}`}
             post={post.item}
-            color={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+            color={getCardColor(post.item.tags)}
           />
         )}
         keyExtractor={(post) => post.id?.toString() || ""}

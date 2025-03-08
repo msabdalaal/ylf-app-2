@@ -60,7 +60,7 @@ function OpportunityCard({
           </Text>
         ))}
       </View>
-      <Text className="mt-4" numberOfLines={3}>
+      <Text className="mt-4 dark:text-white" numberOfLines={3}>
         {post.description}
       </Text>
     </TouchableOpacity>

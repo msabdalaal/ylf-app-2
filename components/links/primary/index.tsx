@@ -19,7 +19,7 @@ const PrimaryLink = ({
   className,
   replace = false,
   style = {},
-  disabled
+  disabled,
 }: PrimaryLinkProps) => {
   const colorScheme = useColorScheme();
   return (
@@ -28,7 +28,7 @@ const PrimaryLink = ({
       href={href}
       className={`px-4 py-[18px] rounded-xl w-full ${className}`}
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].primary,
+        backgroundColor: Colors[colorScheme ?? "light"].ButtonPrimary,
         ...style,
       }}
       disabled={disabled}

@@ -9,6 +9,9 @@ import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
 import { usePushNotifications } from "../hooks/useExpoNotification";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
@@ -79,7 +82,14 @@ function RootLayoutComponent() {
 
   return (
     <>
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          gestureDirection: "horizontal",
+          animation: "slide_from_right",
+          animationDuration: 200,
+        }}
+      >
         <Stack.Screen name="(welcome)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
@@ -111,7 +121,7 @@ function RootLayoutComponent() {
         />
         <Stack.Screen name="auth/index" options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
     </>
   );
 }

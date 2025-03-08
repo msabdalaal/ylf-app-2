@@ -6,18 +6,26 @@ import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Image, Pressable, Text, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  Pressable,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 import { produce } from "immer";
 import imageUrl from "@/utils/imageUrl";
 import { TouchableOpacity } from "react-native";
 import ImagePost from "@/components/posts/imagePost";
 import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
+import { Colors } from "@/constants/Colors";
 type Props = {};
 
 function Feed({}: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
-  // console.log(posts[0]);
+  const theme = useColorScheme();
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -77,53 +85,108 @@ function Feed({}: Props) {
   }, []);
 
   return (
-    <View className="container bg-white flex-1">
+    <View
+      className="container bg-white flex-1"
+      style={{
+        backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
+      }}
+    >
       <View className="text-white text-2xl font-bold mt-10 mb-5">
         <Image
-          source={require("@/assets/images/splash-icon.png")}
+          source={
+            theme === "dark"
+              ? require("@/assets/images/splash-icon-dark.png")
+              : require("@/assets/images/splash-icon.png")
+          }
           className="w-24 h-12"
           resizeMode="contain"
         />
-        <FlatList
-          horizontal
-          data={[
-            { id: "", logo: { path: "" } },
-            { id: "general", logo: { path: "" } },
-            ...programs,
-          ]}
-          showsHorizontalScrollIndicator={false}
-          className="mt-5"
-          renderItem={(item) => (
-            <TouchableOpacity
-              className="w-20 h-20 bg-gray-200 rounded-full p-2 justify-center items-center"
-              onPress={() => {
-                setPosts([]);
-                setPage(1);
-                setSelectedProgram(item.item.id);
-              }}
-            >
-              {item.item.logo.path ? (
-                <Image
-                  src={imageUrl(item.item.logo.path)}
-                  resizeMode="contain"
-                  className="w-full h-full rounded-full"
-                />
-              ) : item.item.id == "general" ? (
-                <Text className="text-center text-gray-500 justify-center items-center">
-                  General
-                </Text>
-              ) : (
-                <Text className="text-center text-gray-500 justify-center items-center">
-                  All Posts
-                </Text>
-              )}
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-        />
       </View>
       <FlatList
+        ListHeaderComponent={() => (
+          <FlatList
+            horizontal
+            data={[
+              {
+                id: "",
+                logo: { path: "" },
+                name: "All",
+                accentColor: undefined,
+              },
+              {
+                id: "general",
+                logo: { path: "" },
+                name: "General",
+                accentColor: undefined,
+              },
+              ...programs,
+            ]}
+            showsHorizontalScrollIndicator={false}
+            className="my-5"
+            renderItem={(item) => (
+              <View className="justify-center items-center w-20">
+                <View
+                  className="rounded-full p-1 w-20 h-20"
+                  style={{
+                    borderWidth: 1,
+                    borderColor:
+                      selectedProgram !== item.item.id
+                        ? "transparent"
+                        : item.item.accentColor
+                        ? item.item.accentColor
+                        : theme === "dark"
+                        ? "white"
+                        : "black",
+                  }}
+                >
+                  <TouchableOpacity
+                    className="w-full h-full bg-gray-200 rounded-full p-2 justify-center items-center"
+                    onPress={() => {
+                      setPosts([]);
+                      setPage(1);
+                      setSelectedProgram(item.item.id);
+                    }}
+                  >
+                    {item.item.logo.path ? (
+                      <Image
+                        src={imageUrl(item.item.logo.path)}
+                        resizeMode="contain"
+                        className="w-full h-full rounded-full"
+                      />
+                    ) : item.item.id == "general" ? (
+                      <Text className="text-center text-xs text-gray-500 justify-center items-center">
+                        General
+                      </Text>
+                    ) : (
+                      <Text className="text-center text-xs text-gray-500 justify-center items-center">
+                        All Posts
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+
+                <Text
+                  className="text-center"
+                  style={{
+                    color: item.item.accentColor
+                      ? item.item.accentColor
+                      : theme == "dark"
+                      ? "white"
+                      : "black",
+                    width: 80,
+                    fontSize: 12,
+                  }}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {item.item.name}
+                </Text>
+              </View>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+          />
+        )}
         data={posts}
         renderItem={(post) =>
           post.item.type == "event" ? (
@@ -150,7 +213,7 @@ function Feed({}: Props) {
             />
           )
         }
-        keyExtractor={(post) => post.id}
+        keyExtractor={(post) => `post-${post.id}-${post.createdAt}`}
         onEndReached={() => {
           if (page < pagination.totalPages) setPage(page + 1);
         }}

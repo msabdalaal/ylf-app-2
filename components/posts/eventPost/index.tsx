@@ -19,9 +19,11 @@ import { push } from "expo-router/build/global-state/routing";
 type Props = {
   post: Post;
   handleLike: (id: string) => void;
+  className?: string;
 };
 
 const EventPost = ({
+  className,
   post = {
     id: "",
     content:
@@ -56,7 +58,7 @@ const EventPost = ({
   };
   return (
     <View
-      className="rounded-[2rem] p-3 w-full"
+      className={`rounded-[2rem] p-3 w-full ${className}`}
       style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
     >
       <View className="flex-row items-center gap-3 mb-3">
@@ -68,15 +70,15 @@ const EventPost = ({
         </View>
         <View className="flex-row flex-1 items-start justify-between">
           <View>
-            <Text>{post.user.name}</Text>
-            <Text className="text-xs">{post.user.email}</Text>
+            <Text className="dark:text-white">{post.user.name}</Text>
+            <Text className="text-xs dark:text-white">{post.user.email}</Text>
           </View>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Dots />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
-      <Text className="mb-8">{post.content}</Text>
+      <Text className="mb-8 dark:text-white">{post.content}</Text>
       <View className="rounded-3xl">
         <PrimaryButton
           disabled={post.isRegistered}

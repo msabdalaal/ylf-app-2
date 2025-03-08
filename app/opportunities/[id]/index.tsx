@@ -7,6 +7,7 @@ import { get } from "@/hooks/axios";
 import { Opportunity } from "@/constants/types";
 import { useLocalSearchParams } from "expo-router";
 import PrimaryLink from "@/components/links/primary";
+import { useColorScheme } from "react-native";
 const OpportunityPage = () => {
   const { id } = useLocalSearchParams();
   const [opportunity, setOpportunity] = useState<Opportunity>();
@@ -22,22 +23,30 @@ const OpportunityPage = () => {
   useEffect(() => {
     getOpportunity();
   }, []);
+  const theme = useColorScheme();
   return (
-    <SafeAreaView className="bg-white flex-1">
+    <SafeAreaView
+      className="bg-white flex-1"
+      style={{
+        backgroundColor: Colors[theme ?? "light"].background,
+      }}
+    >
       <ScrollView className="flex-1">
         <View className=" container flex-row items-center gap-3 mb-6 mt-5">
           <BackButton />
           <Text
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
+              color: Colors[theme ?? "light"].primary,
             }}
           >
             Opportunities
           </Text>
         </View>
         <View className="container">
-          <Text className="text-lg font-bold">{opportunity?.name}</Text>
+          <Text className="text-lg font-bold dark:text-white">
+            {opportunity?.name}
+          </Text>
           <View className="flex-row mt-2 gap-2">
             {Array.isArray(opportunity?.tags) &&
               opportunity?.tags.map((tag, index) => (
@@ -51,17 +60,22 @@ const OpportunityPage = () => {
               ))}
           </View>
           {opportunity?.description ? (
-            <Text className="font-bold my-2">Description:</Text>
+            <Text className="font-bold my-2 dark:text-white">Description:</Text>
           ) : null}
-          <Text>{opportunity?.description}</Text>
+          <Text className="dark:text-white">{opportunity?.description}</Text>
           {opportunity?.opportunitySpec ? (
-            <Text className="font-bold my-2">Job Specification:</Text>
+            <Text className="font-bold my-2 dark:text-white">
+              Job Specification:
+            </Text>
           ) : null}
           <View className="gap-1">
             {opportunity?.opportunitySpec?.map((spec, index) => (
               <View key={index} className="flex-row items-start gap-2">
-                <Text className="text-[#404040]">•</Text>
-                <Text className="flex-1" style={{ fontFamily: "SF_pro" }}>
+                <Text className="text-[#404040] dark:text-white">•</Text>
+                <Text
+                  className="flex-1 dark:text-white"
+                  style={{ fontFamily: "SF_pro" }}
+                >
                   {spec}
                 </Text>
               </View>
@@ -69,7 +83,12 @@ const OpportunityPage = () => {
           </View>
         </View>
       </ScrollView>
-      <View className="py-6 px-7 bg-[#F0F5FA] mt-2">
+      <View
+        className="py-6 px-7 bg-[#F0F5FA] mt-2"
+        style={{
+          backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
+        }}
+      >
         <PrimaryLink href={`/`}>Apply Now</PrimaryLink>
       </View>
     </SafeAreaView>
