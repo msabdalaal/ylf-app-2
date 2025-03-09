@@ -87,7 +87,9 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View
                 className={`rounded-full p-1 ${
-                  color === Colors.light.primary ? "bg-white" : "bg-transparent"
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
                 }`}
               >
                 <Home color={color} />
@@ -102,7 +104,9 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View
                 className={`rounded-full p-1 ${
-                  color === Colors.light.primary ? "bg-white" : "bg-transparent"
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
                 }`}
               >
                 <Programs color={color} />
@@ -117,7 +121,9 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View
                 className={`rounded-full p-1 ${
-                  color === Colors.light.primary ? "bg-white" : "bg-transparent"
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
                 }`}
               >
                 <Opportunities color={color} />
@@ -132,7 +138,9 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <View
                 className={`rounded-full p-1 ${
-                  color === Colors.light.primary ? "bg-white" : "bg-transparent"
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
                 }`}
               >
                 <Settings color={color} />

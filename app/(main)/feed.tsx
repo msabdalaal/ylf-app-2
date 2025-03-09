@@ -26,6 +26,7 @@ type Props = {};
 
 function Feed({}: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const theme = useColorScheme();
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
@@ -39,16 +40,24 @@ function Feed({}: Props) {
     router.replace("/login");
   };
   const [page, setPage] = useState(1);
-  const getFeed = async () => {
+  const getFeed = async (refresh = false) => {
     await get("posts/getAll", { params: { page, program: selectedProgram } })
       .then((res) => {
-        setPosts((prev) => [...prev, ...res.data.data]);
+        setPosts((prev) =>
+          refresh ? res.data.data : [...prev, ...res.data.data]
+        );
         setPagination(res.data.pagination);
       })
       .catch((err) => {
         if (err instanceof AxiosError)
           if (err.response?.status === 401) logout();
       });
+  };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setPage(1);
+    await getFeed(true);
+    setRefreshing(false);
   };
   useEffect(() => {
     getFeed();
@@ -114,91 +123,101 @@ function Feed({}: Props) {
           <Bell color={theme === "dark" ? "white" : undefined} />
         </TouchableOpacity>
       </View>
-      <FlatList
-        ListHeaderComponent={() => (
-          <FlatList
-            horizontal
-            data={[
-              {
-                id: "",
-                logo: { path: "" },
-                name: "All",
-                accentColor: undefined,
-              },
-              {
-                id: "general",
-                logo: { path: "" },
-                name: "General",
-                accentColor: undefined,
-              },
-              ...programs,
-            ]}
-            showsHorizontalScrollIndicator={false}
-            className="my-5"
-            renderItem={(item) => (
-              <View className="justify-center items-center w-20">
-                <View
-                  className="rounded-full p-1 w-20 h-20"
-                  style={{
-                    borderWidth: 1,
-                    borderColor:
-                      selectedProgram !== item.item.id
-                        ? "transparent"
-                        : item.item.accentColor
-                        ? item.item.accentColor
-                        : theme === "dark"
-                        ? "white"
-                        : "black",
-                  }}
-                >
-                  <TouchableOpacity
-                    className="w-full h-full bg-gray-200 rounded-full p-2 justify-center items-center"
-                    onPress={() => {
-                      setPosts([]);
-                      setPage(1);
-                      setSelectedProgram(item.item.id);
-                    }}
-                  >
-                    {item.item.logo.path ? (
-                      <Image
-                        src={imageUrl(item.item.logo.path)}
-                        resizeMode="contain"
-                        className="w-full h-full rounded-full"
-                      />
-                    ) : item.item.id == "general" ? (
-                      <Text className="text-center text-xs text-gray-500 justify-center items-center">
-                        General
-                      </Text>
-                    ) : (
-                      <Text className="text-center text-xs text-gray-500 justify-center items-center">
-                        All Posts
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-
-                <Text
-                  className="text-center"
-                  style={{
-                    color: item.item.accentColor
+      <View>
+        <FlatList
+          horizontal
+          data={[
+            {
+              id: "",
+              logo: { path: "" },
+              name: "All",
+              accentColor: undefined,
+            },
+            {
+              id: "YLF",
+              logo: { path: "" },
+              name: "General",
+              accentColor: undefined,
+            },
+            ...programs,
+          ]}
+          showsHorizontalScrollIndicator={false}
+          className="my-5"
+          renderItem={(item) => (
+            <View className="justify-center items-center w-20">
+              <View
+                className="rounded-full p-1 w-20 h-20"
+                style={{
+                  borderWidth: 1,
+                  borderColor:
+                    selectedProgram !== item.item.id
+                      ? "transparent"
+                      : item.item.accentColor
                       ? item.item.accentColor
-                      : theme == "dark"
+                      : theme === "dark"
                       ? "white"
                       : "black",
-                    width: 80,
-                    fontSize: 12,
+                }}
+              >
+                <TouchableOpacity
+                  className="w-full h-full bg-gray-200 rounded-full p-2 justify-center items-center"
+                  onPress={() => {
+                    setPosts([]);
+                    setPage(1);
+                    setSelectedProgram(item.item.id);
                   }}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
                 >
-                  {item.item.name}
-                </Text>
+                  {item.item.logo.path ? (
+                    <Image
+                      src={imageUrl(item.item.logo.path)}
+                      resizeMode="contain"
+                      className="w-full h-full rounded-full"
+                    />
+                  ) : item.item.id == "YLF" ? (
+                    <View className="justify-center items-center w-full h-full">
+                      <Image
+                        source={require("@/assets/images/splash-icon.png")}
+                        className="w-full h-full"
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : (
+                    <View className="w-[4.5rem] h-[4.5rem] justify-center items-center">
+                      <Image
+                        source={require("@/assets/images/All.png")}
+                        className="w-full h-full"
+                        resizeMode="cover"
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
               </View>
-            )}
-            keyExtractor={(item) => item.id.toString()}
-            ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-          />
-        )}
+              <Text
+                className="text-center"
+                style={{
+                  color: item.item.accentColor
+                    ? item.item.accentColor
+                    : theme == "dark"
+                    ? "white"
+                    : "black",
+                  width: 80,
+                  fontFamily: "Poppins_Medium",
+                }}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {item.item.name}
+              </Text>
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+        />
+      </View>
+      <FlatList
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        ListHeaderComponent={() => <></>}
         data={posts}
         renderItem={(post) =>
           post.item.type == "event" ? (

@@ -9,9 +9,6 @@ import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
 import { usePushNotifications } from "../hooks/useExpoNotification";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (

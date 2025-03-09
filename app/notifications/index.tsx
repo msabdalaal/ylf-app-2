@@ -1,5 +1,5 @@
 import { View, Text, FlatList, useColorScheme } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
@@ -7,6 +7,7 @@ import { get } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { Notification } from "@/constants/types";
+import { ApplicationContext } from "@/context";
 
 const NotificationItem = ({ item }: { item: Notification }) => {
   const colorScheme = useColorScheme();
@@ -83,6 +84,7 @@ export default function Notifications() {
   useEffect(() => {
     getNotifications();
   }, []);
+  const { state } = useContext(ApplicationContext);
 
   return (
     <SafeAreaView
@@ -102,7 +104,7 @@ export default function Notifications() {
           Notification
         </Text>
       </View>
-
+      {/* <Text className="dark:text-white">{state.expoPushToken}</Text> */}
       {notifications.filter((n) => dayjs(n.createdAt).isSame(dayjs(), "day"))
         .length > 0 &&
         renderSection({

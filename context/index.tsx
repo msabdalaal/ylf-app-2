@@ -59,7 +59,10 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     await post("users/registerNotification", {
       token: state.expoPushToken,
     })
-      .then((response) => {})
+      .then((response) => {
+        console.log(state.expoPushToken);
+        console.log("updated");
+      })
       .catch((error) => {
         console.error(error);
       });
