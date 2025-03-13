@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, View, TouchableOpacity } from "react-native";
-import { useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 interface PrimaryButtonProps {
   children: React.ReactNode;
   onPress: () => void;
@@ -17,7 +17,7 @@ const SkinnyButton = ({
   disabled = false,
   textClassName,
 }: PrimaryButtonProps) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -27,7 +27,7 @@ const SkinnyButton = ({
       <Text
         style={{
           fontFamily: "Inter",
-          color: Colors[colorScheme ?? "light"].primary,
+          color: Colors[theme ?? "light"].primary,
         }}
         className={`text-center ${textClassName}`}
       >

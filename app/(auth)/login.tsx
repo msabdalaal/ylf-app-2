@@ -17,7 +17,7 @@ import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { ApplicationContext } from "@/context";
 import SkinnyLink from "@/components/links/skinny";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -119,13 +119,13 @@ const Login = () => {
       redirect
     );
   };
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
     <SafeAreaView
       className="flex-1 w-full container bg-white"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <TopBarTabs

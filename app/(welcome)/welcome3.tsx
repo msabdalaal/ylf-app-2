@@ -4,17 +4,18 @@ import PrimaryLink from "@/components/links/primary";
 import SkinnyLink from "@/components/links/skinny";
 import { Colors } from "@/constants/Colors";
 import React from "react";
-import { Image, Text, useColorScheme, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function index() {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="flex-1 w-full container justify-center"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <Backdrop />
@@ -60,7 +61,7 @@ export default function index() {
               style={{
                 fontFamily: "SF_pro",
                 fontWeight: "bold",
-                color: Colors[colorScheme ?? "light"].primary,
+                color: Colors[theme ?? "light"].primary,
               }}
             >
               {stat.number}

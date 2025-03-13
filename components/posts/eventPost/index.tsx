@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  useColorScheme,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import Dots from "@/assets/icons/dots";
@@ -15,7 +9,7 @@ import imageUrl from "@/utils/imageUrl";
 import PrimaryButton from "@/components/buttons/primary";
 import { post as postAxios } from "@/hooks/axios";
 import { useRouter } from "expo-router";
-import { push } from "expo-router/build/global-state/routing";
+import { useTheme } from "@/context/ThemeContext";
 type Props = {
   post: Post;
   handleLike: (id: string) => void;
@@ -46,7 +40,7 @@ const EventPost = ({
   handleLike,
 }: Props) => {
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const handleApply = async () => {
     await postAxios("events/submitApplication/" + post.eventId, {})
       .then(() => {
@@ -59,7 +53,7 @@ const EventPost = ({
   return (
     <View
       className={`rounded-[2rem] p-3 w-full ${className}`}
-      style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
+      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
     >
       <View className="flex-row items-center gap-3 mb-3">
         <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
@@ -89,7 +83,7 @@ const EventPost = ({
         </PrimaryButton>
         <View
           className="w-full py-3 px-6 rounded-b-3xl flex-row gap-2.5"
-          style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+          style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
         >
           <TouchableOpacity
             onPress={() => {

@@ -1,22 +1,23 @@
-import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
 import { Colors } from "@/constants/Colors";
 import { ApplicationContext } from "@/context";
 import QRCode from "react-native-qrcode-svg";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {};
 
 const QrCode = (props: Props) => {
   const { state } = useContext(ApplicationContext);
 
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="container bg-white flex-1"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <View className=" flex-row items-center gap-3 mb-6 mt-5">
@@ -24,7 +25,7 @@ const QrCode = (props: Props) => {
         <Text
           style={{
             fontFamily: "Poppins_Medium",
-            color: Colors[colorScheme ?? "light"].primary,
+            color: Colors[theme ?? "light"].primary,
           }}
         >
           Qr Code

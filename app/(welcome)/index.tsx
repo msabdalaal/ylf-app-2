@@ -2,22 +2,22 @@ import Backdrop from "@/components/backdrop";
 import PrimaryLink from "@/components/links/primary";
 import SkinnyLink from "@/components/links/skinny";
 import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 import { getValueFor, remove, save } from "@/hooks/storage";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { useColorScheme } from "react-native";
 import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function index() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
     <SafeAreaView
       className="flex-1 w-full container justify-center gap-2"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <Backdrop />

@@ -11,7 +11,6 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +21,7 @@ import SkinnyButton from "@/components/buttons/skinny";
 import { patch, post } from "@/hooks/axios";
 import * as ImagePicker from "expo-image-picker";
 import { getValueFor } from "@/hooks/storage";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {};
 const FormData = global.FormData;
@@ -85,12 +85,12 @@ export default function Edit({}: Props) {
     }
   };
 
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="bg-white container flex-1"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -100,7 +100,7 @@ export default function Edit({}: Props) {
             <Text
               style={{
                 fontFamily: "Poppins_Medium",
-                color: Colors[colorScheme ?? "light"].primary,
+                color: Colors[theme ?? "light"].primary,
               }}
             >
               Profile

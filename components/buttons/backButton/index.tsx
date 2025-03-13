@@ -1,8 +1,9 @@
-import { TouchableOpacity, useColorScheme } from "react-native";
+import { TouchableOpacity } from "react-native";
 import React from "react";
 import { useNavigation } from "expo-router";
 import AngleLeft from "@/assets/icons/Angle-left";
 import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   onClick?: () => void;
@@ -10,7 +11,7 @@ type Props = {
 };
 
 const BackButton = ({ onClick, className }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const navigation = useNavigation();
   const handleGoBack = () => {
     if (onClick) onClick();
@@ -21,10 +22,10 @@ const BackButton = ({ onClick, className }: Props) => {
       onPress={handleGoBack}
       className={`rounded-full w-11 h-11 flex justify-center items-center ${className}`}
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].bg_primary,
+        backgroundColor: Colors[theme ?? "light"].bg_primary,
       }}
     >
-      <AngleLeft color={colorScheme == "dark" ? "white" : "#015CA4"} />
+      <AngleLeft color={theme == "dark" ? "white" : "#015CA4"} />
     </TouchableOpacity>
   );
 };

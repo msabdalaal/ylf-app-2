@@ -2,13 +2,13 @@ import {
   View,
   Text,
   TextInput,
-  useColorScheme,
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { EyeClosed } from "@/assets/icons/Eye-closed";
 import { EyeOpen } from "@/assets/icons/Eye-open";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   label?: string;
@@ -31,11 +31,11 @@ const TextInputComponent = ({
   className,
   onEnter,
 }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(true);
   const [focused, setFocused] = useState(false);
 
-  const isDark = colorScheme === "dark";
+  const isDark = theme === "dark";
 
   return (
     <View className={`w-full ${className}`}>
@@ -44,7 +44,7 @@ const TextInputComponent = ({
           className="mb-2 font-semibold"
           style={{
             color: focused
-              ? Colors[colorScheme ?? "light"].primary
+              ? Colors[theme ?? "light"].primary
               : isDark
               ? "#E5E5E5"
               : Colors.light.text,
@@ -63,7 +63,7 @@ const TextInputComponent = ({
               <EyeOpen
                 color={
                   focused
-                    ? Colors[colorScheme ?? "light"].primary
+                    ? Colors[theme ?? "light"].primary
                     : isDark
                     ? "#6B7280"
                     : Colors.light.border
@@ -73,7 +73,7 @@ const TextInputComponent = ({
               <EyeClosed
                 color={
                   focused
-                    ? Colors[colorScheme ?? "light"].primary
+                    ? Colors[theme ?? "light"].primary
                     : isDark
                     ? "#6B7280"
                     : Colors.light.border
@@ -92,7 +92,7 @@ const TextInputComponent = ({
           className={`w-full text-left border rounded-xl py-4 px-5`}
           style={{
             borderColor: focused
-              ? Colors[colorScheme ?? "light"].primary
+              ? Colors[theme ?? "light"].primary
               : isDark
               ? "#374151"
               : Colors.light.border,

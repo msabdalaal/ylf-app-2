@@ -1,8 +1,8 @@
 import React from "react";
 import { Text } from "react-native";
-import { useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Link, Href } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
 
 interface PrimaryLinkProps {
   children: React.ReactNode;
@@ -21,14 +21,14 @@ const PrimaryLink = ({
   style = {},
   disabled,
 }: PrimaryLinkProps) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <Link
       replace={replace}
       href={href}
       className={`px-4 py-[18px] rounded-xl w-full ${className}`}
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].ButtonPrimary,
+        backgroundColor: Colors[theme ?? "light"].ButtonPrimary,
         ...style,
       }}
       disabled={disabled}

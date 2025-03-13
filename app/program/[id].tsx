@@ -16,7 +16,7 @@ import { useLocalSearchParams } from "expo-router";
 import { AxiosError } from "axios";
 import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -60,12 +60,12 @@ export default function Program() {
   useEffect(() => {
     getProgram();
   }, []);
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="bg-white flex-1"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       {showHeader ? (
@@ -74,7 +74,7 @@ export default function Program() {
           <Text
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors[colorScheme ?? "light"].primary,
+              color: Colors[theme ?? "light"].primary,
             }}
           >
             {program.name}
@@ -227,7 +227,7 @@ export default function Program() {
       <View
         className="py-6 px-7 mt-2"
         style={{
-          backgroundColor: colorScheme == "dark" ? "#21252d" : "#F0F5FA",
+          backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
         }}
       >
         <PrimaryLink

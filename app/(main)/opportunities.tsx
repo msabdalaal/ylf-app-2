@@ -1,13 +1,14 @@
 import OpportunityCard from "@/components/cards/opportunityCard";
 import { Colors } from "@/constants/Colors";
 import { Opportunity } from "@/constants/types";
+import { useTheme } from "@/context/ThemeContext";
 import { get } from "@/hooks/axios";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, useColorScheme, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 
 function Opportunities() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const theme = useColorScheme();
+  const { theme } = useTheme();
   const getOpportunities = useCallback(async () => {
     await get("opportunities/getAll")
       .then((res) => {

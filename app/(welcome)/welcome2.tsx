@@ -3,17 +3,18 @@ import ProgramCard from "@/components/cards/programCards";
 import PrimaryLink from "@/components/links/primary";
 import SkinnyLink from "@/components/links/skinny";
 import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 import React from "react";
-import { Image, Text, useColorScheme, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function index() {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="flex-1 w-full container justify-center"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <Backdrop />

@@ -4,13 +4,17 @@ import UserIcon from "@/assets/icons/user";
 import { Colors } from "@/constants/Colors";
 import { remove } from "@/hooks/storage";
 import { useRouter } from "expo-router";
-import { Text, TouchableOpacity, useColorScheme, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
+import Moon from "@/assets/icons/moon";
+import Sun from "@/assets/icons/sun";
+import System from "@/assets/icons/system";
 
 type Props = {};
 
 function Settings({}: Props) {
   const router = useRouter();
-  const theme = useColorScheme();
+  const { theme, toggleTheme, isSystemTheme, toggleSystemTheme } = useTheme();
 
   const logout = async () => {
     await remove("token");
@@ -21,7 +25,7 @@ function Settings({}: Props) {
     <View
       className="container bg-white flex-1"
       style={{
-        backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
+        backgroundColor: Colors[theme === "dark" ? "dark" : "light"].background,
       }}
     >
       <Text
@@ -69,6 +73,49 @@ function Settings({}: Props) {
         </View>
         <AngleRight color={theme == "dark" ? "white" : ""} />
       </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={toggleSystemTheme}
+        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl my-6"
+      >
+        <View className="flex-row items-center gap-4">
+          <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
+            <System />
+          </View>
+          <View>
+            <Text
+              className="dark:text-white"
+              style={{ fontFamily: "Poppins_Medium" }}
+            >
+              Use System Theme
+            </Text>
+            <Text className="text-gray-500 text-sm">
+              {isSystemTheme ? "On" : "Off"}
+            </Text>
+          </View>
+        </View>
+        <AngleRight color={theme === "dark" ? "white" : ""} />
+      </TouchableOpacity>
+
+      {!isSystemTheme && (
+        <TouchableOpacity
+          onPress={toggleTheme}
+          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mb-6"
+        >
+          <View className="flex-row items-center gap-4">
+            <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
+              {theme === "dark" ? <Moon /> : <Sun />}
+            </View>
+            <Text
+              className="dark:text-white"
+              style={{ fontFamily: "Poppins_Medium" }}
+            >
+              {theme === "dark" ? "Dark Mode" : "Light Mode"}
+            </Text>
+          </View>
+          <AngleRight color={theme === "dark" ? "white" : ""} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

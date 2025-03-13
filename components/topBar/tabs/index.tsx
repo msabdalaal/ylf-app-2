@@ -1,7 +1,8 @@
-import { View, Text, TouchableOpacity, useColorScheme } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Link, RelativePathString, usePathname } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   links: {
@@ -22,7 +23,7 @@ const TopBarTabs = ({
     },
   ],
 }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const pathname = usePathname();
   return (
     <View className="w-full flex-row items-center justify-between px-6 pt-5">
@@ -35,7 +36,7 @@ const TopBarTabs = ({
           style={{
             borderColor:
               link.link === pathname
-                ? Colors[colorScheme ?? "light"].primary
+                ? Colors[theme ?? "light"].primary
                 : "transparent",
           }}
         >
@@ -44,8 +45,8 @@ const TopBarTabs = ({
             style={{
               color:
                 link.link === pathname
-                  ? Colors[colorScheme ?? "light"].primary
-                  : Colors[colorScheme ?? "light"].border,
+                  ? Colors[theme ?? "light"].primary
+                  : Colors[theme ?? "light"].border,
               fontFamily: "Poppins_Medium",
               lineHeight: 20,
               fontWeight: "bold",

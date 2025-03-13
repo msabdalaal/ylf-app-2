@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
-  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
@@ -17,14 +16,15 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import PrimaryButton from "@/components/buttons/primary";
 import uploadFile from "@/utils/uploadFile";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Application() {
   const { id } = useLocalSearchParams();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   // Fetch questions from the API
   const getQuestions = useCallback(async () => {
@@ -263,7 +263,7 @@ export default function Application() {
     <SafeAreaView
       className="flex-1 container"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <FlatList
@@ -276,7 +276,7 @@ export default function Application() {
             <Text
               style={{
                 fontFamily: "Poppins_Medium",
-                color: Colors[colorScheme ?? "light"].primary,
+                color: Colors[theme ?? "light"].primary,
               }}
             >
               Applying Form

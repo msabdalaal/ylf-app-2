@@ -1,6 +1,7 @@
 import Pause from "@/assets/icons/pause";
 import Play from "@/assets/icons/play";
 import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 import { useEvent } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
 import {
@@ -8,7 +9,6 @@ import {
   View,
   Button,
   TouchableOpacity,
-  useColorScheme,
 } from "react-native";
 
 const videoSource =
@@ -23,7 +23,7 @@ export default function VideoScreen() {
   const { isPlaying } = useEvent(player, "playingChange", {
     isPlaying: player.playing,
   });
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
     <View style={styles.contentContainer}>
@@ -43,7 +43,7 @@ export default function VideoScreen() {
           }
         }}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-full justify-center items-center"
-        style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+        style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
       >
         {isPlaying ? <Pause /> : <Play />}
       </TouchableOpacity>

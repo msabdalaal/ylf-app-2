@@ -7,7 +7,7 @@ import { get } from "@/hooks/axios";
 import { Opportunity } from "@/constants/types";
 import { useLocalSearchParams } from "expo-router";
 import PrimaryLink from "@/components/links/primary";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 const OpportunityPage = () => {
   const { id } = useLocalSearchParams();
   const [opportunity, setOpportunity] = useState<Opportunity>();
@@ -23,7 +23,7 @@ const OpportunityPage = () => {
   useEffect(() => {
     getOpportunity();
   }, []);
-  const theme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="bg-white flex-1"

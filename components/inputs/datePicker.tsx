@@ -3,9 +3,10 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
-import { Text, TouchableOpacity, useColorScheme, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Colors } from "@/constants/Colors";
 import Calendar from "@/assets/icons/Calendar";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   onChange: (date: string) => void;
@@ -16,9 +17,9 @@ type Props = {
 
 const DatePicker = ({ onChange, value, label, disabled }: Props) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const [focused, setFocused] = useState(false);
-  const isDark = colorScheme === "dark";
+  const isDark = theme === "dark";
 
   const setDate = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type === "set" && date) {
@@ -35,7 +36,7 @@ const DatePicker = ({ onChange, value, label, disabled }: Props) => {
             className="mb-2 font-semibold"
             style={{
               color: focused
-                ? Colors[colorScheme ?? "light"].primary
+                ? Colors[theme ?? "light"].primary
                 : isDark
                 ? "#E5E5E5"
                 : Colors.light.text,
@@ -55,7 +56,7 @@ const DatePicker = ({ onChange, value, label, disabled }: Props) => {
           className={`w-full text-left border rounded-xl py-4 px-5 flex-row justify-between`}
           style={{
             borderColor: focused
-              ? Colors[colorScheme ?? "light"].primary
+              ? Colors[theme ?? "light"].primary
               : isDark
               ? "#374151"
               : Colors.light.border,

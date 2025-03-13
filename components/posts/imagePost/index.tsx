@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  useColorScheme,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import Dots from "@/assets/icons/dots";
@@ -13,6 +7,7 @@ import Heart from "@/assets/icons/Heart";
 import { Post } from "@/constants/types";
 import imageUrl from "@/utils/imageUrl";
 import { useRouter } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   handleLike: (id: string) => void;
@@ -45,12 +40,12 @@ const ImagePost = ({
   showAll = false,
   className,
 }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const router = useRouter();
   return (
     <View
       className={`rounded-[2rem] p-3 w-full ${className}`}
-      style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
+      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
     >
       <TouchableOpacity
         onPress={() => {
@@ -70,7 +65,7 @@ const ImagePost = ({
               <Text className="text-xs dark:text-white">{post.user.email}</Text>
             </View>
             {/* <TouchableOpacity>
-              <Dots color={colorScheme === "dark" ? "#fff" : ""} />
+              <Dots color={theme === "dark" ? "#fff" : ""} />
             </TouchableOpacity> */}
           </View>
         </View>
@@ -89,7 +84,7 @@ const ImagePost = ({
         <View
           className="absolute bottom-0 w-full py-3 px-4 rounded-b-3xl flex-row gap-2.5"
           style={{
-            backgroundColor: Colors[colorScheme ?? "light"].postFooter,
+            backgroundColor: Colors[theme ?? "light"].postFooter,
           }}
         >
           <TouchableOpacity

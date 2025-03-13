@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  useColorScheme,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
@@ -17,6 +11,7 @@ import PrimaryLink from "@/components/links/primary";
 import Email from "@/assets/icons/email";
 import QrCode from "@/assets/icons/qrCode";
 import { useRouter } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
 type Props = {};
 
 const profile = (props: Props) => {
@@ -24,12 +19,12 @@ const profile = (props: Props) => {
     state: { user },
   } = useContext(ApplicationContext);
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="container bg-white flex-1"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <View className=" flex-row items-center gap-3 mb-6 mt-5">
@@ -37,7 +32,7 @@ const profile = (props: Props) => {
         <Text
           style={{
             fontFamily: "Poppins_Medium",
-            color: Colors[colorScheme ?? "light"].primary,
+            color: Colors[theme ?? "light"].primary,
           }}
         >
           Profile
@@ -55,7 +50,7 @@ const profile = (props: Props) => {
             className="text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors[colorScheme ?? "light"].primary,
+              color: Colors[theme ?? "light"].primary,
             }}
           >
             {user?.name?.split(" ").length === 1
@@ -68,7 +63,7 @@ const profile = (props: Props) => {
           <TouchableOpacity
             onPress={() => router.push("/settings/profile/qrCode")}
           >
-            <QrCode color={Colors[colorScheme ?? "light"].primary} />
+            <QrCode color={Colors[theme ?? "light"].primary} />
           </TouchableOpacity>
         </View>
       </View>

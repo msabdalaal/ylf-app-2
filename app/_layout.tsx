@@ -9,11 +9,17 @@ import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
 import { usePushNotifications } from "../hooks/useExpoNotification";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeWrapper } from "@/components/ThemeWrapper";
 
 export default function RootLayout() {
   return (
     <ApplicationProvider>
-      <RootLayoutComponent />
+      <ThemeProvider>
+        <ThemeWrapper>
+          <RootLayoutComponent />
+        </ThemeWrapper>
+      </ThemeProvider>
     </ApplicationProvider>
   );
 }

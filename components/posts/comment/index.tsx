@@ -2,17 +2,12 @@ import Dots from "@/assets/icons/dots";
 import { Colors } from "@/constants/Colors";
 import { Comment as CommentType } from "@/constants/types";
 import { ApplicationContext } from "@/context";
+import { useTheme } from "@/context/ThemeContext";
 import { del } from "@/hooks/axios";
 import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
 import React, { useContext } from "react";
-import {
-  Image,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   comment: CommentType;
@@ -29,7 +24,7 @@ export default function Comment({ comment, onDelete }: Props) {
     onDelete(comment.id);
     setShowMenu(false);
   };
-  const theme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
     <View key={comment.id} className="flex-row gap-2">

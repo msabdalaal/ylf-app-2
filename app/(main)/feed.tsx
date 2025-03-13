@@ -1,4 +1,3 @@
-import BackButton from "@/components/buttons/backButton";
 import NormalPost from "@/components/posts/normalPost";
 import { Post, Program } from "@/constants/types";
 import { get, post } from "@/hooks/axios";
@@ -6,14 +5,7 @@ import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  FlatList,
-  Image,
-  Pressable,
-  Text,
-  useColorScheme,
-  View,
-} from "react-native";
+import { FlatList, Image, Text, View } from "react-native";
 import { produce } from "immer";
 import imageUrl from "@/utils/imageUrl";
 import { TouchableOpacity } from "react-native";
@@ -22,12 +14,13 @@ import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
 import { Colors } from "@/constants/Colors";
 import Bell from "@/assets/icons/bell";
+import { useTheme } from "@/context/ThemeContext";
 type Props = {};
 
 function Feed({}: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const theme = useColorScheme();
+  const { theme } = useTheme();
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
     currentPage: 1,

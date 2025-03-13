@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  useColorScheme,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useCallback } from "react";
 import { Colors } from "@/constants/Colors";
 import Dots from "@/assets/icons/dots";
@@ -14,6 +8,7 @@ import { Post } from "@/constants/types";
 import dayjs from "dayjs";
 import { useRouter } from "expo-router";
 import imageUrl from "@/utils/imageUrl";
+import { useTheme } from "@/context/ThemeContext";
 type Props = {
   post: Post;
   handleLike: (id: string) => void;
@@ -45,13 +40,13 @@ const NormalPost = ({
   className = "",
   showAll = false,
 }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const router = useRouter();
 
   return (
     <View
       className={`rounded-[2rem] p-3 w-full h-fit ${className}`}
-      style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
+      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
     >
       <TouchableOpacity
         onPress={() => {
@@ -79,13 +74,16 @@ const NormalPost = ({
             </TouchableOpacity> */}
           </View>
         </View>
-        <Text className="mb-8 dark:text-white" numberOfLines={showAll ? undefined : 3}>
+        <Text
+          className="mb-8 dark:text-white"
+          numberOfLines={showAll ? undefined : 3}
+        >
           {post?.content}
         </Text>
       </TouchableOpacity>
       <View
         className="py-3 px-4 rounded-b-3xl flex-row justify-between items-center"
-        style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+        style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
       >
         <View className="flex-row gap-2.5">
           <TouchableOpacity

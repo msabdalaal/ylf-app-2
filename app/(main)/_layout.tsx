@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Tabs, usePathname, useRouter } from "expo-router";
-import { Alert, BackHandler, Platform, useColorScheme } from "react-native";
+import { Alert, BackHandler, Platform } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HapticTab } from "@/components/buttons/hapticTab";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,9 +9,10 @@ import Home from "@/assets/icons/home";
 import Settings from "@/assets/icons/settings";
 import Opportunities from "@/assets/icons/opportunities";
 import { View } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const pathname = usePathname();
   useEffect(() => {
     const backHandler = () => {
@@ -45,7 +46,7 @@ export default function TabLayout() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <Tabs

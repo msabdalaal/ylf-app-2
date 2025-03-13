@@ -1,8 +1,8 @@
 import React from "react";
 import { Text } from "react-native";
-import { useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Href, Link } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
 
 interface PrimaryLinkProps {
   children: React.ReactNode;
@@ -21,7 +21,7 @@ const SkinnyLink = ({
   bold = false,
   TextClassName,
 }: PrimaryLinkProps) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <Link
       replace={replace}
@@ -31,7 +31,7 @@ const SkinnyLink = ({
       <Text
         style={{
           fontFamily: "Inter",
-          color: Colors[colorScheme ?? "light"].primary,
+          color: Colors[theme ?? "light"].primary,
           fontWeight: bold ? "bold" : "normal",
         }}
         className={`text-center ${TextClassName}`}

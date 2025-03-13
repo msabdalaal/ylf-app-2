@@ -1,4 +1,4 @@
-import { View, Text, FlatList, useColorScheme } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import React, { useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
@@ -8,10 +8,11 @@ import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { Notification } from "@/constants/types";
 import { ApplicationContext } from "@/context";
+import { useTheme } from "@/context/ThemeContext";
 
 const NotificationItem = ({ item }: { item: Notification }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <View
@@ -47,7 +48,7 @@ const NotificationItem = ({ item }: { item: Notification }) => {
 };
 
 export default function Notifications() {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const renderSection = ({
     title,
@@ -61,7 +62,7 @@ export default function Notifications() {
         className="mb-3"
         style={{
           fontFamily: "Poppins_Medium",
-          color: Colors[colorScheme ?? "light"].primary,
+          color: Colors[theme ?? "light"].primary,
         }}
       >
         {title}
@@ -90,7 +91,7 @@ export default function Notifications() {
     <SafeAreaView
       className="container flex-1"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <View className="flex-row items-center gap-3 mb-6 mt-5">
@@ -98,7 +99,7 @@ export default function Notifications() {
         <Text
           style={{
             fontFamily: "Poppins_Medium",
-            color: Colors[colorScheme ?? "light"].primary,
+            color: Colors[theme ?? "light"].primary,
           }}
         >
           Notification

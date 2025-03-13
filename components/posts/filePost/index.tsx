@@ -1,16 +1,11 @@
-import {
-  View,
-  Text,
-  useColorScheme,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import Dots from "@/assets/icons/dots";
 import Comments from "@/assets/icons/comments";
 import Heart from "@/assets/icons/Heart";
 import File from "@/assets/icons/file";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   user: {
@@ -43,12 +38,12 @@ const FilePost = ({
     },
   },
 }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
     <View
       className="rounded-[2rem] p-3 w-full"
-      style={{ backgroundColor: Colors[colorScheme ?? "light"].postBackground }}
+      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
     >
       <View className="flex-row items-center gap-3 mb-3">
         <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
@@ -67,7 +62,7 @@ const FilePost = ({
       <Text className="mb-8 dark:text-white">{post.body}</Text>
       <View
         className="rounded-3xl"
-        style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+        style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
       >
         <TouchableOpacity className="flex-row items-center gap-1.5">
           <View className="bg-[#085CA3] rounded-tl-3xl p-2">
@@ -77,7 +72,7 @@ const FilePost = ({
         </TouchableOpacity>
         <View
           className="w-full py-3 px-6 rounded-b-3xl flex-row gap-2.5"
-          style={{ backgroundColor: Colors[colorScheme ?? "light"].postFooter }}
+          style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
         >
           <TouchableOpacity className="flex-row items-center gap-1.5">
             <Comments />

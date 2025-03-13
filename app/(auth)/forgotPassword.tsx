@@ -6,11 +6,9 @@ import { Colors } from "@/constants/Colors";
 import TextInputComponent from "@/components/inputs/textInput";
 import PrimaryButton from "@/components/buttons/primary";
 import OTP from "@/components/inputs/otp";
-import SkinnyLink from "@/components/links/skinny";
-import SkinnyButton from "@/components/buttons/skinny";
 import { post } from "@/hooks/axios";
 import { useRouter } from "expo-router";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {};
 
@@ -69,13 +67,14 @@ const SignUp = (props: Props) => {
       router.replace("/login");
     });
   };
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
-    <SafeAreaView className="flex-1 w-full container pt-5"
-    style={{
-      backgroundColor: Colors[colorScheme ?? "light"].background,
-    }}
+    <SafeAreaView
+      className="flex-1 w-full container pt-5"
+      style={{
+        backgroundColor: Colors[theme ?? "light"].background,
+      }}
     >
       {token ? (
         <>
@@ -83,12 +82,15 @@ const SignUp = (props: Props) => {
             className="mt-6 text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors[colorScheme ?? "light"].primary,
+              color: Colors[theme ?? "light"].primary,
             }}
           >
             Create a password
           </Text>
-          <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
+          <Text
+            className="mt-4 dark:text-white"
+            style={{ fontFamily: "Inter" }}
+          >
             In order to keep your account safe you need to create a strong
             password.
           </Text>
@@ -123,12 +125,15 @@ const SignUp = (props: Props) => {
             className="mt-6 text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors[colorScheme ?? "light"].primary,
+              color: Colors[theme ?? "light"].primary,
             }}
           >
             Check your email
           </Text>
-          <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
+          <Text
+            className="mt-4 dark:text-white"
+            style={{ fontFamily: "Inter" }}
+          >
             We sent a reset link to <Text className="font-bold">{Email}</Text>{" "}
             enter 5 digit code that mentioned in the email
           </Text>
@@ -176,12 +181,15 @@ const SignUp = (props: Props) => {
             className="mt-6 text-xl"
             style={{
               fontFamily: "Poppins_Medium",
-              color: Colors[colorScheme ?? "light"].primary,
+              color: Colors[theme ?? "light"].primary,
             }}
           >
             Forgot password
           </Text>
-          <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
+          <Text
+            className="mt-4 dark:text-white"
+            style={{ fontFamily: "Inter" }}
+          >
             Please enter your email to reset the password
           </Text>
           <TextInputComponent

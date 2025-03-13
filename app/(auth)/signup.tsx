@@ -17,7 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 import Upload from "@/assets/icons/upload";
 import CloseIcon from "@/assets/icons/close";
 import { ApplicationContext } from "@/context";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 const SignUp = () => {
   const { updateState } = useContext(ApplicationContext);
@@ -142,13 +142,13 @@ const SignUp = () => {
       }
     }
   };
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
 
   return (
     <SafeAreaView
       className="flex-1 w-full container"
       style={{
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       {emailIsUnique ? (

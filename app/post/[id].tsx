@@ -17,7 +17,7 @@ import { ApplicationContext } from "@/context";
 import ImagePost from "@/components/posts/imagePost";
 import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Post() {
   const [post, setPost] = useState<Post>();
@@ -106,7 +106,7 @@ export default function Post() {
       ]
     );
   };
-  const theme = useColorScheme();
+  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="container bg-white flex-1"

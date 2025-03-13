@@ -1,6 +1,7 @@
-import { View, TextInput, useColorScheme } from "react-native";
+import { View, TextInput } from "react-native";
 import React, { useState, useRef } from "react";
 import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   value1: string;
@@ -27,9 +28,9 @@ const OTP = ({
   onChange3,
   onChange4,
   onChange5,
-  className
+  className,
 }: Props) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useTheme();
   const [focused, setFocused] = useState({
     1: false,
     2: false,
@@ -69,12 +70,12 @@ const OTP = ({
           borderWidth: 2,
           borderColor:
             focused[1] || value1 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].border,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].border,
           color:
             focused[1] || value1 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].text,
           fontFamily: "Poppins_Medium",
           lineHeight: 20,
         }}
@@ -93,12 +94,12 @@ const OTP = ({
           borderWidth: 2,
           borderColor:
             focused[2] || value2 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].border,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].border,
           color:
             focused[2] || value2 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].text,
           fontFamily: "Poppins_Medium",
           lineHeight: 20,
         }}
@@ -117,12 +118,12 @@ const OTP = ({
           borderWidth: 2,
           borderColor:
             focused[3] || value3 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].border,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].border,
           color:
             focused[3] || value3 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].text,
           fontFamily: "Poppins_Medium",
           lineHeight: 20,
         }}
@@ -141,12 +142,12 @@ const OTP = ({
           borderWidth: 2,
           borderColor:
             focused[4] || value4 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].border,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].border,
           color:
             focused[4] || value4 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].text,
           fontFamily: "Poppins_Medium",
           lineHeight: 20,
         }}
@@ -158,19 +159,19 @@ const OTP = ({
         value={value4}
         onChangeText={(text) => handleChange(4, text, onChange4)}
       />
-            <TextInput
+      <TextInput
         maxLength={1}
         className="border w-14 h-14 text-center text-lg rounded-xl"
         style={{
           borderWidth: 2,
           borderColor:
             focused[5] || value5 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].border,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].border,
           color:
             focused[5] || value5 !== ""
-              ? Colors[colorScheme ?? "light"].primary
-              : Colors[colorScheme ?? "light"].text,
+              ? Colors[theme ?? "light"].primary
+              : Colors[theme ?? "light"].text,
           fontFamily: "Poppins_Medium",
           lineHeight: 20,
         }}
