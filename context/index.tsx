@@ -48,29 +48,29 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     () => (type: string, payload: any) => dispatch({ type, payload }),
     [dispatch]
   );
+
   const getProfile = useCallback(async () => {
-    await get("users/profile").then((res) => {
+    try {
+      const res = await get("users/profile");
       const user = res.data.data;
       updateState("user", user);
-    });
+    } catch (error) {
+      console.error("Profile fetch error:", error);
+    }
   }, []);
 
-  const saveToken = async () => {
-    await post("users/registerNotification", {
-      token: state.expoPushToken,
-    })
-      .then((response) => {
-        console.log(state.expoPushToken);
-        console.log("updated");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+  const saveToken = useCallback(async () => {
+    if (!state.expoPushToken || !state.user) return;
 
-  useEffect(() => {
-    if (state.expoPushToken) {
-      saveToken();
+    try {
+      await post("users/registerNotification", {
+        token: state.expoPushToken,
+      });
+      console.log("Push token registered:", state.expoPushToken);
+    } catch (error) {
+      console.error("Token registration error:", error);
+      // Retry logic
+      setTimeout(saveToken, 5000);
     }
   }, [state.expoPushToken, state.user]);
 
@@ -79,6 +79,11 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
       getProfile();
     }
   }, [getProfile]);
+
+  useEffect(() => {
+    saveToken();
+  }, [saveToken]);
+
   return (
     <ApplicationContext.Provider value={{ state, updateState }}>
       {children}

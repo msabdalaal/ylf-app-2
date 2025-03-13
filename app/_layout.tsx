@@ -70,14 +70,32 @@ function RootLayoutComponent() {
   }, [loaded]);
 
   useEffect(() => {
-    if (
-      newToken?.data &&
-      state?.user &&
-      state.expoPushToken !== newToken?.data
-    ) {
-      updateState("expoPushToken", newToken?.data);
+    if (!newToken?.data) return;
+
+    const updateTokenIfNeeded = async () => {
+      try {
+        // Store token locally first
+        await save("pushToken", newToken.data);
+        
+        // Only update if different from current
+        if (state?.user && state.expoPushToken !== newToken.data) {
+          console.log("Updating push token:", newToken.data);
+          updateState("expoPushToken", newToken.data);
+        }
+      } catch (error) {
+        console.error("Error updating push token:", error);
+      }
+    };
+
+    updateTokenIfNeeded();
+  }, [newToken?.data, updateState, state?.user]);
+
+  useEffect(() => {
+    if (notification) {
+      // Handle received notification
+      console.log("Received notification:", notification);
     }
-  }, [newToken, updateState, state?.user, state.expoPushToken]);
+  }, [notification]);
 
   if (!loaded) {
     return null;

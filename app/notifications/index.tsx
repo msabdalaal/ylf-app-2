@@ -105,7 +105,7 @@ export default function Notifications() {
           Notification
         </Text>
       </View>
-      {/* <Text className="dark:text-white">{state.expoPushToken}</Text> */}
+      <Text className="dark:text-white">{state.expoPushToken}</Text>
       {notifications.filter((n) => dayjs(n.createdAt).isSame(dayjs(), "day"))
         .length > 0 &&
         renderSection({
