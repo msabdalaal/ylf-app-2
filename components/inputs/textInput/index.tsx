@@ -1,9 +1,4 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { EyeClosed } from "@/assets/icons/Eye-closed";
@@ -53,7 +48,7 @@ const TextInputComponent = ({
           {label}
         </Text>
       ) : null}
-      <View className="relative">
+      <View className="relative overflow-hidden">
         {secure ? (
           <TouchableOpacity
             onPress={() => setShowPassword((prev) => !prev)}
@@ -89,7 +84,7 @@ const TextInputComponent = ({
           secureTextEntry={secure ? showPassword : false}
           editable={!disabled}
           placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
-          className={`w-full text-left border rounded-xl py-4 px-5`}
+          className={`w-full overflow-hidden text-left border rounded-xl py-4 px-5`}
           style={{
             borderColor: focused
               ? Colors[theme ?? "light"].primary

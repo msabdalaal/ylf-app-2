@@ -4,6 +4,7 @@ import BackButton from "@/components/buttons/backButton";
 import TextInputComponent from "@/components/inputs/textInput";
 import { Colors } from "@/constants/Colors";
 import { formData } from "@/app/(auth)/signup";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface PasswordSetupProps {
   formData: formData;
@@ -21,7 +22,7 @@ export default function PasswordSetup({
   onBack,
 }: PasswordSetupProps) {
   return (
-    <>
+    <SafeAreaView>
       <BackButton onClick={onBack} />
       <Text
         className="mt-6 text-xl"
@@ -51,6 +52,6 @@ export default function PasswordSetup({
           onChange={(text) => setConfirmPassword(text)}
         />
       </View>
-    </>
+    </SafeAreaView>
   );
 }

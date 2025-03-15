@@ -32,9 +32,14 @@ export interface formData {
   id_front: string;
   id_back: string;
   phoneNumber: string;
-  dateOfBirth: Date | null;
+  dateOfBirth: string | null;
   education: string[];
   experiences: string[];
+  jobTitle: string;
+  age: string;
+  address: string;
+  languages: string[];
+  skills: string[];
 }
 
 const SignUp = () => {
@@ -55,6 +60,12 @@ const SignUp = () => {
     dateOfBirth: null,
     education: [""],
     experiences: [""],
+    // Initialize new fields
+    jobTitle: "",
+    age: "",
+    address: "",
+    languages: [""],
+    skills: [""],
   });
 
   const getProfile = useCallback(async () => {
@@ -117,6 +128,13 @@ const SignUp = () => {
         if (!formData.education?.[0]) return alert("Education is required");
         if (!formData.experiences?.[0])
           return alert("Work experience is required");
+        if (!formData.jobTitle) return alert("Job title is required");
+        if (!formData.age) return alert("Age is required");
+        if (!formData.address) return alert("Address is required");
+        if (!formData.languages?.[0])
+          return alert("At least one language is required");
+        if (!formData.skills?.[0])
+          return alert("At least one skill is required");
         await handleSignUp();
         break;
     }
@@ -136,8 +154,13 @@ const SignUp = () => {
           key,
           dayjs(formData[key] ?? "").toISOString() || ""
         );
-      } else if (key === "education" || key === "experiences") {
-        realFormData.append(key, JSON.stringify(formData[key]));
+      } else if (
+        ["education", "experiences", "languages", "skills"].includes(key)
+      ) {
+        realFormData.append(
+          key,
+          JSON.stringify(formData[key as keyof typeof formData])
+        );
       } else if (key !== "confirmPassword") {
         realFormData.append(
           key,
@@ -213,7 +236,7 @@ const SignUp = () => {
       }}
     >
       {renderStep()}
-      <PrimaryButton onPress={handleContinue} className="mt-6">
+      <PrimaryButton onPress={handleContinue} className="my-6">
         {loading ? "Signing Up ..." : step === 4 ? "Sign Up" : "Continue"}
       </PrimaryButton>
       {step === 1 && (
