@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { save } from "@/hooks/storage";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/context/ThemeContext";
@@ -9,7 +9,7 @@ import TextInputComponent from "@/components/inputs/textInput";
 import DatePicker from "@/components/inputs/datePicker";
 import PrimaryButton from "@/components/buttons/primary";
 import dayjs from "dayjs";
-import { patch } from "@/hooks/axios";
+import { get, patch } from "@/hooks/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AuthRedirectScreen() {
@@ -18,6 +18,7 @@ export default function AuthRedirectScreen() {
   const { theme } = useTheme();
   const { updateState } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [formData, setFormData] = useState<{
     phoneNumber: string;
     dateOfBirth: string | null;
@@ -30,6 +31,53 @@ export default function AuthRedirectScreen() {
     experiences: [""],
   });
 
+  useEffect(() => {
+    const checkProfile = async () => {
+      try {
+        const response = await get("users/profile", {}, token as string);
+        const user = response.data.data;
+        updateState("user", user);
+
+        // Prefill existing data
+        setFormData({
+          phoneNumber: user.phoneNumber || "",
+          dateOfBirth: user.dateOfBirth || null,
+          education: user.education?.length ? user.education : [""],
+          experiences: user.experiences?.length ? user.experiences : [""],
+        });
+
+        if (
+          user.phoneNumber &&
+          user.dateOfBirth &&
+          user.education?.[0] &&
+          user.experiences?.[0]
+        ) {
+          await save("token", token!.toString());
+          router.replace("/feed");
+        }
+      } catch (err) {
+        console.error("Error checking profile:", err);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    if (token) {
+      checkProfile();
+    }
+  }, [token]);
+
+  if (checking) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator
+          size="large"
+          color={Colors[theme ?? "light"].primary}
+        />
+      </View>
+    );
+  }
+
   const handleComplete = async () => {
     if (!formData.phoneNumber) return alert("Phone number is required");
     if (!formData.dateOfBirth) return alert("Date of birth is required");
@@ -38,7 +86,7 @@ export default function AuthRedirectScreen() {
 
     try {
       setLoading(true);
-      await patch("users/editProfile", formData,{},token as string);
+      await patch("users/editProfile", formData, {}, token as string);
       if (token) {
         await save("token", token.toString());
         router.replace("/feed");

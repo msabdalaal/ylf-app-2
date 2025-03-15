@@ -58,7 +58,7 @@ function Settings({}: Props) {
 
       <TouchableOpacity
         onPress={toggleSystemTheme}
-        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl my-6"
+        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mt-6"
       >
         <View className="flex-row items-center gap-4">
           <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
@@ -82,7 +82,7 @@ function Settings({}: Props) {
       {!isSystemTheme && (
         <TouchableOpacity
           onPress={toggleTheme}
-          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mb-6"
+          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mt-6"
         >
           <View className="flex-row items-center gap-4">
             <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
@@ -98,7 +98,7 @@ function Settings({}: Props) {
           <AngleRight color={theme === "dark" ? "white" : ""} />
         </TouchableOpacity>
       )}
-      
+
       <TouchableOpacity
         onPress={logout}
         className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between mt-6 items-center p-6 rounded-3xl"

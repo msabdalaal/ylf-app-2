@@ -8,10 +8,11 @@ import { getValueFor } from "./storage";
 
 export const get = async (
   url: string,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
+  customToken: string | null = null
 ): Promise<AxiosResponse> => {
   const apiUrl = `https://test.ylf-eg.org/api/`;
-  const token = await getValueFor("token");
+  const token = customToken ? customToken : await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.get(apiUrl + url, { headers, ...config });
 };
@@ -37,7 +38,7 @@ export const patch = async (
   customToken: string | null = null
 ): Promise<AxiosResponse> => {
   const apiUrl = `https://test.ylf-eg.org/api/`;
-  const token = customToken ? customToken: await getValueFor("token");
+  const token = customToken ? customToken : await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.patch(apiUrl + url, data, {
     headers,
