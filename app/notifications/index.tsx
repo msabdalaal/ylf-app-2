@@ -1,5 +1,5 @@
 import { View, Text, FlatList } from "react-native";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
@@ -50,6 +50,8 @@ const NotificationItem = ({ item }: { item: Notification }) => {
 export default function Notifications() {
   const { theme } = useTheme();
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const renderSection = ({
     title,
     data,
@@ -73,7 +75,7 @@ export default function Notifications() {
     </View>
   );
 
-  const getNotifications = async () => {
+  const getNotifications = async (refresh = false) => {
     await get("users/getUserNotifications")
       .then((res) => {
         setNotifications(res.data.data);
@@ -82,10 +84,17 @@ export default function Notifications() {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
       });
   };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getNotifications(true);
+    setRefreshing(false);
+  };
+
   useEffect(() => {
     getNotifications();
   }, []);
-  const { state } = useContext(ApplicationContext);
+
 
   return (
     <SafeAreaView
@@ -105,33 +114,42 @@ export default function Notifications() {
           Notification
         </Text>
       </View>
-      <Text className="dark:text-white">{state.expoPushToken}</Text>
-      {notifications.filter((n) => dayjs(n.createdAt).isSame(dayjs(), "day"))
-        .length > 0 &&
-        renderSection({
-          title: "Today",
-          data: notifications.filter((n) =>
-            dayjs(n.createdAt).isSame(dayjs(), "day")
-          ),
-        })}
-      {notifications.filter((n) =>
-        dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
-      ).length > 0 &&
-        renderSection({
-          title: "Yesterday",
-          data: notifications.filter((n) =>
-            dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
-          ),
-        })}
-      {notifications.filter((n) =>
-        dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
-      ).length > 0 &&
-        renderSection({
-          title: "Older",
-          data: notifications.filter((n) =>
-            dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
-          ),
-        })}
+      <FlatList
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        data={[1]}
+        renderItem={() => (
+          <View>
+            {notifications.filter((n) =>
+              dayjs(n.createdAt).isSame(dayjs(), "day")
+            ).length > 0 &&
+              renderSection({
+                title: "Today",
+                data: notifications.filter((n) =>
+                  dayjs(n.createdAt).isSame(dayjs(), "day")
+                ),
+              })}
+            {notifications.filter((n) =>
+              dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
+            ).length > 0 &&
+              renderSection({
+                title: "Yesterday",
+                data: notifications.filter((n) =>
+                  dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
+                ),
+              })}
+            {notifications.filter((n) =>
+              dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
+            ).length > 0 &&
+              renderSection({
+                title: "Older",
+                data: notifications.filter((n) =>
+                  dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
+                ),
+              })}
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 }

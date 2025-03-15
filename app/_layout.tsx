@@ -11,17 +11,31 @@ import { ApplicationContext, ApplicationProvider } from "@/context";
 import { usePushNotifications } from "../hooks/useExpoNotification";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ThemeWrapper } from "@/components/ThemeWrapper";
+import { NetworkProvider, useNetwork } from "@/context/NetworkContext";
+import NoInternet from "@/components/NoInternet";
 
 export default function RootLayout() {
   return (
     <ApplicationProvider>
-      <ThemeProvider>
-        <ThemeWrapper>
-          <RootLayoutComponent />
-        </ThemeWrapper>
-      </ThemeProvider>
+      <NetworkProvider>
+        <ThemeProvider>
+          <ThemeWrapper>
+            <RootLayoutNav />
+          </ThemeWrapper>
+        </ThemeProvider>
+      </NetworkProvider>
     </ApplicationProvider>
   );
+}
+
+function RootLayoutNav() {
+  const { isConnected, checkConnection } = useNetwork();
+
+  if (!isConnected) {
+    return <NoInternet onRefresh={checkConnection} />;
+  }
+
+  return <RootLayoutComponent />;
 }
 
 function RootLayoutComponent() {
@@ -76,7 +90,7 @@ function RootLayoutComponent() {
       try {
         // Store token locally first
         await save("pushToken", newToken.data);
-        
+
         // Only update if different from current
         if (state?.user && state.expoPushToken !== newToken.data) {
           console.log("Updating push token:", newToken.data);

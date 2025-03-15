@@ -18,29 +18,44 @@ import Upload from "@/assets/icons/upload";
 import CloseIcon from "@/assets/icons/close";
 import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
+import InitialSignup from "@/components/signup/InitialSignup";
+import IdUpload from "@/components/signup/IdUpload";
+import PasswordSetup from "@/components/signup/PasswordSetup";
+import UserInfo from "@/components/signup/UserInfo";
+import dayjs from "dayjs";
+
+export interface formData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  id_front: string;
+  id_back: string;
+  phoneNumber: string;
+  dateOfBirth: Date | null;
+  education: string[];
+  experiences: string[];
+}
 
 const SignUp = () => {
   const { updateState } = useContext(ApplicationContext);
-
-  const [emailIsUnique, setEmailIsUnique] = useState(false);
-  const [isIdUploaded, setIsIdUploaded] = useState(false);
-  const [formData, setFormData] = useState<{
-    name: string;
-    email: string;
-    password: string;
-    id_front: string;
-    id_back: string;
-  }>({
+  const router = useRouter();
+  const { theme } = useTheme();
+  const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<formData>({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     id_front: "",
     id_back: "",
+    phoneNumber: "",
+    dateOfBirth: null,
+    education: [""],
+    experiences: [""],
   });
-  const FormData = global.FormData;
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const getProfile = useCallback(async () => {
     await get("users/profile").then((res) => {
@@ -49,84 +64,9 @@ const SignUp = () => {
     });
   }, []);
 
-  const handleSignUp = async () => {
-    if (isIdUploaded) {
-      if (
-        formData.password !== "" &&
-        formData.name !== "" &&
-        formData.email !== ""
-      ) {
-        if (formData.password !== confirmPassword)
-          return alert("Passwords do not match");
-        if (!validator.isEmail(formData.email))
-          return alert("Email is not valid");
-        if (formData.password.length < 6)
-          return alert("Password has to be at least 6 characters long");
-
-        const realFormData = new FormData();
-        realFormData.append("name", formData.name);
-        realFormData.append("email", formData.email);
-        realFormData.append("password", formData.password);
-        realFormData.append("id_front", {
-          uri: formData.id_front,
-          type: "image/png",
-          name: "id_front.png",
-        } as any);
-        realFormData.append("id_back", {
-          uri: formData.id_back,
-          type: "image/png",
-          name: "id_back.png",
-        } as any);
-
-        try {
-          setLoading(true);
-          const response = await fetch(
-            "https://test.ylf-eg.org/api/auth/register",
-            {
-              method: "POST",
-              body: realFormData,
-            }
-          );
-          const data = await response.json();
-          if (response.ok) {
-            if (data.access_token) await save("token", data.access_token);
-            await getProfile();
-            router.replace("/feed");
-          } else {
-            alert(data.message || "An error occurred during registration");
-          }
-        } catch (error) {
-          console.error("Error during registration:", error);
-          alert("An unexpected error occurred. Please try again later.");
-        } finally {
-          setLoading(false);
-        }
-      }
-    } else if (emailIsUnique) {
-      if (formData.id_front && formData.id_back) {
-        setEmailIsUnique(false);
-        setIsIdUploaded(true);
-      }
-    } else {
-      if (!formData.name) return alert("Name cannot be empty");
-      if (!validator.isEmail(formData.email))
-        return alert("Email is not valid");
-      setEmailIsUnique(true);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    const redirect = Linking.createURL("/");
-
-    await WebBrowser.openAuthSessionAsync(
-      `https://test.ylf-eg.org/api/auth/google`,
-      redirect
-    );
-  };
-
   const pickImage = async (side: "front" | "back") => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       aspect: [3, 2],
       quality: 1,
     });
@@ -142,7 +82,128 @@ const SignUp = () => {
       }
     }
   };
-  const { theme } = useTheme();
+
+  const handleGoogleSignIn = async () => {
+    const redirect = Linking.createURL("/");
+    await WebBrowser.openAuthSessionAsync(
+      `https://test.ylf-eg.org/api/auth/google`,
+      redirect
+    );
+  };
+
+  const handleContinue = async () => {
+    switch (step) {
+      case 1:
+        if (!formData.name) return alert("Name cannot be empty");
+        if (!validator.isEmail(formData.email))
+          return alert("Email is not valid");
+        setStep(2);
+        break;
+      case 2:
+        if (!formData.id_front || !formData.id_back)
+          return alert("Please upload both sides of your ID");
+        setStep(3);
+        break;
+      case 3:
+        if (formData.password !== confirmPassword)
+          return alert("Passwords do not match");
+        if (formData.password.length < 6)
+          return alert("Password must be at least 6 characters");
+        setStep(4);
+        break;
+      case 4:
+        if (!formData.phoneNumber) return alert("Phone number is required");
+        if (!formData.dateOfBirth) return alert("Date of birth is required");
+        if (!formData.education?.[0]) return alert("Education is required");
+        if (!formData.experiences?.[0])
+          return alert("Work experience is required");
+        await handleSignUp();
+        break;
+    }
+  };
+
+  const handleSignUp = async () => {
+    const realFormData = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (key === "id_front" || key === "id_back") {
+        realFormData.append(key, {
+          uri: formData[key],
+          type: "image/jpeg",
+          name: `${key}.jpg`,
+        } as any);
+      } else if (key === "dateOfBirth") {
+        realFormData.append(
+          key,
+          dayjs(formData[key] ?? "").toISOString() || ""
+        );
+      } else if (key === "education" || key === "experiences") {
+        realFormData.append(key, JSON.stringify(formData[key]));
+      } else if (key !== "confirmPassword") {
+        realFormData.append(
+          key,
+          String(formData[key as keyof typeof formData] ?? "")
+        );
+      }
+    });
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://test.ylf-eg.org/api/auth/register",
+        {
+          method: "POST",
+          body: realFormData,
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        if (data.access_token) await save("token", data.access_token);
+        await getProfile();
+        router.replace("/feed");
+      } else {
+        alert(data.message || "An error occurred during registration");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("An unexpected error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return <InitialSignup formData={formData} setFormData={setFormData} />;
+      case 2:
+        return (
+          <IdUpload
+            formData={formData}
+            setFormData={setFormData}
+            pickImage={pickImage}
+            onBack={() => setStep(1)}
+          />
+        );
+      case 3:
+        return (
+          <PasswordSetup
+            formData={formData}
+            setFormData={setFormData}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            onBack={() => setStep(2)}
+          />
+        );
+      case 4:
+        return (
+          <UserInfo
+            formData={formData}
+            setFormData={setFormData}
+            onBack={() => setStep(3)}
+          />
+        );
+    }
+  };
 
   return (
     <SafeAreaView
@@ -151,143 +212,24 @@ const SignUp = () => {
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
-      {emailIsUnique ? (
-        <>
-          <BackButton
-            onClick={() => setEmailIsUnique(false)}
-            className="mt-5"
-          />
-          <Text
-            className="mt-6 text-xl"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
-            }}
-          >
-            National ID Card
-          </Text>
-          <Text className="mt-4" style={{ fontFamily: "Inter" }}>
-            Scan your National ID to confirm your identity and gain access to
-            our services.
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => pickImage(formData.id_front ? "back" : "front")}
-            disabled={formData.id_front !== "" && formData.id_back !== ""}
-          >
-            <View
-              className="border mt-7 border-dashed rounded-xl py-6 w-full gap-2 justify-center items-center"
-              style={{
-                backgroundColor: "#015CA41A",
-                borderColor: "#015CA44D",
-              }}
-            >
-              <Upload />
-              <Text
-                className="text-center font-bold mt-5"
-                style={{ fontFamily: "Inter" }}
-              >
-                Browse {formData.id_front ? "Back" : "Front"} Side of ID
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <View className="mt-5">
-            <Text className="mb-2">Uploaded</Text>
-            {formData.id_front && (
-              <TouchableOpacity
-                onPress={() => setFormData({ ...formData, id_front: "" })}
-                className="border border-gray-400 p-2 rounded-md flex-row justify-between items-center"
-              >
-                <Text>Front Id</Text>
-                <CloseIcon />
-              </TouchableOpacity>
-            )}
-            {formData.id_back && (
-              <TouchableOpacity
-                onPress={() => setFormData({ ...formData, id_back: "" })}
-                className="border border-gray-400 p-2 mt-3 rounded-md flex-row justify-between items-center"
-              >
-                <Text>Back Id</Text>
-                <CloseIcon />
-              </TouchableOpacity>
-            )}
-          </View>
-        </>
-      ) : isIdUploaded ? (
-        <>
-          <BackButton onClick={() => setIsIdUploaded(false)} />
-          <Text
-            className="mt-6 text-xl"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: Colors.light.primary,
-            }}
-          >
-            Create a password
-          </Text>
-          <Text className="mt-4" style={{ fontFamily: "Inter" }}>
-            In order to keep your account safe you need to create a strong
-            password.
-          </Text>
-          <View className="gap-4 mt-8">
-            <TextInputComponent
-              label="Password"
-              secure={true}
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={(text) => setFormData({ ...formData, password: text })}
-            />
-            <TextInputComponent
-              label="Confirm Password"
-              secure={true}
-              placeholder="Re-enter password"
-              value={confirmPassword}
-              onChange={(text) => setConfirmPassword(text)}
-            />
-          </View>
-        </>
-      ) : (
-        <>
-          <TopBarTabs
-            links={[
-              { name: "Log In", link: "/login" },
-              { name: "Sign Up", link: "/signup" },
-            ]}
-          />
-          <View className="mt-16 gap-4">
-            {/* <TextInputComponent label="First Name" placeholder="John" /> */}
-            <TextInputComponent
-              label="Full Name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={(text) => setFormData({ ...formData, name: text })}
-            />
-            <TextInputComponent
-              label="Your Email"
-              placeholder="email@example.com"
-              value={formData.email}
-              onChange={(text) => setFormData({ ...formData, email: text })}
-            />
-          </View>
-        </>
-      )}
-      <PrimaryButton onPress={handleSignUp} className="mt-6">
-        {loading ? "Signing Up ..." : isIdUploaded ? "Sign Up" : "Continue"}
+      {renderStep()}
+      <PrimaryButton onPress={handleContinue} className="mt-6">
+        {loading ? "Signing Up ..." : step === 4 ? "Sign Up" : "Continue"}
       </PrimaryButton>
-      {emailIsUnique || isIdUploaded ? null : (
+      {step === 1 && (
         <>
           <View className="mt-8 flex-row items-center gap-4 justify-center">
             <View
               className="h-0.5 w-24"
               style={{ backgroundColor: Colors.light.border }}
-            ></View>
-            <Text className=" font-bold" style={{ color: Colors.light.border }}>
+            />
+            <Text className="font-bold" style={{ color: Colors.light.border }}>
               Or
             </Text>
             <View
               className="h-0.5 w-24"
               style={{ backgroundColor: Colors.light.border }}
-            ></View>
+            />
           </View>
           <TouchableOpacity
             className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"

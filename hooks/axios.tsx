@@ -33,10 +33,11 @@ export const post = async (
 export const patch = async (
   url: string,
   data: any,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
+  customToken: string | null = null
 ): Promise<AxiosResponse> => {
   const apiUrl = `https://test.ylf-eg.org/api/`;
-  const token = await getValueFor("token");
+  const token = customToken ? customToken: await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.patch(apiUrl + url, data, {
     headers,

@@ -57,24 +57,6 @@ function Settings({}: Props) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={logout}
-        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between mt-6 items-center p-6 rounded-3xl"
-      >
-        <View className="flex-row items-center gap-4">
-          <View className="bg-[#F6F8FA] w-11 h-11 rounded-full justify-center items-center">
-            <Logout />
-          </View>
-          <Text
-            className="dark:text-white"
-            style={{ fontFamily: "Poppins_Medium" }}
-          >
-            Log Out
-          </Text>
-        </View>
-        <AngleRight color={theme == "dark" ? "white" : ""} />
-      </TouchableOpacity>
-
-      <TouchableOpacity
         onPress={toggleSystemTheme}
         className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl my-6"
       >
@@ -116,6 +98,24 @@ function Settings({}: Props) {
           <AngleRight color={theme === "dark" ? "white" : ""} />
         </TouchableOpacity>
       )}
+      
+      <TouchableOpacity
+        onPress={logout}
+        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between mt-6 items-center p-6 rounded-3xl"
+      >
+        <View className="flex-row items-center gap-4">
+          <View className="bg-[#F6F8FA] w-11 h-11 rounded-full justify-center items-center">
+            <Logout />
+          </View>
+          <Text
+            className="dark:text-white"
+            style={{ fontFamily: "Poppins_Medium" }}
+          >
+            Log Out
+          </Text>
+        </View>
+        <AngleRight color={theme == "dark" ? "white" : ""} />
+      </TouchableOpacity>
     </View>
   );
 }

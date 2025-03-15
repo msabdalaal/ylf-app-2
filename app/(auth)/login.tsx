@@ -8,7 +8,7 @@ import TextInputComponent from "@/components/inputs/textInput";
 import PrimaryButton from "@/components/buttons/primary";
 import { Colors } from "@/constants/Colors";
 import { get, post } from "@/hooks/axios";
-import { save } from "@/hooks/storage";
+import { remove, save } from "@/hooks/storage";
 import validator from "validator";
 import { AxiosError } from "axios";
 import FingerPrint from "@/assets/icons/fingerPrint";
@@ -18,6 +18,7 @@ import * as WebBrowser from "expo-web-browser";
 import { ApplicationContext } from "@/context";
 import SkinnyLink from "@/components/links/skinny";
 import { useTheme } from "@/context/ThemeContext";
+import { isProfileComplete } from "@/utils/profileComplete";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -46,10 +47,13 @@ const Login = () => {
   }, []);
 
   const getProfile = useCallback(async () => {
-    await get("users/profile").then((res) => {
+    const user = await get("users/profile").then((res) => {
       const user = res.data.data;
       updateState("user", user);
+      return user;
     });
+
+    return user;
   }, []);
 
   const handleLogin = async ({
@@ -68,13 +72,21 @@ const Login = () => {
         email && password ? { email, password } : formData
       );
       const token = res.data.access_token;
-
       await save("token", token);
 
+     const user =  await getProfile();
+     if (!isProfileComplete(user)) {
+      await remove("token");
+      router.replace({
+        pathname: "/auth",
+        params: { token: res.data.access_token }
+      });
+    }else{
       await SecureStore.setItemAsync("email", email);
       await SecureStore.setItemAsync("password", password);
-      await getProfile();
       router.replace("/feed");
+    }
+
     } catch (error) {
       if (error instanceof AxiosError) {
         alert(error.response?.data.message);
