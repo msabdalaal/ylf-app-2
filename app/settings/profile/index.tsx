@@ -46,26 +46,46 @@ const profile = (props: Props) => {
           />
         </View>
         <View className="w-full flex-row items-between gap-3">
-          <Text
-            className="text-xl"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: Colors[theme ?? "light"].primary,
-            }}
-          >
-            {user?.name?.split(" ").length === 1
-              ? user.name
-              : user?.name?.split(" ")?.[0] +
-                " " +
-                user?.name?.split(" ")?.[1]?.[0] +
-                "."}
-          </Text>
+          <View>
+            <Text
+              className="text-xl"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: Colors[theme ?? "light"].primary,
+              }}
+            >
+              {user?.name?.split(" ").length === 1
+                ? user.name
+                : user?.name?.split(" ")?.[0] +
+                  " " +
+                  user?.name?.split(" ")?.[1]?.[0] +
+                  "."}
+            </Text>
+          </View>
+
           <TouchableOpacity
             onPress={() => router.push("/settings/profile/qrCode")}
           >
             <QrCode color={Colors[theme ?? "light"].primary} />
           </TouchableOpacity>
         </View>
+      </View>
+      <Text className="mt-2 dark:text-white">Registered With</Text>
+      <View className="flex-row items-center gap-3">
+        {Array.isArray(user?.programApplications) &&
+          user?.programApplications?.length > 0 &&
+          user.programApplications.map((program, index) => (
+            <Text
+              key={index}
+              className="text-sm"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: Colors[theme ?? "light"].primary,
+              }}
+            >
+              {program.program.name}
+            </Text>
+          ))}
       </View>
       <View className="bg-[#F6F8FA] dark:bg-[#015CA41A] gap-4 justify-start mt-6 items-start p-6 rounded-3xl">
         <View className="flex-row items-center gap-4">

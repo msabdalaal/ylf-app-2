@@ -33,10 +33,26 @@ export interface User {
   skills?: string[];
   education?: string[];
   groupId?: string;
+  programApplications?: ProgramApplication[];
   idFront?: { path: string };
   idBack?: { path: string };
   avatar?: { path: string };
 }
+
+export interface ProgramApplication {
+  id:           string;
+  programId:    string;
+  subscriberId: string;
+  isAccepted:   string;
+  createdAt:    Date;
+  program:      Program;
+}
+
+export interface Program {
+  name: string;
+  id:   string;
+}
+
 
 export interface Comment {
   id: string;

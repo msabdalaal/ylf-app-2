@@ -3,10 +3,7 @@ import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
 
-export default function VideoScreen() {
-  const videoSource =
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
+export default function VideoScreen({ videoSource }: { videoSource: string }) {
   // Create the VideoPlayer instance using the hook
   const player = useVideoPlayer(videoSource, (player) => {
     // Optional configuration (e.g., player.loop = true)
