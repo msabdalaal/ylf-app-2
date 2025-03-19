@@ -33,8 +33,8 @@ export interface User {
   skills?: string[];
   education?: string[];
   groupId?: string;
-  idFront?: string;
-  idBack?: string;
+  idFront?: { path: string };
+  idBack?: { path: string };
   avatar?: { path: string };
 }
 
@@ -95,4 +95,5 @@ export interface Notification {
   id: string;
   title: string;
   userId: string;
+  link: string;
 }

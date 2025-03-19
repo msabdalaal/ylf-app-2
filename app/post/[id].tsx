@@ -5,18 +5,17 @@ import { Colors } from "@/constants/Colors";
 import type { Comment as CommentType, Post } from "@/constants/types";
 import { get, post as AxiosPost, del } from "@/hooks/axios";
 import { AxiosError } from "axios";
-import dayjs from "dayjs";
 import { useLocalSearchParams } from "expo-router/build/hooks";
-import React, { useContext, useEffect, useState } from "react";
-import { Alert, FlatList, Image, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Comment from "@/components/posts/comment";
 import TextInputComponent from "@/components/inputs/textInput";
 import SkinnyButton from "@/components/buttons/skinny";
-import { ApplicationContext } from "@/context";
 import ImagePost from "@/components/posts/imagePost";
 import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
+import { setupNotifications } from "@/utils/notificationHandler";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function Post() {
@@ -25,7 +24,12 @@ export default function Post() {
   const [newComment, setNewComment] = useState("");
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const { state } = useContext(ApplicationContext);
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    const subscription = setupNotifications();
+    return () => subscription.remove();
+  }, []);
 
   const getPost = async () => {
     await get("posts/get/" + id)
@@ -106,7 +110,6 @@ export default function Post() {
       ]
     );
   };
-  const { theme } = useTheme();
   return (
     <SafeAreaView
       className="container bg-white flex-1"

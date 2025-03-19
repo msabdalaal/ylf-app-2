@@ -127,9 +127,9 @@ function Feed({}: Props) {
               accentColor: undefined,
             },
             {
-              id: "YLF",
+              id: "general",
               logo: { path: "" },
-              name: "General",
+              name: "YLF",
               accentColor: undefined,
             },
             ...programs,
@@ -166,7 +166,7 @@ function Feed({}: Props) {
                       resizeMode="contain"
                       className="w-full h-full rounded-full"
                     />
-                  ) : item.item.id == "YLF" ? (
+                  ) : item.item.id == "general" ? (
                     <View className="justify-center items-center w-full h-full">
                       <Image
                         source={require("@/assets/images/splash-icon.png")}

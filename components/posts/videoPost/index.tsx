@@ -66,7 +66,7 @@ const VideoPost = ({
         <View style={{ filter: "brightness(0.5)" }}></View>
         <VideoScreen />
         <View
-          className="absolute bottom-0 w-full py-3 px-4 rounded-b-3xl flex-row gap-2.5"
+          className=" bottom-0 w-full py-3 px-4 rounded-b-3xl flex-row gap-2.5"
           style={{
             backgroundColor: Colors[theme ?? "light"].postFooter,
           }}

@@ -13,8 +13,17 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ThemeWrapper } from "@/components/ThemeWrapper";
 import { NetworkProvider, useNetwork } from "@/context/NetworkContext";
 import NoInternet from "@/components/NoInternet";
+import { setupNotifications } from "@/utils/notificationHandler";
 
 export default function RootLayout() {
+  useEffect(() => {
+    const subscription = setupNotifications();
+
+    // Cleanup subscription when component unmounts
+    return () => {
+      subscription.remove();
+    };
+  }, []);
   return (
     <ApplicationProvider>
       <NetworkProvider>

@@ -60,7 +60,6 @@ const SignUp = () => {
     dateOfBirth: null,
     education: [""],
     experiences: [""],
-    // Initialize new fields
     jobTitle: "",
     age: "",
     address: "",

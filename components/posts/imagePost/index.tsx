@@ -1,4 +1,13 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Modal,
+  BackHandler,
+} from "react-native";
+import { useState, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import Dots from "@/assets/icons/dots";
@@ -16,32 +25,26 @@ type Props = {
   className?: string;
 };
 
-const ImagePost = ({
-  post = {
-    id: "",
-    content:
-      "The program follows three structured phases; Filtration, Development, Implementation",
-    likeCounter: 122,
-    commentCounter: 10,
-    createdAt: new Date(),
-    hasLiked: false,
-    userId: "",
-    likedUsers: [],
-    user: {
-      name: "YLF",
-      email: "ylf",
-      avatar: require("@/assets/images/avatar.png"),
-    },
-    imageId: null,
-    images: [],
-    type: "normal",
-  },
-  handleLike,
-  showAll = false,
-  className,
-}: Props) => {
+const ImagePost = ({ post, handleLike, showAll = false, className }: Props) => {
   const { theme } = useTheme();
   const router = useRouter();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (isFullscreen) {
+          setIsFullscreen(false);
+          return true;
+        }
+        return false;
+      }
+    );
+
+    return () => backHandler.remove();
+  }, [isFullscreen]);
+
   return (
     <View
       className={`rounded-[2rem] p-3 w-full ${className}`}
@@ -55,7 +58,7 @@ const ImagePost = ({
         <View className="flex-row items-center gap-3 mb-3">
           <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
             <Image
-              src={post.user.avatar?.path}
+              src={imageUrl(post.user.avatar?.path ?? "")}
               className="w-full h-full object-cover"
             />
           </View>
@@ -77,10 +80,15 @@ const ImagePost = ({
         </Text>
       </TouchableOpacity>
       <View className="relative h-60 w-full rounded-3xl">
-        <Image
-          src={imageUrl(post.images[0].path)}
-          className="w-full h-full object-cover rounded-3xl"
-        />
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => setIsFullscreen(true)}
+        >
+          <Image
+            src={imageUrl(post.images[0].path)}
+            className="w-full h-full object-cover rounded-3xl"
+          />
+        </TouchableOpacity>
         <View
           className="absolute bottom-0 w-full py-3 px-4 rounded-b-3xl flex-row gap-2.5"
           style={{
@@ -115,6 +123,27 @@ const ImagePost = ({
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal
+        visible={isFullscreen}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsFullscreen(false)}
+      >
+        <View className="flex-1 bg-black">
+          <TouchableOpacity
+            className="absolute top-10 right-5 z-10 bg-black/50 p-2 rounded-full"
+            onPress={() => setIsFullscreen(false)}
+          >
+            <Ionicons name="close" size={24} color="white" />
+          </TouchableOpacity>
+          <Image
+            src={imageUrl(post.images[0].path)}
+            className="w-full h-full"
+            resizeMode="contain"
+          />
+        </View>
+      </Modal>
     </View>
   );
 };

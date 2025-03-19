@@ -9,14 +9,25 @@ import dayjs from "dayjs";
 import { Notification } from "@/constants/types";
 import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
+import { TouchableOpacity } from "react-native";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 const NotificationItem = ({ item }: { item: Notification }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const handlePress = () => {
+    if (item.link) {
+      router.push(item.link as any);
+    }
+  };
+
   return (
-    <View
-      className="p-4 rounded-xl flex-row items-center gap-4 mb-3"
+    <TouchableOpacity
+      onPress={handlePress}
+      disabled={!item.link}
+      className="p-4 rounded-xl flex-row items-center gap-4 mb-3 active:opacity-80"
       style={{
         backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
       }}
@@ -24,26 +35,35 @@ const NotificationItem = ({ item }: { item: Notification }) => {
       <View className="w-10 h-10 rounded-full justify-center items-center bg-gray-200 dark:bg-gray-800">
         <Text className="text-white text-lg">!</Text>
       </View>
-      <View className="flex-1">
-        <Text
-          className="font-medium mb-1"
-          style={{
-            fontFamily: "Poppins_Medium",
-            color: isDark ? "white" : Colors.light.text,
-          }}
-        >
-          {item.title}
-        </Text>
-        <Text
-          className="text-sm"
-          style={{
-            color: isDark ? "#9CA3AF" : Colors.light.text,
-          }}
-        >
-          {item.body}
-        </Text>
+      <View className="flex-1 flex-row items-center gap-2">
+        <View className="flex-1">
+          <Text
+            className="font-medium mb-1"
+            style={{
+              fontFamily: "Poppins_Medium",
+              color: isDark ? "white" : Colors.light.text,
+            }}
+          >
+            {item.title}
+          </Text>
+          <Text
+            className="text-sm"
+            style={{
+              color: isDark ? "#9CA3AF" : Colors.light.text,
+            }}
+          >
+            {item.body}
+          </Text>
+        </View>
+        {item.link && (
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={isDark ? "#9CA3AF" : Colors.light.text}
+          />
+        )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -94,7 +114,6 @@ export default function Notifications() {
   useEffect(() => {
     getNotifications();
   }, []);
-
 
   return (
     <SafeAreaView

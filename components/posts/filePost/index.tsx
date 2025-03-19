@@ -6,12 +6,11 @@ import Comments from "@/assets/icons/comments";
 import Heart from "@/assets/icons/Heart";
 import File from "@/assets/icons/file";
 import { useTheme } from "@/context/ThemeContext";
+import imageUrl from "@/utils/imageUrl";
+import { User } from "@/constants/types";
 
 type Props = {
-  user: {
-    name: string;
-    avatar: any;
-  };
+  user: User;
   post: {
     body: string;
     likesCount: number;
@@ -47,7 +46,10 @@ const FilePost = ({
     >
       <View className="flex-row items-center gap-3 mb-3">
         <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
-          <Image source={user.avatar} className="w-full h-full object-cover" />
+          <Image
+            src={imageUrl(user.avatar?.path ?? "")}
+            className="w-full h-full object-cover"
+          />
         </View>
         <View className="flex-row flex-1 items-start justify-between">
           <View>

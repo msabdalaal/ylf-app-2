@@ -1,71 +1,77 @@
-import Pause from "@/assets/icons/pause";
-import Play from "@/assets/icons/play";
-import { Colors } from "@/constants/Colors";
-import { useTheme } from "@/context/ThemeContext";
-import { useEvent } from "expo";
+import React, { useRef, useState } from "react";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
-import {
-  StyleSheet,
-  View,
-  Button,
-  TouchableOpacity,
-} from "react-native";
-
-const videoSource =
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
 export default function VideoScreen() {
+  const videoSource =
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+  // Create the VideoPlayer instance using the hook
   const player = useVideoPlayer(videoSource, (player) => {
-    // player.loop = true;
-    // player.play();
+    // Optional configuration (e.g., player.loop = true)
   });
 
-  const { isPlaying } = useEvent(player, "playingChange", {
-    isPlaying: player.playing,
-  });
-  const { theme } = useTheme();
+  // Create a ref for VideoView to access its instance methods
+  const videoViewRef = useRef(null);
+
+  // State to track if the video has started (i.e. custom play button has been pressed)
+  const [hasStarted, setHasStarted] = useState(false);
+
+  // When the custom play button is pressed, start playback and mark that playback has started
+  const handleCustomPlay = () => {
+    if (!hasStarted) {
+      setHasStarted(true);
+      player.play();
+    }
+  };
 
   return (
-    <View style={styles.contentContainer}>
+    <View style={styles.container}>
       <VideoView
+        // Changing the key forces VideoView to remount with new props.
+        key={hasStarted ? "native" : "custom"}
+        ref={videoViewRef}
         style={styles.video}
         player={player}
+        // Use native controls only after the custom play button has been used.
+        nativeControls={hasStarted}
         allowsFullscreen
         allowsPictureInPicture
-        nativeControls={false}
       />
-      <TouchableOpacity
-        onPress={() => {
-          if (isPlaying) {
-            player.pause();
-          } else {
-            player.play();
-          }
-        }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-full justify-center items-center"
-        style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
-      >
-        {isPlaying ? <Pause /> : <Play />}
-      </TouchableOpacity>
+
+      {/* Show the custom play button only if the video has not yet started */}
+      {!hasStarted && (
+        <TouchableOpacity style={styles.playButton} onPress={handleCustomPlay}>
+          <Ionicons name="play" size={30} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    borderRadius: 20,
-    overflow: "hidden",
+  container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
     backgroundColor: "black",
   },
   video: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
   },
-  controlsContainer: {
-    //   paddingBottom: 80,
+  playButton: {
+    position: "absolute",
+    top: "45%",
+    left: "45%",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 10,
+    borderRadius: 25,
+  },
+  fullscreenButton: {
+    position: "absolute",
+    bottom: 30,
+    right: 20,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 10,
+    borderRadius: 20,
   },
 });
