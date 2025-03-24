@@ -5,7 +5,7 @@ import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Image, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 import { produce } from "immer";
 import imageUrl from "@/utils/imageUrl";
 import { TouchableOpacity } from "react-native";
@@ -33,7 +33,10 @@ function Feed({}: Props) {
     router.replace("/login");
   };
   const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const getFeed = async (refresh = false) => {
+    if (!refresh) setIsLoadingMore(true);
     await get("posts/getAll", { params: { page, program: selectedProgram } })
       .then((res) => {
         setPosts((prev) =>
@@ -44,8 +47,12 @@ function Feed({}: Props) {
       .catch((err) => {
         if (err instanceof AxiosError)
           if (err.response?.status === 401) logout();
+      })
+      .finally(() => {
+        setIsLoadingMore(false);
       });
   };
+
   const onRefresh = async () => {
     setRefreshing(true);
     setPage(1);
@@ -217,30 +224,66 @@ function Feed({}: Props) {
             <EventPost
               post={post.item}
               handleLike={(id: string) => handleLikePost(id)}
+              color={
+                selectedProgram && selectedProgram != "general"
+                  ? programs.find((program) => program.id == selectedProgram)
+                      ?.accentColor
+                  : undefined
+              }
             />
           ) : post.item.images.length > 0 ? (
             post.item.images[0].path.endsWith(".mp4") ? (
               <VideoPost
                 handleLike={(id: string) => handleLikePost(id)}
                 post={post.item}
+                color={
+                  selectedProgram && selectedProgram != "general"
+                    ? programs.find((program) => program.id == selectedProgram)
+                        ?.accentColor
+                    : undefined
+                }
               />
             ) : (
               <ImagePost
                 handleLike={(id: string) => handleLikePost(id)}
                 post={post.item}
+                color={
+                  selectedProgram && selectedProgram != "general"
+                    ? programs.find((program) => program.id == selectedProgram)
+                        ?.accentColor
+                    : undefined
+                }
               />
             )
           ) : (
             <NormalPost
               handleLike={(id: string) => handleLikePost(id)}
               post={post.item}
+              color={
+                selectedProgram && selectedProgram != "general"
+                  ? programs.find((program) => program.id == selectedProgram)
+                      ?.accentColor
+                  : undefined
+              }
             />
           )
         }
         keyExtractor={(post) => `post-${post.id}-${post.createdAt}`}
         onEndReached={() => {
-          if (page < pagination.totalPages) setPage(page + 1);
+          if (page < pagination.totalPages && !isLoadingMore) {
+            setPage(page + 1);
+          }
         }}
+        ListFooterComponent={() =>
+          isLoadingMore ? (
+            <View className="py-4">
+              <ActivityIndicator
+                size="small"
+                color={Colors[theme ?? "light"].primary}
+              />
+            </View>
+          ) : null
+        }
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         showsVerticalScrollIndicator={false}
       />

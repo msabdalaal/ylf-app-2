@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
 import { Colors } from "@/constants/Colors";
@@ -12,14 +12,28 @@ import Email from "@/assets/icons/email";
 import QrCode from "@/assets/icons/qrCode";
 import { useRouter } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
+import { get } from "@/hooks/axios";
 type Props = {};
 
 const profile = (props: Props) => {
   const {
     state: { user },
   } = useContext(ApplicationContext);
+  const { updateState } = useContext(ApplicationContext);
   const router = useRouter();
   const { theme } = useTheme();
+  const getProfile = useCallback(async () => {
+    try {
+      const res = await get("users/profile");
+      const user = res.data.data;
+      updateState("user", user);
+    } catch (error) {
+      console.error("Profile fetch error:", error);
+    }
+  }, []);
+  useEffect(() => {
+    getProfile();
+  }, [getProfile]);
   return (
     <SafeAreaView
       className="container bg-white flex-1"
@@ -70,21 +84,23 @@ const profile = (props: Props) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Text className="mt-2 dark:text-white">Registered With</Text>
-      <View className="flex-row items-center gap-3">
+      {Array.isArray(user?.programApplications) &&
+        user?.programApplications?.length > 0 && (
+          <Text className="mt-2 dark:text-white">Registered With:</Text>
+        )}
+      <View className="flex-row items-center gap-3 mt-2">
         {Array.isArray(user?.programApplications) &&
           user?.programApplications?.length > 0 &&
           user.programApplications.map((program, index) => (
-            <Text
-              key={index}
-              className="text-sm"
-              style={{
-                fontFamily: "Poppins_Medium",
-                color: Colors[theme ?? "light"].primary,
-              }}
-            >
-              {program.program.name}
-            </Text>
+            <View className="items-center">
+              <Image
+                key={index}
+                src={imageUrl(program.program.logo.path)}
+                resizeMode="contain"
+                className="h-20 w-20 bg-white rounded-full"
+              />
+              <Text className="text-sm">{program.program.name}</Text>
+            </View>
           ))}
       </View>
       <View className="bg-[#F6F8FA] dark:bg-[#015CA41A] gap-4 justify-start mt-6 items-start p-6 rounded-3xl">

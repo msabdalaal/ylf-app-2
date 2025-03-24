@@ -15,6 +15,7 @@ type Props = {
   post: Post;
   showAll?: boolean;
   className?: string;
+  color: string | undefined;
 };
 
 const VideoPost = ({
@@ -40,13 +41,18 @@ const VideoPost = ({
   handleLike,
   showAll = false,
   className,
+  color,
 }: Props) => {
   const { theme } = useTheme();
   const router = useRouter();
   return (
     <View
       className={`rounded-[2rem] p-3 w-full ${className}`}
-      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
+      style={{
+        backgroundColor: color
+          ? `${color}20`
+          : Colors[theme ?? "light"].postBackground,
+      }}
     >
       <View className="relative h-72 w-full rounded-3xl mb-3">
         <View className="absolute top-0 w-full p-3 flex-row items-center gap-3 mb-3 z-10">
@@ -68,7 +74,9 @@ const VideoPost = ({
         <View
           className=" bottom-0 w-full py-3 px-4 rounded-b-3xl flex-row gap-2.5"
           style={{
-            backgroundColor: Colors[theme ?? "light"].postFooter,
+            backgroundColor: color
+              ? "#0000004D"
+              : Colors[theme ?? "light"].postFooter,
           }}
         >
           <TouchableOpacity

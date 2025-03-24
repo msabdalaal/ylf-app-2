@@ -51,14 +51,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
+    borderTopEndRadius: 20,
+    borderTopStartRadius: 20,
   },
   video: {
     flex: 1,
   },
   playButton: {
     position: "absolute",
-    top: "45%",
-    left: "45%",
+    top: "40%",
+    left: "40%",
     backgroundColor: "rgba(0,0,0,0.6)",
     padding: 10,
     borderRadius: 25,

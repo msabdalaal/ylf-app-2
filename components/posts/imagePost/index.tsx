@@ -23,9 +23,16 @@ type Props = {
   post: Post;
   showAll?: boolean;
   className?: string;
+  color?: string | undefined;
 };
 
-const ImagePost = ({ post, handleLike, showAll = false, className }: Props) => {
+const ImagePost = ({
+  post,
+  handleLike,
+  showAll = false,
+  className,
+  color,
+}: Props) => {
   const { theme } = useTheme();
   const router = useRouter();
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -44,11 +51,16 @@ const ImagePost = ({ post, handleLike, showAll = false, className }: Props) => {
 
     return () => backHandler.remove();
   }, [isFullscreen]);
-
   return (
     <View
       className={`rounded-[2rem] p-3 w-full ${className}`}
-      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
+      style={{
+        backgroundColor: color
+          ? color.length > 7
+            ? color.slice(0, 7) + "33"
+            : `${color}33`
+          : Colors[theme ?? "light"].postBackground,
+      }}
     >
       <TouchableOpacity
         onPress={() => {
@@ -92,7 +104,9 @@ const ImagePost = ({ post, handleLike, showAll = false, className }: Props) => {
         <View
           className="absolute bottom-0 w-full py-3 px-4 rounded-b-3xl flex-row gap-2.5"
           style={{
-            backgroundColor: Colors[theme ?? "light"].postFooter,
+            backgroundColor: color
+              ? "#0000004D"
+              : Colors[theme ?? "light"].postFooter,
           }}
         >
           <TouchableOpacity

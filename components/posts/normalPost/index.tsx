@@ -14,6 +14,7 @@ type Props = {
   handleLike: (id: string) => void;
   className?: string;
   showAll?: boolean;
+  color: string | undefined;
 };
 
 const NormalPost = ({
@@ -39,6 +40,7 @@ const NormalPost = ({
   handleLike,
   className = "",
   showAll = false,
+  color,
 }: Props) => {
   const { theme } = useTheme();
   const router = useRouter();
@@ -46,7 +48,11 @@ const NormalPost = ({
   return (
     <View
       className={`rounded-[2rem] p-3 w-full h-fit ${className}`}
-      style={{ backgroundColor: Colors[theme ?? "light"].postBackground }}
+      style={{
+        backgroundColor: color
+          ? `${color}20`
+          : Colors[theme ?? "light"].postBackground,
+      }}
     >
       <TouchableOpacity
         onPress={() => {
@@ -83,7 +89,11 @@ const NormalPost = ({
       </TouchableOpacity>
       <View
         className="py-3 px-4 rounded-b-3xl flex-row justify-between items-center"
-        style={{ backgroundColor: Colors[theme ?? "light"].postFooter }}
+        style={{
+          backgroundColor: color
+            ? "#0000004D"
+            : Colors[theme ?? "light"].postFooter,
+        }}
       >
         <View className="flex-row gap-2.5">
           <TouchableOpacity

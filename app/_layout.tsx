@@ -19,7 +19,6 @@ export default function RootLayout() {
   useEffect(() => {
     const subscription = setupNotifications();
 
-    // Cleanup subscription when component unmounts
     return () => {
       subscription.remove();
     };
@@ -97,10 +96,8 @@ function RootLayoutComponent() {
 
     const updateTokenIfNeeded = async () => {
       try {
-        // Store token locally first
         await save("pushToken", newToken.data);
 
-        // Only update if different from current
         if (state?.user && state.expoPushToken !== newToken.data) {
           console.log("Updating push token:", newToken.data);
           updateState("expoPushToken", newToken.data);
@@ -115,7 +112,6 @@ function RootLayoutComponent() {
 
   useEffect(() => {
     if (notification) {
-      // Handle received notification
       console.log("Received notification:", notification);
     }
   }, [notification]);
