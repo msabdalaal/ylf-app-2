@@ -31,28 +31,33 @@ export interface User {
   experiences?: string[];
   languages?: string[];
   skills?: string[];
-  education?: string[];
+  college?: string;
+  university?: string;
   groupId?: string;
   programApplications?: ProgramApplication[];
   idFront?: { path: string };
   idBack?: { path: string };
   avatar?: { path: string };
+  groupLeader?: {
+    id: string;
+    name: string;
+    referenceCode: string;
+  }[];
 }
 
 export interface ProgramApplication {
-  id:           string;
-  programId:    string;
+  id: string;
+  programId: string;
   subscriberId: string;
-  isAccepted:   string;
-  createdAt:    Date;
-  program:      Program;
+  isAccepted: string;
+  createdAt: Date;
+  program: Program;
 }
 
 export interface Program {
   name: string;
-  id:   string;
+  id: string;
 }
-
 
 export interface Comment {
   id: string;

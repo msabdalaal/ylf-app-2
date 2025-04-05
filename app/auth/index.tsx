@@ -1,6 +1,14 @@
 import { useEffect, useState, useContext } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, useColorScheme, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+  Alert,
+} from "react-native";
 import { save } from "@/hooks/storage";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/context/ThemeContext";
@@ -12,6 +20,8 @@ import dayjs from "dayjs";
 import { get, patch } from "@/hooks/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isProfileComplete } from "@/utils/profileComplete";
+import * as ImagePicker from "expo-image-picker";
+import Upload from "@/assets/icons/upload";
 
 export default function AuthRedirectScreen() {
   const router = useRouter();
@@ -25,7 +35,8 @@ export default function AuthRedirectScreen() {
   const [formData, setFormData] = useState<{
     phoneNumber: string;
     dateOfBirth: string | null;
-    education: string[];
+    university: string;
+    college: string;
     experiences: string[];
     jobTitle: string;
     age: string;
@@ -35,7 +46,8 @@ export default function AuthRedirectScreen() {
   }>({
     phoneNumber: "",
     dateOfBirth: null,
-    education: [""],
+    university: "",
+    college: "",
     experiences: [""],
     jobTitle: "",
     age: "",
@@ -43,6 +55,9 @@ export default function AuthRedirectScreen() {
     languages: [""],
     skills: [""],
   });
+  const [idFront, setIdFront] = useState("");
+  const [idBack, setIdBack] = useState("");
+  const [uploadingId, setUploadingId] = useState(false);
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -54,10 +69,11 @@ export default function AuthRedirectScreen() {
         setFormData({
           phoneNumber: user.phoneNumber || "",
           dateOfBirth: user.dateOfBirth || null,
-          education: user.education?.length ? user.education : [""],
+          college: user.college ? user.college : "",
+          university: user.university ? user.university : "",
           experiences: user.experiences?.length ? user.experiences : [""],
           jobTitle: user.jobTitle || "",
-          age: user.age || "",
+          age: user.age.toString() || "",
           address: user.address || "",
           languages: user.languages?.length ? user.languages : [""],
           skills: user.skills?.length ? user.skills : [""],
@@ -90,10 +106,86 @@ export default function AuthRedirectScreen() {
     );
   }
 
+  // Function to pick image for ID
+  const pickImage = async (side: "front" | "back") => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [3, 2],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      try {
+        if (side === "front") {
+          setIdFront(result.assets[0].uri);
+        } else {
+          setIdBack(result.assets[0].uri);
+        }
+      } catch (error) {
+        console.error("Error picking image:", error);
+      }
+    }
+  };
+
+  // Function to upload ID images
+  const handleUploadIds = async () => {
+    if (!idFront || !idBack) {
+      Alert.alert("Error", "Please upload both sides of your ID");
+      return;
+    }
+
+    try {
+      setUploadingId(true);
+      const realFormData = new FormData();
+
+      // Append ID front
+      realFormData.append("id_front", {
+        uri: idFront,
+        type: "image/jpeg",
+        name: "id_front.jpg",
+      } as any);
+
+      // Append ID back
+      realFormData.append("id_back", {
+        uri: idBack,
+        type: "image/jpeg",
+        name: "id_back.jpg",
+      } as any);
+
+      const response = await fetch(
+        "https://test.ylf-eg.org/api/users/uploadId",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: realFormData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Success", "ID uploaded successfully");
+      } else {
+        Alert.alert("Error", data.message || "Failed to upload ID");
+      }
+    } catch (error) {
+      console.error("Error uploading ID:", error);
+      Alert.alert(
+        "Error",
+        "An unexpected error occurred. Please try again later."
+      );
+    } finally {
+      setUploadingId(false);
+    }
+  };
+
   const handleComplete = async () => {
     if (!formData.phoneNumber) return alert("Phone number is required");
     if (!formData.dateOfBirth) return alert("Date of birth is required");
-    if (!formData.education?.[0]) return alert("Education is required");
+    if (!formData.university) return alert("University is required");
+    if (!formData.college) return alert("College is required");
     if (!formData.experiences?.[0]) return alert("Work experience is required");
     if (!formData.jobTitle) return alert("Job title is required");
     if (!formData.age) return alert("Age is required");
@@ -105,6 +197,12 @@ export default function AuthRedirectScreen() {
     try {
       setLoading(true);
       await patch("users/editProfile", formData, {}, token as string);
+
+      // If IDs are uploaded, handle that separately
+      if (idFront && idBack) {
+        await handleUploadIds();
+      }
+
       if (token) {
         await save("token", token.toString());
         router.replace("/feed");
@@ -209,11 +307,19 @@ export default function AuthRedirectScreen() {
             }
           />
           <TextInputComponent
-            label="Education"
-            placeholder="Education"
-            value={formData.education[0]}
+            label="University"
+            placeholder="University"
+            value={formData.university}
             onChange={(text) =>
-              setFormData((prev) => ({ ...prev, education: [text] }))
+              setFormData((prev) => ({ ...prev, university: text }))
+            }
+          />
+          <TextInputComponent
+            label="College"
+            placeholder="College"
+            value={formData.college}
+            onChange={(text) =>
+              setFormData((prev) => ({ ...prev, college: text }))
             }
           />
           <TextInputComponent
@@ -224,6 +330,67 @@ export default function AuthRedirectScreen() {
               setFormData((prev) => ({ ...prev, experiences: [text] }))
             }
           />
+
+          {/* ID Upload Section */}
+          <View className="mt-6">
+            <Text
+              className={`text-lg font-medium mb-2 ${
+                isDark ? "text-white" : "text-gray-800"
+              }`}
+            >
+              National ID Card
+            </Text>
+            <Text
+              className="mb-4 dark:text-gray-300"
+              style={{ fontFamily: "Inter" }}
+            >
+              Please upload both sides of your National ID card
+            </Text>
+
+            {/* Front ID Upload */}
+            <View className="mb-4">
+              <Text className="mb-2 dark:text-white">Front Side</Text>
+              {!idFront ? (
+                <TouchableOpacity
+                  onPress={() => pickImage("front")}
+                  className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center"
+                >
+                  <Upload />
+                  <Text className="mt-2 dark:text-white">
+                    Upload Front Side
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View className="border border-gray-300 rounded-lg p-2 flex-row justify-between items-center">
+                  <Text className="dark:text-white">Front ID Uploaded</Text>
+                  <TouchableOpacity onPress={() => setIdFront("")}>
+                    <Text className="text-red-500">Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
+            {/* Back ID Upload */}
+            <View className="mb-4">
+              <Text className="mb-2 dark:text-white">Back Side</Text>
+              {!idBack ? (
+                <TouchableOpacity
+                  onPress={() => pickImage("back")}
+                  className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center"
+                >
+                  <Upload />
+                  <Text className="mt-2 dark:text-white">Upload Back Side</Text>
+                </TouchableOpacity>
+              ) : (
+                <View className="border border-gray-300 rounded-lg p-2 flex-row justify-between items-center">
+                  <Text className="dark:text-white">Back ID Uploaded</Text>
+                  <TouchableOpacity onPress={() => setIdBack("")}>
+                    <Text className="text-red-500">Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
 
           {/* Languages Section */}
           <View className="mt-6">
@@ -299,7 +466,9 @@ export default function AuthRedirectScreen() {
         </View>
 
         <PrimaryButton onPress={handleComplete} className="mt-6">
-          {loading ? "Completing Profile..." : "Complete Profile"}
+          {loading || uploadingId
+            ? "Completing Profile..."
+            : "Complete Profile"}
         </PrimaryButton>
       </ScrollView>
     </SafeAreaView>

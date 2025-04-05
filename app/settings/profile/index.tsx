@@ -103,6 +103,19 @@ const profile = (props: Props) => {
             </View>
           ))}
       </View>
+      {Array.isArray(user?.groupLeader) && user?.groupLeader?.length > 0 && (
+        <Text className="mt-2 dark:text-white">Leader of:</Text>
+      )}
+      <View className=" items-start gap-3 mt-2">
+        {Array.isArray(user?.groupLeader) &&
+          user?.groupLeader?.length > 0 &&
+          user.groupLeader.map((group, index) => (
+            <View className="flex-row items-center">
+              <Text className="text-sm">{group.name}</Text>
+              <Text className="text-sm"> ({group.referenceCode})</Text>
+            </View>
+          ))}
+      </View>
       <View className="bg-[#F6F8FA] dark:bg-[#015CA41A] gap-4 justify-start mt-6 items-start p-6 rounded-3xl">
         <View className="flex-row items-center gap-4">
           <View className="bg-white w-11 h-11 rounded-full justify-center items-center">

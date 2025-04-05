@@ -6,22 +6,18 @@ import { User } from "@/constants/types";
 import { ApplicationContext } from "@/context";
 import imageUrl from "@/utils/imageUrl";
 import React, { useContext, useState } from "react";
-import {
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import dayjs from "dayjs";
+import { useTheme } from "@/context/ThemeContext";
+
 import DatePicker from "@/components/inputs/datePicker";
 import PrimaryButton from "@/components/buttons/primary";
 import SkinnyButton from "@/components/buttons/skinny";
 import { patch, post } from "@/hooks/axios";
 import * as ImagePicker from "expo-image-picker";
 import { getValueFor } from "@/hooks/storage";
-import { useTheme } from "@/context/ThemeContext";
+import { Alert } from "react-native";
 
 type Props = {};
 const FormData = global.FormData;
@@ -33,12 +29,22 @@ export default function Edit({}: Props) {
   } = useContext(ApplicationContext);
   const [isEditing, setIsEditing] = useState(false);
   const [edits, setEdits] = useState<User>({});
+  const { theme } = useTheme();
+  console.log(user);
   const handleUpdateProfile = async () => {
     await patch("users/editProfile", edits)
       .then((res) => {
         setIsEditing(false);
         updateState("user", { ...user, ...edits });
         setEdits({});
+
+        // Show success message
+        Alert.alert(
+          "Success",
+          "Profile updated successfully!",
+          [{ text: "OK" }],
+          { cancelable: false }
+        );
       })
       .catch((err) => {
         alert(err.response.data.message);
@@ -85,7 +91,34 @@ export default function Edit({}: Props) {
     }
   };
 
-  const { theme } = useTheme();
+  // New functions for array fields
+  const addArrayField = (field: "languages" | "skills") => {
+    setEdits((prev) => ({
+      ...prev,
+      [field]: [...(prev[field] || []), ""],
+    }));
+  };
+
+  const removeArrayField = (field: "languages" | "skills", index: number) => {
+    setEdits((prev) => ({
+      ...prev,
+      [field]: (prev[field] || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateArrayField = (
+    field: "languages" | "skills",
+    index: number,
+    value: string
+  ) => {
+    setEdits((prev) => ({
+      ...prev,
+      [field]: (prev[field] || []).map((item, i) =>
+        i === index ? value : item
+      ),
+    }));
+  };
+
   return (
     <SafeAreaView
       className="bg-white container flex-1"
@@ -131,6 +164,7 @@ export default function Edit({}: Props) {
           )}
         </View>
         <View>
+          {/* Existing fields */}
           <TextInputComponent
             value={edits?.name || user?.name}
             disabled={!isEditing}
@@ -138,62 +172,172 @@ export default function Edit({}: Props) {
             placeholder="Full name"
             onChange={(name) => setEdits((prev) => ({ ...prev, name }))}
           />
+
+          {/* ... other existing fields ... */}
+
+          {/* New fields */}
           <TextInputComponent
-            value={edits?.email || user?.email}
+            value={edits?.jobTitle || user?.jobTitle}
             disabled={!isEditing}
-            label="Email"
-            placeholder="Email"
-            onChange={(email) => setEdits((prev) => ({ ...prev, email }))}
+            label="Job Title"
+            placeholder="Job Title"
+            onChange={(jobTitle) => setEdits((prev) => ({ ...prev, jobTitle }))}
             className="mt-4"
           />
+
           <TextInputComponent
-            value={edits?.phoneNumber || user?.phoneNumber}
+            value={edits?.age || user?.age?.toString()}
             disabled={!isEditing}
-            label="Phone Number"
-            placeholder="Phone Number"
-            onChange={(phoneNumber) =>
-              setEdits((prev) => ({ ...prev, phoneNumber }))
+            label="Age"
+            placeholder="Age"
+            onChange={(age) => setEdits((prev) => ({ ...prev, age }))}
+            className="mt-4"
+          />
+
+          <TextInputComponent
+            value={edits?.address || user?.address}
+            disabled={!isEditing}
+            label="Address"
+            placeholder="Address"
+            onChange={(address) => setEdits((prev) => ({ ...prev, address }))}
+            className="mt-4"
+          />
+
+          <TextInputComponent
+            value={edits?.university || user?.university}
+            disabled={!isEditing}
+            label="University"
+            placeholder="University"
+            onChange={(university) =>
+              setEdits((prev) => ({ ...prev, university }))
             }
             className="mt-4"
           />
-          <View className="mt-4">
-            <DatePicker
-              value={
-                edits?.dateOfBirth
-                  ? dayjs(edits?.dateOfBirth).toDate()
-                  : user?.dateOfBirth
-                  ? dayjs(user?.dateOfBirth).toDate()
-                  : null
-              }
-              onChange={(date) =>
-                setEdits((prev) => ({ ...prev, dateOfBirth: date }))
-              }
-              label="Date of Birth"
-              disabled={!isEditing}
-            />
-          </View>
+
           <TextInputComponent
-            value={edits?.education?.[0] || user?.education?.[0]}
+            value={edits?.college || user?.college}
             disabled={!isEditing}
-            label="Education"
-            placeholder="Education"
-            onChange={(education) =>
-              setEdits((prev) => ({ ...prev, education: [education] }))
-            }
+            label="College"
+            placeholder="College"
+            onChange={(college) => setEdits((prev) => ({ ...prev, college }))}
             className="mt-4"
           />
-          <TextInputComponent
-            value={edits?.experiences?.[0] || user?.experiences?.[0]}
-            disabled={!isEditing}
-            label="Work"
-            placeholder="Work"
-            onChange={(work) =>
-              setEdits((prev) => ({ ...prev, experiences: [work] }))
-            }
-            className="mt-4"
-          />
+
+          {/* Languages Section */}
           {isEditing && (
-            <PrimaryButton className="mt-4" onPress={handleUpdateProfile}>
+            <View className="mt-6">
+              <Text
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme ?? "light"].text,
+                }}
+                className="text-lg mb-2"
+              >
+                Languages
+              </Text>
+              {(edits?.languages || user?.languages || [""]).map(
+                (lang, index) => (
+                  <View
+                    key={index}
+                    className="relative flex-row items-center gap-2 mb-3"
+                  >
+                    <TextInputComponent
+                      placeholder="Language"
+                      value={edits?.languages?.[index] || lang}
+                      onChange={(text) =>
+                        updateArrayField("languages", index, text)
+                      }
+                    />
+                    <TouchableOpacity
+                      onPress={() => removeArrayField("languages", index)}
+                      className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
+                    >
+                      <Text className="text-white font-bold text-lg">X</Text>
+                    </TouchableOpacity>
+                  </View>
+                )
+              )}
+              <PrimaryButton
+                onPress={() => addArrayField("languages")}
+                className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
+              >
+                Add Language
+              </PrimaryButton>
+            </View>
+          )}
+
+          {/* Skills Section */}
+          {isEditing && (
+            <View className="mt-6">
+              <Text
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme ?? "light"].text,
+                }}
+                className="text-lg mb-2"
+              >
+                Skills
+              </Text>
+              {(edits?.skills || user?.skills || [""]).map((skill, index) => (
+                <View
+                  key={index}
+                  className="relative flex-row items-center gap-2 mb-3"
+                >
+                  <TextInputComponent
+                    placeholder="Skill"
+                    value={edits?.skills?.[index] || skill}
+                    onChange={(text) => updateArrayField("skills", index, text)}
+                  />
+                  <TouchableOpacity
+                    onPress={() => removeArrayField("skills", index)}
+                    className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
+                  >
+                    <Text className="text-white font-bold text-lg">X</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <PrimaryButton
+                onPress={() => addArrayField("skills")}
+                className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
+              >
+                Add Skill
+              </PrimaryButton>
+            </View>
+          )}
+
+          {/* Display languages and skills in non-editing mode */}
+          {!isEditing && user?.languages && user.languages.length > 0 && (
+            <View className="mt-4">
+              <Text
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme ?? "light"].text,
+                }}
+              >
+                Languages
+              </Text>
+              <Text className="dark:text-white">
+                {user.languages.join(", ")}
+              </Text>
+            </View>
+          )}
+
+          {!isEditing && user?.skills && user.skills.length > 0 && (
+            <View className="mt-4">
+              <Text
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme ?? "light"].text,
+                }}
+              >
+                Skills
+              </Text>
+              <Text className="dark:text-white">{user.skills.join(", ")}</Text>
+            </View>
+          )}
+
+          {isEditing && (
+            <PrimaryButton className="mt-4 mb-8" onPress={handleUpdateProfile}>
               Update Profile
             </PrimaryButton>
           )}

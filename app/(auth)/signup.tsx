@@ -1,21 +1,15 @@
 import React, { useCallback, useContext, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TopBarTabs from "@/components/topBar/tabs";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import TextInputComponent from "@/components/inputs/textInput";
 import PrimaryButton from "@/components/buttons/primary";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
-import BackButton from "@/components/buttons/backButton";
 import { get, post } from "@/hooks/axios";
 import { save } from "@/hooks/storage";
 import validator from "validator";
-import axios, { AxiosError } from "axios";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import * as ImagePicker from "expo-image-picker";
-import Upload from "@/assets/icons/upload";
-import CloseIcon from "@/assets/icons/close";
 import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
 import InitialSignup from "@/components/signup/InitialSignup";
@@ -33,7 +27,8 @@ export interface formData {
   id_back: string;
   phoneNumber: string;
   dateOfBirth: string | null;
-  education: string[];
+  college: string;
+  university: string;
   experiences: string[];
   jobTitle: string;
   age: string;
@@ -58,7 +53,8 @@ const SignUp = () => {
     id_back: "",
     phoneNumber: "",
     dateOfBirth: null,
-    education: [""],
+    college: "",
+    university: "",
     experiences: [""],
     jobTitle: "",
     age: "",
@@ -124,7 +120,8 @@ const SignUp = () => {
       case 4:
         if (!formData.phoneNumber) return alert("Phone number is required");
         if (!formData.dateOfBirth) return alert("Date of birth is required");
-        if (!formData.education?.[0]) return alert("Education is required");
+        if (!formData.college) return alert("College is required");
+        if (!formData.university) return alert("University is required");
         if (!formData.experiences?.[0])
           return alert("Work experience is required");
         if (!formData.jobTitle) return alert("Job title is required");

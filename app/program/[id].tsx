@@ -230,6 +230,34 @@ export default function Program() {
           backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
         }}
       >
+        {program.forGroups && (
+          <View className="mb-3">
+            <PrimaryLink
+              style={{
+                backgroundColor:
+                  dayjs(new Date()).isAfter(
+                    dayjs(program.acceptApplicationDuration)
+                  ) || program.isRegistered
+                    ? "#D4D4D4"
+                    : program.accentColor,
+              }}
+              href={`/program/${program.id}/member`}
+              disabled={
+                dayjs(new Date()).isAfter(
+                  dayjs(program.acceptApplicationDuration)
+                ) || program.isRegistered
+              }
+            >
+              {dayjs(new Date()).isAfter(
+                dayjs(program.acceptApplicationDuration)
+              )
+                ? "Application Closed"
+                : program.isRegistered
+                ? "You are already registered"
+                : "Apply as a Member"}
+            </PrimaryLink>
+          </View>
+        )}
         <PrimaryLink
           style={{
             backgroundColor:
@@ -250,6 +278,8 @@ export default function Program() {
             ? "Application Closed"
             : program.isRegistered
             ? "You are already registered"
+            : program.forGroups
+            ? "Apply as a Group"
             : "Apply Now"}
         </PrimaryLink>
       </View>

@@ -156,6 +156,10 @@ function RootLayoutComponent() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="program/[id]/member"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="program/[id]/submitSuccess"
           options={{ headerShown: false }}
         />

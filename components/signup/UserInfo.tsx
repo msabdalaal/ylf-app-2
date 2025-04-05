@@ -98,11 +98,19 @@ export default function UserInfo({
             }
           />
           <TextInputComponent
-            label="Education"
-            placeholder="Education"
-            value={formData.education[0]}
+            label="University"
+            placeholder="University"
+            value={formData.university}
             onChange={(text) =>
-              setFormData((prev) => ({ ...prev, education: [text] }))
+              setFormData((prev) => ({ ...prev, university: text }))
+            }
+          />
+          <TextInputComponent
+            label="College"
+            placeholder="College"
+            value={formData.college}
+            onChange={(text) =>
+              setFormData((prev) => ({ ...prev, college: text }))
             }
           />
           <TextInputComponent
