@@ -4,7 +4,7 @@ import { get, post } from "@/hooks/axios";
 import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 import { produce } from "immer";
 import imageUrl from "@/utils/imageUrl";
@@ -34,8 +34,13 @@ function Feed({}: Props) {
   };
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // Add a ref to track if a request is in progress
+  const isFetchingRef = useRef(false);
 
   const getFeed = async (refresh = false) => {
+    // Set the fetching ref to true at the start
+    isFetchingRef.current = true;
+
     if (!refresh) setIsLoadingMore(true);
     await get("posts/getAll", { params: { page, program: selectedProgram } })
       .then((res) => {
@@ -50,17 +55,27 @@ function Feed({}: Props) {
       })
       .finally(() => {
         setIsLoadingMore(false);
+        // Set the fetching ref to false when done
+        isFetchingRef.current = false;
       });
   };
 
   const onRefresh = async () => {
+    // Only refresh if not currently fetching
+    if (isFetchingRef.current) return;
+
     setRefreshing(true);
     setPage(1);
+    setPosts([]);
     await getFeed(true);
     setRefreshing(false);
   };
+
   useEffect(() => {
-    getFeed();
+    // Only fetch if not refreshing and not already fetching
+    if (!refreshing && !isFetchingRef.current) {
+      getFeed();
+    }
   }, [page, selectedProgram]);
 
   const handleLikePost = async (id: string) => {
@@ -162,6 +177,9 @@ function Feed({}: Props) {
                 <TouchableOpacity
                   className="w-full h-full bg-gray-200 rounded-full p-2 justify-center items-center"
                   onPress={() => {
+                    // Skip if the same program is selected
+                    if (selectedProgram === item.item.id) return;
+                    
                     setPosts([]);
                     setPage(1);
                     setSelectedProgram(item.item.id);
@@ -216,7 +234,7 @@ function Feed({}: Props) {
       </View>
       <FlatList
         refreshing={refreshing}
-        onRefresh={onRefresh}
+        onRefresh={isFetchingRef.current ? null : onRefresh}
         ListHeaderComponent={() => <></>}
         data={posts}
         renderItem={(post) =>
@@ -270,7 +288,13 @@ function Feed({}: Props) {
         }
         keyExtractor={(post) => `post-${post.id}-${post.createdAt}`}
         onEndReached={() => {
-          if (page < pagination.totalPages && !isLoadingMore) {
+          // Only load more if not refreshing, not already loading more, and not fetching
+          if (
+            page < pagination.totalPages &&
+            !isLoadingMore &&
+            !refreshing &&
+            !isFetchingRef.current
+          ) {
             setPage(page + 1);
           }
         }}

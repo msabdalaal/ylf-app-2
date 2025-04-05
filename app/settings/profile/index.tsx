@@ -99,7 +99,9 @@ const profile = (props: Props) => {
                 resizeMode="contain"
                 className="h-20 w-20 bg-white rounded-full"
               />
-              <Text className="text-sm">{program.program.name}</Text>
+              <Text className="text-sm dark:text-white">
+                {program.program.name}
+              </Text>
             </View>
           ))}
       </View>
@@ -111,8 +113,11 @@ const profile = (props: Props) => {
           user?.groupLeader?.length > 0 &&
           user.groupLeader.map((group, index) => (
             <View className="flex-row items-center">
-              <Text className="text-sm">{group.name}</Text>
-              <Text className="text-sm"> ({group.referenceCode})</Text>
+              <Text className="text-sm dark:text-white">{group.name}</Text>
+              <Text className="text-sm dark:text-white">
+                {" "}
+                ({group.referenceCode})
+              </Text>
             </View>
           ))}
       </View>

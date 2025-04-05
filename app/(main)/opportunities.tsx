@@ -4,7 +4,7 @@ import { Opportunity } from "@/constants/types";
 import { useTheme } from "@/context/ThemeContext";
 import { get } from "@/hooks/axios";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 function Opportunities() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
@@ -22,12 +22,12 @@ function Opportunities() {
     getOpportunities();
   }, []);
 
-  const getCardColor = (tags: string[]) => {
-    if (tags.includes("scholarships")) return "#E7C11E";
-    if (tags.includes("event")) return "#015CA4";
-    if (tags.includes("job")) return "#EC5D52";
-    return "#015CA4";
-  };
+  // const getCardColor = (tags: string[]) => {
+  //   if (tags.includes("scholarships")) return "#E7C11E";
+  //   if (tags.includes("event")) return "#015CA4";
+  //   if (tags.includes("job")) return "#EC5D52";
+  //   return "#015CA4";
+  // };
 
   return (
     <View
@@ -45,7 +45,7 @@ function Opportunities() {
       >
         Select Your Opportunity
       </Text>
-      <FlatList
+      {/* <FlatList
         data={opportunities}
         renderItem={(post) => (
           <OpportunityCard
@@ -56,7 +56,15 @@ function Opportunities() {
         )}
         keyExtractor={(post) => post.id?.toString() || ""}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-      />
+      /> */}
+      <TouchableOpacity className="border p-5 rounded-lg dark:border-white">
+        <Text
+          className="font-bold text-center"
+          style={{ fontFamily: "Poppins_Medium", color: Colors[theme == "dark" ? "dark" : "light"].primary }}
+        >
+          Coming Soon
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

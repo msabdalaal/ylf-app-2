@@ -18,6 +18,7 @@ import { patch, post } from "@/hooks/axios";
 import * as ImagePicker from "expo-image-picker";
 import { getValueFor } from "@/hooks/storage";
 import { Alert } from "react-native";
+import { ActivityIndicator } from "react-native";
 
 type Props = {};
 const FormData = global.FormData;
@@ -30,7 +31,6 @@ export default function Edit({}: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [edits, setEdits] = useState<User>({});
   const { theme } = useTheme();
-  console.log(user);
   const handleUpdateProfile = async () => {
     await patch("users/editProfile", edits)
       .then((res) => {
@@ -50,6 +50,8 @@ export default function Edit({}: Props) {
         alert(err.response.data.message);
       });
   };
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+  const [tempAvatarUri, setTempAvatarUri] = useState<string | null>(null);
 
   const handleUpdateAvatar = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -62,6 +64,10 @@ export default function Edit({}: Props) {
 
     if (!result.canceled) {
       try {
+        // Set loading state and temporary image
+        setIsAvatarUploading(true);
+        setTempAvatarUri(result.assets[0].uri);
+
         const realFormData = new FormData();
         realFormData.append("avatar", {
           uri: result.assets[0].uri,
@@ -81,12 +87,30 @@ export default function Edit({}: Props) {
         );
         const data = await response.json();
         if (response.ok) {
-          updateState("user", { ...user, avatar: data.filePath });
+          updateState("user", {
+            ...user,
+            avatar: { path: data.filePath },
+          });
+          Alert.alert(
+            "Success",
+            "Profile picture updated successfully!",
+            [{ text: "OK" }],
+            { cancelable: false }
+          );
         } else {
           alert(data.message);
         }
       } catch (error) {
         console.error("Error picking image:", error);
+        Alert.alert(
+          "Error",
+          "Failed to upload profile picture. Please try again.",
+          [{ text: "OK" }],
+          { cancelable: false }
+        );
+      } finally {
+        setIsAvatarUploading(false);
+        setTempAvatarUri(null);
       }
     }
   };
@@ -129,7 +153,7 @@ export default function Edit({}: Props) {
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="flex-row justify-between mb-6 mt-5">
           <View className="flex-row items-center gap-3">
-            <BackButton />
+            <BackButton disabled={isAvatarUploading} />
             <Text
               style={{
                 fontFamily: "Poppins_Medium",
@@ -142,18 +166,44 @@ export default function Edit({}: Props) {
           <SkinnyButton
             onPress={() => setIsEditing((prev) => !prev)}
             textClassName="underline"
+            disabled={isAvatarUploading}
           >
             {isEditing ? "Cancel" : "Edit"}
           </SkinnyButton>
         </View>
         <View className="justify-center items-center w-fit mx-auto">
           <View className="w-32 h-32 bg-[#80ADD1] rounded-full overflow-hidden">
-            <Image
-              src={imageUrl(user?.avatar?.path || "")}
-              className="w-full h-full object-cover"
-            />
+            {isAvatarUploading ? (
+              tempAvatarUri ? (
+                <View className="relative w-full h-full">
+                  <Image
+                    source={{ uri: tempAvatarUri }}
+                    className="w-full h-full object-cover opacity-70"
+                  />
+                  <ActivityIndicator
+                    size="large"
+                    color={Colors.light.primary}
+                    className="absolute top-1/2 left-1/2"
+                    style={{
+                      transform: [{ translateX: 38 }, { translateY: -15 }],
+                    }}
+                  />
+                </View>
+              ) : (
+                <ActivityIndicator
+                  size="large"
+                  color={Colors.light.primary}
+                  className="flex-1 justify-center items-center"
+                />
+              )
+            ) : (
+              <Image
+                src={imageUrl(user?.avatar?.path || "")}
+                className="w-full h-full object-cover"
+              />
+            )}
           </View>
-          {isEditing && (
+          {isEditing && !isAvatarUploading && (
             <TouchableOpacity
               onPress={handleUpdateAvatar}
               className="h-10 w-10 rounded-full absolute bottom-0 right-0 flex justify-center items-center"
@@ -163,11 +213,16 @@ export default function Edit({}: Props) {
             </TouchableOpacity>
           )}
         </View>
-        <View>
+
+        {/* Disable the entire form while uploading avatar */}
+        <View
+          pointerEvents={isAvatarUploading ? "none" : "auto"}
+          style={{ opacity: isAvatarUploading ? 0.7 : 1 }}
+        >
           {/* Existing fields */}
           <TextInputComponent
             value={edits?.name || user?.name}
-            disabled={!isEditing}
+            disabled={!isEditing || isAvatarUploading}
             label="Full Name"
             placeholder="Full name"
             onChange={(name) => setEdits((prev) => ({ ...prev, name }))}

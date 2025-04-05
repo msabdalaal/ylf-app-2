@@ -259,6 +259,37 @@ export default function AuthRedirectScreen() {
     }));
   };
 
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  // Add this useEffect to check form validity whenever form data or IDs change
+  useEffect(() => {
+    const checkFormValidity = () => {
+      // Check if all required fields are filled
+      const isBasicInfoComplete = !!(
+        formData.phoneNumber &&
+        formData.dateOfBirth &&
+        formData.university &&
+        formData.college &&
+        formData.experiences?.[0] &&
+        formData.jobTitle &&
+        formData.age &&
+        formData.address &&
+        formData.languages?.[0] &&
+        formData.skills?.[0]
+      );
+
+      // Check if ID photos are required and provided
+      const areIdsRequired = missingFields.idFront || missingFields.idBack;
+      const areIdsProvided = !!(idFront && idBack);
+      
+      // Form is valid if basic info is complete AND (IDs are not required OR IDs are provided)
+      const valid = isBasicInfoComplete && (!areIdsRequired || areIdsProvided);
+      setIsFormValid(valid);
+    };
+
+    checkFormValidity();
+  }, [formData, idFront, idBack, missingFields]);
+
   return (
     <SafeAreaView
       className="flex-1 container"
@@ -524,7 +555,11 @@ export default function AuthRedirectScreen() {
           )}
         </View>
 
-        <PrimaryButton onPress={handleComplete} className="mt-6">
+        <PrimaryButton 
+          onPress={handleComplete} 
+          className={`mt-6 ${!isFormValid ? 'opacity-50' : ''}`}
+          disabled={!isFormValid}
+        >
           {loading || uploadingId
             ? "Completing Profile..."
             : "Complete Profile"}

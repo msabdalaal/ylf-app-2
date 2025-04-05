@@ -8,9 +8,10 @@ import { useTheme } from "@/context/ThemeContext";
 type Props = {
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
 };
 
-const BackButton = ({ onClick, className }: Props) => {
+const BackButton = ({ onClick, className, disabled }: Props) => {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const handleGoBack = () => {
@@ -24,6 +25,7 @@ const BackButton = ({ onClick, className }: Props) => {
       style={{
         backgroundColor: Colors[theme ?? "light"].bg_primary,
       }}
+      disabled={disabled}
     >
       <AngleLeft color={theme == "dark" ? "white" : "#015CA4"} />
     </TouchableOpacity>

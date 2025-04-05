@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
+  Modal,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
@@ -23,6 +25,7 @@ export default function Application() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -113,6 +116,7 @@ export default function Application() {
       return;
     }
     try {
+      setLoading(true);
       const realFormData = await buildRealFormData();
       await post("programs/submitApplication/" + id, {
         questions: realFormData,
@@ -122,7 +126,29 @@ export default function Application() {
     } catch (error) {
       console.error("Error submitting application: ", error);
       Alert.alert("Error", "There was an error submitting your application.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Add state for dropdown modal
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
+  const [activeOptions, setActiveOptions] = useState<string[]>([]);
+
+  // Function to open dropdown
+  const openDropdown = (questionId: string, options: string[]) => {
+    setActiveQuestionId(questionId);
+    setActiveOptions(options);
+    setDropdownVisible(true);
+  };
+
+  // Function to select an option from dropdown
+  const selectOption = (option: string) => {
+    if (activeQuestionId) {
+      handleInputChange(activeQuestionId, option);
+    }
+    setDropdownVisible(false);
   };
 
   // Render a single question based on its type
@@ -223,19 +249,17 @@ export default function Application() {
             <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
-            {options.map((option: string, index: number) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleInputChange(question.id, option)}
-                className={`p-2 rounded mb-2 ${
-                  formData[question.id] === option
-                    ? "bg-primary"
-                    : "bg-gray-200"
-                }`}
-              >
-                <Text>{option}</Text>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+              onPress={() => openDropdown(question.id, options)}
+              className="border border-gray-300 p-3 rounded-lg"
+              style={{
+                backgroundColor: isDark ? Colors.dark.border : Colors.light.border,
+              }}
+            >
+              <Text className="dark:text-white">
+                {formData[question.id] || "Select an option"}
+              </Text>
+            </TouchableOpacity>
             {errors[question.id] && (
               <Text className="text-red-500 mt-1">{errors[question.id]}</Text>
             )}
@@ -259,6 +283,7 @@ export default function Application() {
         );
     }
   };
+
   return (
     <SafeAreaView
       className="flex-1 container"
@@ -290,6 +315,67 @@ export default function Application() {
         )}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Dropdown Modal */}
+      <Modal
+        visible={dropdownVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setDropdownVisible(false)}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+          activeOpacity={1}
+          onPress={() => setDropdownVisible(false)}
+        >
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: isDark ? Colors.dark.background : Colors.light.background,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              padding: 20,
+              maxHeight: "60%",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Poppins_Medium",
+                fontSize: 18,
+                marginBottom: 15,
+                color: isDark ? "white" : "black",
+              }}
+            >
+              Select an option
+            </Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {activeOptions.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => selectOption(option)}
+                  style={{
+                    paddingVertical: 15,
+                    borderBottomWidth: 1,
+                    borderBottomColor: isDark ? Colors.dark.border : Colors.light.border,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isDark ? "white" : "black",
+                      fontSize: 16,
+                    }}
+                  >
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -15,7 +15,7 @@ type Props = {
   post: Post;
   showAll?: boolean;
   className?: string;
-  color: string | undefined;
+  color?: string | undefined;
 };
 
 const VideoPost = ({
@@ -59,7 +59,8 @@ const VideoPost = ({
           <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
             <Image
               src={imageUrl(post.user.avatar?.path || "")}
-              className="w-full h-full object-cover"
+              className="w-full h-full"
+              resizeMode="contain"
             />
           </View>
           <View className="flex-row flex-1 items-start justify-between">

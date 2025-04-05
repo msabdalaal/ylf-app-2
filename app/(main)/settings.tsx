@@ -86,13 +86,13 @@ function Settings({}: Props) {
         >
           <View className="flex-row items-center gap-4">
             <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
-              {theme === "dark" ? <Moon /> : <Sun />}
+              {theme === "dark" ? <Sun /> : <Moon />}
             </View>
             <Text
               className="dark:text-white"
               style={{ fontFamily: "Poppins_Medium" }}
             >
-              {theme === "dark" ? "Dark Mode" : "Light Mode"}
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
             </Text>
           </View>
           <AngleRight color={theme === "dark" ? "white" : ""} />
