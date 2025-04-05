@@ -58,6 +58,9 @@ export default function AuthRedirectScreen() {
   const [idFront, setIdFront] = useState("");
   const [idBack, setIdBack] = useState("");
   const [uploadingId, setUploadingId] = useState(false);
+  const [missingFields, setMissingFields] = useState<Record<string, boolean>>(
+    {}
+  );
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -66,6 +69,24 @@ export default function AuthRedirectScreen() {
         const user = response.data.data;
         updateState("user", user);
 
+        // Create an object to track missing fields
+        const missing: Record<string, boolean> = {};
+        if (!user?.phoneNumber) missing.phoneNumber = true;
+        if (!user?.dateOfBirth) missing.dateOfBirth = true;
+        if (!user?.college) missing.college = true;
+        if (!user?.university) missing.university = true;
+        if (!user?.experiences?.[0]) missing.experiences = true;
+        if (!user?.jobTitle) missing.jobTitle = true;
+        if (!user?.age) missing.age = true;
+        if (!user?.address) missing.address = true;
+        if (!user?.languages?.[0]) missing.languages = true;
+        if (!user?.skills?.[0]) missing.skills = true;
+        if (!user?.idFront?.path) missing.idFront = true;
+        if (!user?.idBack?.path) missing.idBack = true;
+
+        setMissingFields(missing);
+        console.log("Missing fields:", missing);
+
         setFormData({
           phoneNumber: user.phoneNumber || "",
           dateOfBirth: user.dateOfBirth || null,
@@ -73,7 +94,7 @@ export default function AuthRedirectScreen() {
           university: user.university ? user.university : "",
           experiences: user.experiences?.length ? user.experiences : [""],
           jobTitle: user.jobTitle || "",
-          age: user.age.toString() || "",
+          age: user.age?.toString() || "",
           address: user.address || "",
           languages: user.languages?.length ? user.languages : [""],
           skills: user.skills?.length ? user.skills : [""],
@@ -138,14 +159,12 @@ export default function AuthRedirectScreen() {
       setUploadingId(true);
       const realFormData = new FormData();
 
-      // Append ID front
       realFormData.append("id_front", {
         uri: idFront,
         type: "image/jpeg",
         name: "id_front.jpg",
       } as any);
 
-      // Append ID back
       realFormData.append("id_back", {
         uri: idBack,
         type: "image/jpeg",
@@ -166,9 +185,10 @@ export default function AuthRedirectScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Success", "ID uploaded successfully");
+        // Alert.alert("Success", "ID uploaded successfully");
       } else {
-        Alert.alert("Error", data.message || "Failed to upload ID");
+        // Alert.alert("Error", data.message || "Failed to upload ID");
+        console.log(data);
       }
     } catch (error) {
       console.error("Error uploading ID:", error);
@@ -263,206 +283,245 @@ export default function AuthRedirectScreen() {
             color: theme === "dark" ? "#9CA3AF" : Colors.light.text,
           }}
         >
-          Please provide the following information to complete your registration
+          Please provide the missing information to complete your registration
         </Text>
 
         <View className="gap-4">
-          <TextInputComponent
-            label="Phone Number"
-            placeholder="Phone Number"
-            value={formData.phoneNumber}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, phoneNumber: text }))
-            }
-          />
-          <DatePicker
-            value={
-              formData.dateOfBirth ? dayjs(formData.dateOfBirth).toDate() : null
-            }
-            onChange={(date) =>
-              setFormData((prev) => ({ ...prev, dateOfBirth: date }))
-            }
-            label="Date of Birth"
-          />
-          <TextInputComponent
-            label="Job Title"
-            placeholder="Job Title"
-            value={formData.jobTitle}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, jobTitle: text }))
-            }
-          />
-          <TextInputComponent
-            label="Age"
-            placeholder="Age"
-            value={formData.age}
-            onChange={(text) => setFormData((prev) => ({ ...prev, age: text }))}
-          />
-          <TextInputComponent
-            label="Address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, address: text }))
-            }
-          />
-          <TextInputComponent
-            label="University"
-            placeholder="University"
-            value={formData.university}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, university: text }))
-            }
-          />
-          <TextInputComponent
-            label="College"
-            placeholder="College"
-            value={formData.college}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, college: text }))
-            }
-          />
-          <TextInputComponent
-            label="Work"
-            placeholder="Work"
-            value={formData.experiences[0]}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, experiences: [text] }))
-            }
-          />
+          {missingFields.phoneNumber && (
+            <TextInputComponent
+              label="Phone Number"
+              placeholder="Phone Number"
+              value={formData.phoneNumber}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, phoneNumber: text }))
+              }
+            />
+          )}
 
-          {/* ID Upload Section */}
-          <View className="mt-6">
-            <Text
-              className={`text-lg font-medium mb-2 ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
-              National ID Card
-            </Text>
-            <Text
-              className="mb-4 dark:text-gray-300"
-              style={{ fontFamily: "Inter" }}
-            >
-              Please upload both sides of your National ID card
-            </Text>
+          {missingFields.dateOfBirth && (
+            <DatePicker
+              value={
+                formData.dateOfBirth
+                  ? dayjs(formData.dateOfBirth).toDate()
+                  : null
+              }
+              onChange={(date) =>
+                setFormData((prev) => ({ ...prev, dateOfBirth: date }))
+              }
+              label="Date of Birth"
+            />
+          )}
 
-            {/* Front ID Upload */}
-            <View className="mb-4">
-              <Text className="mb-2 dark:text-white">Front Side</Text>
-              {!idFront ? (
-                <TouchableOpacity
-                  onPress={() => pickImage("front")}
-                  className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center"
-                >
-                  <Upload />
-                  <Text className="mt-2 dark:text-white">
-                    Upload Front Side
-                  </Text>
-                </TouchableOpacity>
-              ) : (
-                <View className="border border-gray-300 rounded-lg p-2 flex-row justify-between items-center">
-                  <Text className="dark:text-white">Front ID Uploaded</Text>
-                  <TouchableOpacity onPress={() => setIdFront("")}>
-                    <Text className="text-red-500">Remove</Text>
-                  </TouchableOpacity>
+          {missingFields.jobTitle && (
+            <TextInputComponent
+              label="Job Title"
+              placeholder="Job Title"
+              value={formData.jobTitle}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, jobTitle: text }))
+              }
+            />
+          )}
+
+          {missingFields.age && (
+            <TextInputComponent
+              label="Age"
+              placeholder="Age"
+              value={formData.age}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, age: text }))
+              }
+            />
+          )}
+
+          {missingFields.address && (
+            <TextInputComponent
+              label="Address"
+              placeholder="Address"
+              value={formData.address}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, address: text }))
+              }
+            />
+          )}
+
+          {missingFields.university && (
+            <TextInputComponent
+              label="University"
+              placeholder="University"
+              value={formData.university}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, university: text }))
+              }
+            />
+          )}
+
+          {missingFields.college && (
+            <TextInputComponent
+              label="College"
+              placeholder="College"
+              value={formData.college}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, college: text }))
+              }
+            />
+          )}
+
+          {missingFields.experiences && (
+            <TextInputComponent
+              label="Work"
+              placeholder="Work"
+              value={formData.experiences[0]}
+              onChange={(text) =>
+                setFormData((prev) => ({ ...prev, experiences: [text] }))
+              }
+            />
+          )}
+
+          {/* ID Upload Section - only show if missing */}
+          {(missingFields.idFront || missingFields.idBack) && (
+            <View className="mt-6">
+              <Text
+                className={`text-lg font-medium mb-2 ${
+                  isDark ? "text-white" : "text-gray-800"
+                }`}
+              >
+                National ID Card
+              </Text>
+              <Text
+                className="mb-4 dark:text-gray-300"
+                style={{ fontFamily: "Inter" }}
+              >
+                Please upload both sides of your National ID card
+              </Text>
+
+              {/* Front ID Upload */}
+              {missingFields.idFront && (
+                <View className="mb-4">
+                  <Text className="mb-2 dark:text-white">Front Side</Text>
+                  {!idFront ? (
+                    <TouchableOpacity
+                      onPress={() => pickImage("front")}
+                      className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center"
+                    >
+                      <Upload />
+                      <Text className="mt-2 dark:text-white">
+                        Upload Front Side
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View className="border border-gray-300 rounded-lg p-2 flex-row justify-between items-center">
+                      <Text className="dark:text-white">Front ID Uploaded</Text>
+                      <TouchableOpacity onPress={() => setIdFront("")}>
+                        <Text className="text-red-500">Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              )}
+
+              {/* Back ID Upload */}
+              {missingFields.idBack && (
+                <View className="mb-4">
+                  <Text className="mb-2 dark:text-white">Back Side</Text>
+                  {!idBack ? (
+                    <TouchableOpacity
+                      onPress={() => pickImage("back")}
+                      className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center"
+                    >
+                      <Upload />
+                      <Text className="mt-2 dark:text-white">
+                        Upload Back Side
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View className="border border-gray-300 rounded-lg p-2 flex-row justify-between items-center">
+                      <Text className="dark:text-white">Back ID Uploaded</Text>
+                      <TouchableOpacity onPress={() => setIdBack("")}>
+                        <Text className="text-red-500">Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               )}
             </View>
+          )}
 
-            {/* Back ID Upload */}
-            <View className="mb-4">
-              <Text className="mb-2 dark:text-white">Back Side</Text>
-              {!idBack ? (
-                <TouchableOpacity
-                  onPress={() => pickImage("back")}
-                  className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center"
+          {/* Languages Section - only show if missing */}
+          {missingFields.languages && (
+            <View className="mt-6">
+              <Text
+                className={`text-lg font-medium mb-2 ${
+                  isDark ? "text-white" : "text-gray-800"
+                }`}
+              >
+                Languages
+              </Text>
+              {formData.languages.map((lang, index) => (
+                <View
+                  key={index}
+                  className="relative flex-row items-center gap-2 mb-3"
                 >
-                  <Upload />
-                  <Text className="mt-2 dark:text-white">Upload Back Side</Text>
-                </TouchableOpacity>
-              ) : (
-                <View className="border border-gray-300 rounded-lg p-2 flex-row justify-between items-center">
-                  <Text className="dark:text-white">Back ID Uploaded</Text>
-                  <TouchableOpacity onPress={() => setIdBack("")}>
-                    <Text className="text-red-500">Remove</Text>
+                  <TextInputComponent
+                    placeholder="Language"
+                    value={lang}
+                    onChange={(text) =>
+                      updateArrayField("languages", index, text)
+                    }
+                  />
+                  <TouchableOpacity
+                    onPress={() => removeArrayField("languages", index)}
+                    className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
+                  >
+                    <Text className="text-white font-bold text-lg">X</Text>
                   </TouchableOpacity>
                 </View>
-              )}
+              ))}
+              <PrimaryButton
+                onPress={() => addArrayField("languages")}
+                className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
+              >
+                Add Language
+              </PrimaryButton>
             </View>
-          </View>
+          )}
 
-          {/* Languages Section */}
-          <View className="mt-6">
-            <Text
-              className={`text-lg font-medium mb-2 ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
-              Languages
-            </Text>
-            {formData.languages.map((lang, index) => (
-              <View
-                key={index}
-                className="relative flex-row items-center gap-2 mb-3"
+          {/* Skills Section - only show if missing */}
+          {missingFields.skills && (
+            <View className="mt-6">
+              <Text
+                className={`text-lg font-medium mb-2 ${
+                  isDark ? "text-white" : "text-gray-800"
+                }`}
               >
-                <TextInputComponent
-                  placeholder="Language"
-                  value={lang}
-                  onChange={(text) =>
-                    updateArrayField("languages", index, text)
-                  }
-                />
-                <TouchableOpacity
-                  onPress={() => removeArrayField("languages", index)}
-                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
+                Skills
+              </Text>
+              {formData.skills.map((skill, index) => (
+                <View
+                  key={index}
+                  className="relative flex-row items-center gap-2 mb-3"
                 >
-                  <Text className="text-white font-bold text-lg">X</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-            <PrimaryButton
-              onPress={() => addArrayField("languages")}
-              className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
-            >
-              Add Language
-            </PrimaryButton>
-          </View>
-
-          {/* Skills Section */}
-          <View className="mt-6">
-            <Text
-              className={`text-lg font-medium mb-2 ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
-              Skills
-            </Text>
-            {formData.skills.map((skill, index) => (
-              <View
-                key={index}
-                className="relative flex-row items-center gap-2 mb-3"
+                  <TextInputComponent
+                    placeholder="Skill"
+                    value={skill}
+                    onChange={(text) => updateArrayField("skills", index, text)}
+                  />
+                  <TouchableOpacity
+                    onPress={() => removeArrayField("skills", index)}
+                    className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
+                  >
+                    <Text className="text-white font-bold text-lg">X</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <PrimaryButton
+                onPress={() => addArrayField("skills")}
+                className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
               >
-                <TextInputComponent
-                  placeholder="Skill"
-                  value={skill}
-                  onChange={(text) => updateArrayField("skills", index, text)}
-                />
-                <TouchableOpacity
-                  onPress={() => removeArrayField("skills", index)}
-                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                >
-                  <Text className="text-white font-bold text-lg">X</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-            <PrimaryButton
-              onPress={() => addArrayField("skills")}
-              className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
-            >
-              Add Skill
-            </PrimaryButton>
-          </View>
+                Add Skill
+              </PrimaryButton>
+            </View>
+          )}
         </View>
 
         <PrimaryButton onPress={handleComplete} className="mt-6">
