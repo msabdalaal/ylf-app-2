@@ -84,6 +84,9 @@ export default function AuthRedirectScreen() {
         if (!user?.idFront?.path) missing.idFront = true;
         if (!user?.idBack?.path) missing.idBack = true;
 
+        // Check if there are any missing fields
+        const hasMissingFields = Object.keys(missing).length > 0;
+
         setMissingFields(missing);
         console.log("Missing fields:", missing);
 
@@ -100,12 +103,18 @@ export default function AuthRedirectScreen() {
           skills: user.skills?.length ? user.skills : [""],
         });
 
-        if (isProfileComplete(user)) {
+        // If profile is complete or no missing fields, redirect to feed
+        if (isProfileComplete(user) || !hasMissingFields) {
           await save("token", token!.toString());
           router.replace("/feed");
         }
       } catch (err) {
         console.error("Error checking profile:", err);
+        // On error, still save token and redirect to feed
+        if (token) {
+          await save("token", token.toString());
+          router.replace("/feed");
+        }
       } finally {
         setChecking(false);
       }
@@ -113,8 +122,12 @@ export default function AuthRedirectScreen() {
 
     if (token) {
       checkProfile();
+    } else {
+      // If no token, don't leave in checking state
+      setChecking(false);
+      router.replace("/login");
     }
-  }, [token]);
+  }, [token, router, updateState]);
 
   if (checking) {
     return (
@@ -127,7 +140,6 @@ export default function AuthRedirectScreen() {
     );
   }
 
-  // Function to pick image for ID
   const pickImage = async (side: "front" | "back") => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -213,7 +225,12 @@ export default function AuthRedirectScreen() {
     if (!formData.languages?.[0])
       return alert("At least one language is required");
     if (!formData.skills?.[0]) return alert("At least one skill is required");
-
+    
+    // Check if ID uploads are required but missing
+    if ((missingFields.idFront || missingFields.idBack) && (!idFront || !idBack)) {
+      return Alert.alert("Error", "Please upload both sides of your ID");
+    }
+    
     try {
       setLoading(true);
       await patch("users/editProfile", formData, {}, token as string);
@@ -259,36 +276,34 @@ export default function AuthRedirectScreen() {
     }));
   };
 
-  const [isFormValid, setIsFormValid] = useState(false);
-
   // Add this useEffect to check form validity whenever form data or IDs change
-  useEffect(() => {
-    const checkFormValidity = () => {
-      // Check if all required fields are filled
-      const isBasicInfoComplete = !!(
-        formData.phoneNumber &&
-        formData.dateOfBirth &&
-        formData.university &&
-        formData.college &&
-        formData.experiences?.[0] &&
-        formData.jobTitle &&
-        formData.age &&
-        formData.address &&
-        formData.languages?.[0] &&
-        formData.skills?.[0]
-      );
+  // useEffect(() => {
+  //   const checkFormValidity = () => {
+  //     // Check if all required fields are filled
+  //     const isBasicInfoComplete = !!(
+  //       formData.phoneNumber &&
+  //       formData.dateOfBirth &&
+  //       formData.university &&
+  //       formData.college &&
+  //       formData.experiences?.[0] &&
+  //       formData.jobTitle &&
+  //       formData.age &&
+  //       formData.address &&
+  //       formData.languages?.[0] &&
+  //       formData.skills?.[0]
+  //     );
 
-      // Check if ID photos are required and provided
-      const areIdsRequired = missingFields.idFront || missingFields.idBack;
-      const areIdsProvided = !!(idFront && idBack);
-      
-      // Form is valid if basic info is complete AND (IDs are not required OR IDs are provided)
-      const valid = isBasicInfoComplete && (!areIdsRequired || areIdsProvided);
-      setIsFormValid(valid);
-    };
+  //     // Check if ID photos are required and provided
+  //     const areIdsRequired = missingFields.idFront || missingFields.idBack;
+  //     const areIdsProvided = !!(idFront && idBack);
 
-    checkFormValidity();
-  }, [formData, idFront, idBack, missingFields]);
+  //     // Form is valid if basic info is complete AND (IDs are not required OR IDs are provided)
+  //     const valid = isBasicInfoComplete && (!areIdsRequired || areIdsProvided);
+  //     setIsFormValid(valid);
+  //   };
+
+  //   checkFormValidity();
+  // }, [formData, idFront, idBack, missingFields]);
 
   return (
     <SafeAreaView
@@ -555,10 +570,9 @@ export default function AuthRedirectScreen() {
           )}
         </View>
 
-        <PrimaryButton 
-          onPress={handleComplete} 
-          className={`mt-6 ${!isFormValid ? 'opacity-50' : ''}`}
-          disabled={!isFormValid}
+        <PrimaryButton
+          onPress={handleComplete}
+          className={`mt-6`}
         >
           {loading || uploadingId
             ? "Completing Profile..."
