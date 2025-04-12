@@ -8,17 +8,16 @@ import imageUrl from "@/utils/imageUrl";
 import React, { useContext, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import dayjs from "dayjs";
 import { useTheme } from "@/context/ThemeContext";
 
-import DatePicker from "@/components/inputs/datePicker";
 import PrimaryButton from "@/components/buttons/primary";
 import SkinnyButton from "@/components/buttons/skinny";
-import { patch, post } from "@/hooks/axios";
+import { patch } from "@/hooks/axios";
 import * as ImagePicker from "expo-image-picker";
 import { getValueFor } from "@/hooks/storage";
 import { Alert } from "react-native";
 import { ActivityIndicator } from "react-native";
+import { useLoading } from "@/context/LoadingContext";
 
 type Props = {};
 const FormData = global.FormData;
@@ -31,7 +30,10 @@ export default function Edit({}: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [edits, setEdits] = useState<User>({});
   const { theme } = useTheme();
+  const { showLoading, hideLoading } = useLoading();
+
   const handleUpdateProfile = async () => {
+    showLoading();
     await patch("users/editProfile", edits)
       .then((res) => {
         setIsEditing(false);
@@ -48,6 +50,9 @@ export default function Edit({}: Props) {
       })
       .catch((err) => {
         alert(err.response.data.message);
+      })
+      .finally(() => {
+        hideLoading();
       });
   };
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
@@ -183,10 +188,12 @@ export default function Edit({}: Props) {
                   <ActivityIndicator
                     size="large"
                     color={Colors.light.primary}
-                    className="absolute top-1/2 left-1/2"
-                    style={{
-                      transform: [{ translateX: 38 }, { translateY: -15 }],
-                    }}
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    style={
+                      {
+                        // transform: [{ translateX: 38 }, { translateY: -15 }],
+                      }
+                    }
                   />
                 </View>
               ) : (
@@ -392,7 +399,11 @@ export default function Edit({}: Props) {
           )}
 
           {isEditing && (
-            <PrimaryButton className="mt-4 mb-8" onPress={handleUpdateProfile}>
+            <PrimaryButton
+              className="mt-4 mb-8"
+              onPress={handleUpdateProfile}
+              color="#000"
+            >
               Update Profile
             </PrimaryButton>
           )}

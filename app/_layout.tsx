@@ -14,6 +14,7 @@ import { ThemeWrapper } from "@/components/ThemeWrapper";
 import { NetworkProvider, useNetwork } from "@/context/NetworkContext";
 import NoInternet from "@/components/NoInternet";
 import { setupNotifications } from "@/utils/notificationHandler";
+import { LoadingProvider } from "@/context/LoadingContext";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -28,7 +29,9 @@ export default function RootLayout() {
       <NetworkProvider>
         <ThemeProvider>
           <ThemeWrapper>
-            <RootLayoutNav />
+            <LoadingProvider>
+              <RootLayoutNav />
+            </LoadingProvider>
           </ThemeWrapper>
         </ThemeProvider>
       </NetworkProvider>
@@ -148,6 +151,10 @@ function RootLayoutComponent() {
         <Stack.Screen name="post/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="opportunities/[id]/index"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="opportunities/[id]/application"
           options={{ headerShown: false }}
         />
         <Stack.Screen name="program/[id]" options={{ headerShown: false }} />

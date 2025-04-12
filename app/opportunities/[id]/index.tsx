@@ -8,16 +8,22 @@ import { Opportunity } from "@/constants/types";
 import { useLocalSearchParams } from "expo-router";
 import PrimaryLink from "@/components/links/primary";
 import { useTheme } from "@/context/ThemeContext";
+import { useLoading } from "@/context/LoadingContext";
 const OpportunityPage = () => {
   const { id } = useLocalSearchParams();
+  const { showLoading, hideLoading } = useLoading();
   const [opportunity, setOpportunity] = useState<Opportunity>();
   const getOpportunity = useCallback(async () => {
+    showLoading();
     await get("opportunities/getOne/" + id)
       .then((res) => {
         setOpportunity(res.data.data);
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        hideLoading();
       });
   }, []);
   useEffect(() => {
@@ -89,7 +95,7 @@ const OpportunityPage = () => {
           backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
         }}
       >
-        <PrimaryLink href={`/`}>Apply Now</PrimaryLink>
+        <PrimaryLink href={`/opportunities/${opportunity?.id}/application`}>Apply Now</PrimaryLink>
       </View>
     </SafeAreaView>
   );

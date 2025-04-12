@@ -43,15 +43,15 @@ const EventPost = ({
 }: Props) => {
   const router = useRouter();
   const { theme } = useTheme();
-  const handleApply = async () => {
-    await postAxios("events/submitApplication/" + post.eventId, {})
-      .then(() => {
-        router.push("/program/0/submitSuccess");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  // const handleApply = async () => {
+  //   await postAxios("events/submitApplication/" + post.eventId, {})
+  //     .then(() => {
+  //       router.push("/program/0/submitSuccess");
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
   return (
     <View
       className={`rounded-[2rem] p-3 w-full ${className}`}
@@ -72,7 +72,6 @@ const EventPost = ({
         <View className="flex-row flex-1 items-start justify-between">
           <View>
             <Text className="dark:text-white">{post.user.name}</Text>
-            <Text className="text-xs dark:text-white">{post.user.email}</Text>
           </View>
           {/* <TouchableOpacity>
             <Dots />
@@ -83,7 +82,7 @@ const EventPost = ({
       <View className="rounded-3xl">
         <PrimaryButton
           disabled={post.isRegistered}
-          onPress={handleApply}
+          onPress={() => router.push(`/event/${post?.eventId}/application`)}
           className="mb-2"
         >
           {post.isRegistered ? "Already Applied" : "Apply Now"}

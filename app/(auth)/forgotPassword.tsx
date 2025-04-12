@@ -9,6 +9,7 @@ import OTP from "@/components/inputs/otp";
 import { post } from "@/hooks/axios";
 import { useRouter } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
+import { useLoading } from "@/context/LoadingContext";
 
 type Props = {};
 
@@ -23,11 +24,20 @@ const SignUp = (props: Props) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [token, setToken] = useState("");
+  const { hideLoading, showLoading } = useLoading();
   const handleSendEmail = async () => {
-    await post("auth/forgetPassword", { email: Email }).then((res) => {
-      alert(res.data.message);
-      setEmailSent(true);
-    });
+    showLoading();
+    await post("auth/forgetPassword", { email: Email })
+      .then((res) => {
+        alert(res.data.message);
+        setEmailSent(true);
+      })
+      .catch((err) => {
+        alert(err.response.data.message);
+      })
+      .finally(() => {
+        hideLoading();
+      });
   };
   const router = useRouter();
   const handleVerifyOtp = async () => {
@@ -58,14 +68,22 @@ const SignUp = (props: Props) => {
     if (password.length < 6)
       return alert("Password has to be at least 6 characters long");
 
+    showLoading();
     await post("auth/resetPassword", {
       password,
       confirmPassword,
       token,
-    }).then((res) => {
-      alert(res.data.message);
-      router.replace("/login");
-    });
+    })
+      .then((res) => {
+        alert(res.data.message);
+        router.replace("/login");
+      })
+      .catch((err) => {
+        console.log(err.response.data.message);
+      })
+      .finally(() => {
+        hideLoading();
+      });
   };
   const { theme } = useTheme();
 

@@ -13,22 +13,27 @@ import QrCode from "@/assets/icons/qrCode";
 import { useRouter } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
 import { get } from "@/hooks/axios";
+import { useLoading } from "@/context/LoadingContext";
 type Props = {};
 
 const profile = (props: Props) => {
   const {
     state: { user },
   } = useContext(ApplicationContext);
+  const { showLoading, hideLoading } = useLoading();
   const { updateState } = useContext(ApplicationContext);
   const router = useRouter();
   const { theme } = useTheme();
   const getProfile = useCallback(async () => {
     try {
+      showLoading();
       const res = await get("users/profile");
       const user = res.data.data;
       updateState("user", user);
     } catch (error) {
       console.error("Profile fetch error:", error);
+    } finally {
+      hideLoading();
     }
   }, []);
   useEffect(() => {

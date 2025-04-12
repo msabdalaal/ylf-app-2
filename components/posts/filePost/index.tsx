@@ -54,7 +54,6 @@ const FilePost = ({
         <View className="flex-row flex-1 items-start justify-between">
           <View>
             <Text className="dark:text-white">{user.name}</Text>
-            <Text className="text-xs dark:text-white">{user.name}</Text>
           </View>
           {/* <TouchableOpacity>
             <Dots />

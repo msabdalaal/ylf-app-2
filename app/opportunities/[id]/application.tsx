@@ -34,7 +34,7 @@ export default function Application() {
   const getQuestions = useCallback(async () => {
     try {
       showLoading();
-      const res = await get("programs/getProgramQuestions/" + id);
+      const res = await get("opportunities/getOpportunityQuestions/" + id);
       setQuestions(res.data.data);
     } catch (error) {
       console.error("Error fetching questions: ", error);
@@ -123,10 +123,10 @@ export default function Application() {
       setLoading(true);
       showLoading();
       const realFormData = await buildRealFormData();
-      await post("programs/submitApplication/" + id, {
+      await post("opportunities/submitApplication/" + id, {
         questions: realFormData,
       }).then(() => {
-        router.replace(`/program/${id}/submitSuccess`);
+        router.replace(`/opportunities/${id}/submitSuccess`);
       });
     } catch (error) {
       console.error("Error submitting application: ", error);

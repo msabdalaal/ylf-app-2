@@ -17,6 +17,7 @@ import { AxiosError } from "axios";
 import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
 import { useTheme } from "@/context/ThemeContext";
+import { useLoading } from "@/context/LoadingContext";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -24,6 +25,7 @@ configureReanimatedLogger({
 });
 
 export default function Program() {
+  const { showLoading, hideLoading } = useLoading();
   const { id } = useLocalSearchParams();
   const [expandedDescription, setExpandedDescription] = useState(false);
   const [expandedVision, setExpandedVision] = useState(false);
@@ -49,12 +51,16 @@ export default function Program() {
     accentColor: "rgba(42, 154, 151, 0)",
   });
   const getProgram = useCallback(async () => {
+    showLoading();
     await get("programs/get/" + id)
       .then((res) => {
         setProgram({ ...res.data.data, isRegistered: res.data.isRegistered });
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
+      })
+      .finally(() => {
+        hideLoading();
       });
   }, []);
   useEffect(() => {

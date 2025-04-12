@@ -37,7 +37,7 @@ export default function AuthRedirectScreen() {
     dateOfBirth: string | null;
     university: string;
     college: string;
-    experiences: string[];
+    experiences: string;
     jobTitle: string;
     age: string;
     address: string;
@@ -48,7 +48,7 @@ export default function AuthRedirectScreen() {
     dateOfBirth: null,
     university: "",
     college: "",
-    experiences: [""],
+    experiences: "",
     jobTitle: "",
     age: "",
     address: "",
@@ -75,7 +75,7 @@ export default function AuthRedirectScreen() {
         if (!user?.dateOfBirth) missing.dateOfBirth = true;
         if (!user?.college) missing.college = true;
         if (!user?.university) missing.university = true;
-        if (!user?.experiences?.[0]) missing.experiences = true;
+        if (!user?.experiences) missing.experiences = true;
         if (!user?.jobTitle) missing.jobTitle = true;
         if (!user?.age) missing.age = true;
         if (!user?.address) missing.address = true;
@@ -95,7 +95,7 @@ export default function AuthRedirectScreen() {
           dateOfBirth: user.dateOfBirth || null,
           college: user.college ? user.college : "",
           university: user.university ? user.university : "",
-          experiences: user.experiences?.length ? user.experiences : [""],
+          experiences: user.experiences ? user.experiences : "",
           jobTitle: user.jobTitle || "",
           age: user.age?.toString() || "",
           address: user.address || "",
@@ -218,19 +218,21 @@ export default function AuthRedirectScreen() {
     if (!formData.dateOfBirth) return alert("Date of birth is required");
     if (!formData.university) return alert("University is required");
     if (!formData.college) return alert("College is required");
-    if (!formData.experiences?.[0]) return alert("Work experience is required");
     if (!formData.jobTitle) return alert("Job title is required");
     if (!formData.age) return alert("Age is required");
     if (!formData.address) return alert("Address is required");
     if (!formData.languages?.[0])
       return alert("At least one language is required");
     if (!formData.skills?.[0]) return alert("At least one skill is required");
-    
+
     // Check if ID uploads are required but missing
-    if ((missingFields.idFront || missingFields.idBack) && (!idFront || !idBack)) {
+    if (
+      (missingFields.idFront || missingFields.idBack) &&
+      (!idFront || !idBack)
+    ) {
       return Alert.alert("Error", "Please upload both sides of your ID");
     }
-    
+
     try {
       setLoading(true);
       await patch("users/editProfile", formData, {}, token as string);
@@ -417,9 +419,9 @@ export default function AuthRedirectScreen() {
             <TextInputComponent
               label="Work"
               placeholder="Work"
-              value={formData.experiences[0]}
+              value={formData.experiences}
               onChange={(text) =>
-                setFormData((prev) => ({ ...prev, experiences: [text] }))
+                setFormData((prev) => ({ ...prev, experiences: text }))
               }
             />
           )}
@@ -570,10 +572,7 @@ export default function AuthRedirectScreen() {
           )}
         </View>
 
-        <PrimaryButton
-          onPress={handleComplete}
-          className={`mt-6`}
-        >
+        <PrimaryButton onPress={handleComplete} className={`mt-6`}>
           {loading || uploadingId
             ? "Completing Profile..."
             : "Complete Profile"}

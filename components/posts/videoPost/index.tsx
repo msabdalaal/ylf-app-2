@@ -2,9 +2,7 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import Comments from "@/assets/icons/comments";
-import Heart from "@/assets/icons/Heart";
-import Play from "@/assets/icons/play";
-import { Post } from "@/constants/types";
+import Heart from "@/assets/icons/Heart";import { Post } from "@/constants/types";
 import imageUrl from "@/utils/imageUrl";
 import VideoScreen from "../videoPlayer";
 import { useRouter } from "expo-router";
@@ -66,7 +64,6 @@ const VideoPost = ({
           <View className="flex-row flex-1 items-start justify-between">
             <View>
               <Text className="text-white">{post.user.name}</Text>
-              <Text className="text-xs text-white">{post.user.email}</Text>
             </View>
           </View>
         </View>

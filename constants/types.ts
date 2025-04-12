@@ -13,6 +13,16 @@ export interface Post {
   type: "event" | "program" | "normal";
   eventId?: string;
   isRegistered?: boolean;
+  programId?: string;
+}
+
+export interface Event {
+  id: string;
+  name: string;
+  programId: string;
+  startDate: Date;
+  endDate: Date;
+  createdAt: Date;
 }
 
 interface Image {
@@ -28,7 +38,7 @@ export interface User {
   age?: string;
   address?: string;
   dateOfBirth?: string;
-  experiences?: string[];
+  experiences?: string;
   languages?: string[];
   skills?: string[];
   college?: string;

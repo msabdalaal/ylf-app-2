@@ -17,6 +17,7 @@ import IdUpload from "@/components/signup/IdUpload";
 import PasswordSetup from "@/components/signup/PasswordSetup";
 import UserInfo from "@/components/signup/UserInfo";
 import dayjs from "dayjs";
+import { useLoading } from "@/context/LoadingContext";
 
 export interface formData {
   name: string;
@@ -29,7 +30,7 @@ export interface formData {
   dateOfBirth: string | null;
   college: string;
   university: string;
-  experiences: string[];
+  experiences: string;
   jobTitle: string;
   age: string;
   address: string;
@@ -42,6 +43,7 @@ const SignUp = () => {
   const router = useRouter();
   const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
+  const { hideLoading, showLoading } = useLoading();
   const [confirmPassword, setConfirmPassword] = useState("");
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<formData>({
@@ -55,7 +57,7 @@ const SignUp = () => {
     dateOfBirth: null,
     college: "",
     university: "",
-    experiences: [""],
+    experiences: "",
     jobTitle: "",
     age: "",
     address: "",
@@ -120,13 +122,11 @@ const SignUp = () => {
       case 4:
         if (!formData.phoneNumber) return alert("Phone number is required");
         if (!formData.dateOfBirth) return alert("Date of birth is required");
-        if (!formData.college) return alert("College is required");
-        if (!formData.university) return alert("University is required");
-        if (!formData.experiences?.[0])
-          return alert("Work experience is required");
         if (!formData.jobTitle) return alert("Job title is required");
         if (!formData.age) return alert("Age is required");
         if (!formData.address) return alert("Address is required");
+        if (!formData.college) return alert("College is required");
+        if (!formData.university) return alert("University is required");
         if (!formData.languages?.[0])
           return alert("At least one language is required");
         if (!formData.skills?.[0])
@@ -150,12 +150,10 @@ const SignUp = () => {
           key,
           dayjs(formData[key] ?? "").toISOString() || ""
         );
-      } else if (
-        ["education", "experiences", "languages", "skills"].includes(key)
-      ) {
+      } else if (["languages", "skills"].includes(key)) {
         realFormData.append(
           key,
-          JSON.stringify(formData[key as keyof typeof formData])
+          (formData[key as keyof typeof formData] as string[])?.join(",") || ""
         );
       } else if (key !== "confirmPassword") {
         realFormData.append(
@@ -167,6 +165,7 @@ const SignUp = () => {
 
     try {
       setLoading(true);
+      showLoading();
       const response = await fetch(
         "https://test.ylf-eg.org/api/auth/register",
         {
@@ -187,6 +186,7 @@ const SignUp = () => {
       alert("An unexpected error occurred. Please try again later.");
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 

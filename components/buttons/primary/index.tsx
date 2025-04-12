@@ -8,6 +8,7 @@ interface PrimaryButtonProps {
   className?: string;
   disabled?: boolean;
   style?: any;
+  color?: string;
 }
 
 const PrimaryButton = ({
@@ -16,6 +17,7 @@ const PrimaryButton = ({
   className,
   disabled = false,
   style = {},
+  color
 }: PrimaryButtonProps) => {
   const { theme } = useTheme();
   return (
@@ -26,7 +28,7 @@ const PrimaryButton = ({
       style={{
         backgroundColor: disabled
           ? Colors[theme ?? "light"].secondary
-          : Colors[theme ?? "light"].ButtonPrimary,
+          : color || Colors[theme ?? "light"].ButtonPrimary,
         ...style,
       }}
     >

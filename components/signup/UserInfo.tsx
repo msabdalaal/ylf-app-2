@@ -116,9 +116,9 @@ export default function UserInfo({
           <TextInputComponent
             label="Work"
             placeholder="Work"
-            value={formData.experiences[0]}
+            value={formData.experiences}
             onChange={(text) =>
-              setFormData((prev) => ({ ...prev, experiences: [text] }))
+              setFormData((prev) => ({ ...prev, experiences: text }))
             }
           />
 

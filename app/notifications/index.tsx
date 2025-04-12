@@ -12,6 +12,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useLoading } from "@/context/LoadingContext";
+import NotificationBell from "@/assets/icons/NotificationBell";
 
 const NotificationItem = ({ item }: { item: Notification }) => {
   const { theme } = useTheme();
@@ -32,9 +34,8 @@ const NotificationItem = ({ item }: { item: Notification }) => {
         backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
       }}
     >
-      <View className="w-10 h-10 rounded-full justify-center items-center bg-gray-200 dark:bg-gray-800">
-        <Text className="text-white text-lg">!</Text>
-      </View>
+        <NotificationBell />
+      
       <View className="flex-1 flex-row items-center gap-2">
         <View className="flex-1">
           <Text
@@ -71,6 +72,7 @@ export default function Notifications() {
   const { theme } = useTheme();
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const { showLoading, hideLoading } = useLoading();
 
   const renderSection = ({
     title,
@@ -96,12 +98,16 @@ export default function Notifications() {
   );
 
   const getNotifications = async (refresh = false) => {
+    showLoading();
     await get("users/getUserNotifications")
       .then((res) => {
         setNotifications(res.data.data);
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
+      })
+      .finally(() => {
+        hideLoading();
       });
   };
 

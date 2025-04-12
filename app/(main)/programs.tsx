@@ -2,6 +2,7 @@ import Bell from "@/assets/icons/bell";
 import ProgramCard from "@/components/cards/programCards";
 import { Colors } from "@/constants/Colors";
 import { Program } from "@/constants/types";
+import { useLoading } from "@/context/LoadingContext";
 import { useTheme } from "@/context/ThemeContext";
 import { get } from "@/hooks/axios";
 import imageUrl from "@/utils/imageUrl";
@@ -11,48 +12,21 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {};
 
-const programs: {
-  id: number;
-  linkText?: string;
-  color?: string;
-  image?: any;
-}[] = [
-  {
-    id: 1,
-    color: "#2A9A97CC",
-    image: require("@/assets/images/program1.png"),
-    linkText: "Banan Program (بَنَان)",
-  },
-  {
-    id: 2,
-    color: "#015CA4CC",
-    image: require("@/assets/images/program2.png"),
-    linkText: "leadership Program",
-  },
-  {
-    id: 3,
-    color: "#AB4057CC",
-    image: require("@/assets/images/program3.png"),
-    linkText: "She Leads Program",
-  },
-  {
-    id: 4,
-    color: "#FF5D00CC",
-    image: require("@/assets/images/program4.png"),
-    linkText: "Learning Expert Program",
-  },
-];
-
 function Programs({}: Props) {
   const [programs, setPrograms] = useState<Program[]>([]);
   const { theme } = useTheme();
+  const { showLoading, hideLoading } = useLoading();
   const getPrograms = useCallback(async () => {
+    showLoading();
     await get("programs/getAll")
       .then((res) => {
         setPrograms(res.data.data);
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        hideLoading();
       });
   }, []);
   useEffect(() => {
@@ -89,6 +63,7 @@ function Programs({}: Props) {
         </TouchableOpacity>
       </View>
       <FlatList
+        className="mb-2"
         data={programs}
         renderItem={(post) => (
           <ProgramCard

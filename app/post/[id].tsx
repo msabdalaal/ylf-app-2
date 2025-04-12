@@ -17,6 +17,7 @@ import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
 import { setupNotifications } from "@/utils/notificationHandler";
 import { useTheme } from "@/context/ThemeContext";
+import { useLoading } from "@/context/LoadingContext";
 
 export default function Post() {
   const [post, setPost] = useState<Post>();
@@ -30,21 +31,30 @@ export default function Post() {
     const subscription = setupNotifications();
     return () => subscription.remove();
   }, []);
+  const { showLoading, hideLoading } = useLoading();
 
   const getPost = async () => {
+    showLoading();
     await get("posts/get/" + id)
       .then((res) => {
         setPost(res.data.data);
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
+      })
+      .finally(() => {
+        hideLoading();
       });
+    showLoading();
     await get("comments/getPostComments/" + id)
       .then((res) => {
         setComments(res.data.data);
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
+      })
+      .finally(() => {
+        hideLoading();
       });
   };
   useEffect(() => {

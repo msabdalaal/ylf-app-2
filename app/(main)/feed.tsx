@@ -1,119 +1,154 @@
-import NormalPost from "@/components/posts/normalPost";
-import { Post, Program } from "@/constants/types";
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { get, post } from "@/hooks/axios";
 import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState, useRef } from "react";
-import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 import { produce } from "immer";
-import imageUrl from "@/utils/imageUrl";
-import { TouchableOpacity } from "react-native";
+import NormalPost from "@/components/posts/normalPost";
 import ImagePost from "@/components/posts/imagePost";
 import VideoPost from "@/components/posts/videoPost";
 import EventPost from "@/components/posts/eventPost";
 import { Colors } from "@/constants/Colors";
 import Bell from "@/assets/icons/bell";
 import { useTheme } from "@/context/ThemeContext";
+import { Post, Program } from "@/constants/types";
+import imageUrl from "@/utils/imageUrl";
+import { useLoading } from "@/context/LoadingContext";
+
 type Props = {};
 
 function Feed({}: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const { theme } = useTheme();
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     totalCount: 1,
   });
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const { showLoading, hideLoading } = useLoading();
+  // Ref to prevent concurrent fetches
+  const isFetchingRef = useRef(false);
   const router = useRouter();
+  const { theme } = useTheme();
+
   const logout = async () => {
     await remove("token");
     router.replace("/login");
   };
-  const [page, setPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  // Add a ref to track if a request is in progress
-  const isFetchingRef = useRef(false);
 
-  const getFeed = async (refresh = false) => {
-    // Set the fetching ref to true at the start
+  // Function for the initial load and refresh
+  const loadFirstPage = useCallback(async () => {
+    if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
-    if (!refresh) setIsLoadingMore(true);
-    await get("posts/getAll", { params: { page, program: selectedProgram } })
-      .then((res) => {
-        setPosts((prev) =>
-          refresh ? res.data.data : [...prev, ...res.data.data]
-        );
-        setPagination(res.data.pagination);
-      })
-      .catch((err) => {
-        if (err instanceof AxiosError)
-          if (err.response?.status === 401) logout();
-      })
-      .finally(() => {
-        setIsLoadingMore(false);
-        // Set the fetching ref to false when done
-        isFetchingRef.current = false;
+    setRefreshing(true);
+    // Clear current posts and reset page counter
+    setPosts([]);
+    setPage(1);
+
+    try {
+      showLoading();
+      const res = await get("posts/getAll", {
+        params: { page: 1, program: selectedProgram },
       });
-  };
+      setPosts(res.data.data);
+      setPagination(res.data.pagination);
+    } catch (err) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
+        logout();
+      }
+    } finally {
+      hideLoading();
+      setRefreshing(false);
+      isFetchingRef.current = false;
+    }
+  }, [selectedProgram]);
+
+  // Function for loading more data (infinite scroll)
+  const loadMore = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    if (page >= pagination.totalPages) return;
+
+    isFetchingRef.current = true;
+    setIsLoadingMore(true);
+    const nextPage = page + 1;
+    try {
+      const res = await get("posts/getAll", {
+        params: { page: nextPage, program: selectedProgram },
+      });
+      setPosts((prev) => [...prev, ...res.data.data]);
+      setPagination(res.data.pagination);
+      setPage(nextPage);
+    } catch (err) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
+        logout();
+      }
+    } finally {
+      setIsLoadingMore(false);
+      isFetchingRef.current = false;
+    }
+  }, [page, pagination.totalPages, selectedProgram]);
+
+  // Initial load or when the selected program changes
+  useEffect(() => {
+    loadFirstPage();
+  }, [loadFirstPage]);
 
   const onRefresh = async () => {
-    // Only refresh if not currently fetching
-    if (isFetchingRef.current) return;
-
-    setRefreshing(true);
-    setPage(1);
-    setPosts([]);
-    await getFeed(true);
-    setRefreshing(false);
+    await loadFirstPage();
   };
 
-  useEffect(() => {
-    // Only fetch if not refreshing and not already fetching
-    if (!refreshing && !isFetchingRef.current) {
-      getFeed();
-    }
-  }, [page, selectedProgram]);
-
   const handleLikePost = async (id: string) => {
-    await post("posts/likePost/" + id, {})
-      .then((res) => {
-        setPosts(
-          produce((draft) => {
-            const index = draft.findIndex((post) => post.id === id);
+    try {
+      const res = await post("posts/likePost/" + id, {});
+      setPosts(
+        produce((draft) => {
+          const index = draft.findIndex((post) => post.id === id);
+          if (index !== -1) {
             draft[index].likeCounter = res.data.data.likeCounter;
             draft[index].likedUsers = res.data.data.likedUsers;
             draft[index].hasLiked = res.data.hasLiked;
-          })
-        );
-      })
-      .catch((err) => {
-        if (err instanceof AxiosError) console.log(err.response?.data.message);
-      });
+          }
+        })
+      );
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        console.log(err.response?.data.message);
+      }
+    }
   };
 
+  // Fetch available programs
   const [programs, setPrograms] = useState<Program[]>([]);
   const getPrograms = useCallback(async () => {
-    await get("programs/getAll")
-      .then((res) => {
-        setPrograms(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      const res = await get("programs/getAll");
+      setPrograms(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
   }, []);
+
   useEffect(() => {
     getPrograms();
-  }, []);
+  }, [getPrograms]);
 
   return (
     <View
       className="container bg-white flex-1"
       style={{
-        backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
+        backgroundColor: Colors[theme === "dark" ? "dark" : "light"].background,
       }}
     >
       <View className="text-white text-2xl font-bold mt-10 mb-5 flex-row justify-between w-full">
@@ -127,7 +162,7 @@ function Feed({}: Props) {
           resizeMode="contain"
         />
         <TouchableOpacity
-          className={`rounded-full w-11 h-11 flex justify-center items-center`}
+          className="rounded-full w-11 h-11 flex justify-center items-center"
           style={{
             backgroundColor: Colors[theme ?? "light"].bg_primary,
           }}
@@ -142,12 +177,7 @@ function Feed({}: Props) {
         <FlatList
           horizontal
           data={[
-            {
-              id: "",
-              logo: { path: "" },
-              name: "All",
-              accentColor: undefined,
-            },
+            { id: "", logo: { path: "" }, name: "All", accentColor: undefined },
             {
               id: "general",
               logo: { path: "" },
@@ -158,17 +188,17 @@ function Feed({}: Props) {
           ]}
           showsHorizontalScrollIndicator={false}
           className="my-5"
-          renderItem={(item) => (
+          renderItem={({ item }) => (
             <View className="justify-center items-center w-20">
               <View
                 className="rounded-full p-1 w-20 h-20"
                 style={{
                   borderWidth: 1,
                   borderColor:
-                    selectedProgram !== item.item.id
+                    selectedProgram !== item.id
                       ? "transparent"
-                      : item.item.accentColor
-                      ? item.item.accentColor
+                      : item.accentColor
+                      ? item.accentColor
                       : theme === "dark"
                       ? "white"
                       : "black",
@@ -177,21 +207,19 @@ function Feed({}: Props) {
                 <TouchableOpacity
                   className="w-full h-full bg-gray-200 rounded-full p-2 justify-center items-center"
                   onPress={() => {
-                    // Skip if the same program is selected
-                    if (selectedProgram === item.item.id) return;
-                    
+                    if (selectedProgram === item.id) return;
                     setPosts([]);
                     setPage(1);
-                    setSelectedProgram(item.item.id);
+                    setSelectedProgram(item.id);
                   }}
                 >
-                  {item.item.logo.path ? (
+                  {item.logo.path ? (
                     <Image
-                      src={imageUrl(item.item.logo.path)}
+                      src={imageUrl(item.logo.path)}
                       resizeMode="contain"
                       className="w-full h-full rounded-full"
                     />
-                  ) : item.item.id == "general" ? (
+                  ) : item.id === "general" ? (
                     <View className="justify-center items-center w-full h-full">
                       <Image
                         source={require("@/assets/images/splash-icon.png")}
@@ -213,9 +241,9 @@ function Feed({}: Props) {
               <Text
                 className="text-center"
                 style={{
-                  color: item.item.accentColor
-                    ? item.item.accentColor
-                    : theme == "dark"
+                  color: item.accentColor
+                    ? item.accentColor
+                    : theme === "dark"
                     ? "white"
                     : "black",
                   width: 80,
@@ -224,7 +252,7 @@ function Feed({}: Props) {
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {item.item.name}
+                {item.name}
               </Text>
             </View>
           )}
@@ -234,70 +262,52 @@ function Feed({}: Props) {
       </View>
       <FlatList
         refreshing={refreshing}
-        onRefresh={isFetchingRef.current ? null : onRefresh}
+        onRefresh={onRefresh}
         ListHeaderComponent={() => <></>}
         data={posts}
-        renderItem={(post) =>
-          post.item.type == "event" ? (
+        renderItem={({ item }) =>
+          item.type === "event" ? (
             <EventPost
-              post={post.item}
+              post={item}
               handleLike={(id: string) => handleLikePost(id)}
               color={
-                selectedProgram && selectedProgram != "general"
-                  ? programs.find((program) => program.id == selectedProgram)
-                      ?.accentColor
-                  : undefined
+                programs.find((program) => program.id === item.programId)
+                  ?.accentColor
               }
             />
-          ) : post.item.images.length > 0 ? (
-            post.item.images[0].path.endsWith(".mp4") ? (
+          ) : item.images.length > 0 ? (
+            item.images[0].path.endsWith(".mp4") ? (
               <VideoPost
                 handleLike={(id: string) => handleLikePost(id)}
-                post={post.item}
+                post={item}
                 color={
-                  selectedProgram && selectedProgram != "general"
-                    ? programs.find((program) => program.id == selectedProgram)
-                        ?.accentColor
-                    : undefined
+                  programs.find((program) => program.id === item.programId)
+                    ?.accentColor
                 }
               />
             ) : (
               <ImagePost
                 handleLike={(id: string) => handleLikePost(id)}
-                post={post.item}
+                post={item}
                 color={
-                  selectedProgram && selectedProgram != "general"
-                    ? programs.find((program) => program.id == selectedProgram)
-                        ?.accentColor
-                    : undefined
+                  programs.find((program) => program.id === item.programId)
+                    ?.accentColor
                 }
               />
             )
           ) : (
             <NormalPost
               handleLike={(id: string) => handleLikePost(id)}
-              post={post.item}
+              post={item}
               color={
-                selectedProgram && selectedProgram != "general"
-                  ? programs.find((program) => program.id == selectedProgram)
-                      ?.accentColor
-                  : undefined
+                programs.find((program) => program.id === item.programId)
+                  ?.accentColor
               }
             />
           )
         }
-        keyExtractor={(post) => `post-${post.id}-${post.createdAt}`}
-        onEndReached={() => {
-          // Only load more if not refreshing, not already loading more, and not fetching
-          if (
-            page < pagination.totalPages &&
-            !isLoadingMore &&
-            !refreshing &&
-            !isFetchingRef.current
-          ) {
-            setPage(page + 1);
-          }
-        }}
+        keyExtractor={(item) => `post-${item.id}-${item.createdAt}`}
+        onEndReached={loadMore}
         ListFooterComponent={() =>
           isLoadingMore ? (
             <View className="py-4">

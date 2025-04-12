@@ -72,9 +72,6 @@ const NormalPost = ({
               <Text className="dark:text-white">
                 {post?.user?.name ?? "YLF"}
               </Text>
-              <Text className="text-xs dark:text-white">
-                {post?.user?.email ?? "@ylf"}
-              </Text>
             </View>
             {/* <TouchableOpacity>
               <Dots />

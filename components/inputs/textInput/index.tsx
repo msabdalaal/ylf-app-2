@@ -93,7 +93,6 @@ const TextInputComponent = ({
               : Colors.light.border,
             borderWidth: 2,
             fontFamily: "Poppins_Medium",
-            lineHeight: 20,
             color: isDark ? "#E5E5E5" : Colors.light.text,
             backgroundColor: disabled
               ? isDark

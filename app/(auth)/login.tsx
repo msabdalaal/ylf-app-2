@@ -74,20 +74,20 @@ const Login = () => {
       const token = res.data.access_token;
       await save("token", token);
 
-     const user =  await getProfile();
-     if (!isProfileComplete(user)) {
-      await remove("token");
-      router.replace({
-        pathname: "/auth",
-        params: { token: res.data.access_token }
-      });
-    }else{
-      await SecureStore.setItemAsync("email", email);
-      await SecureStore.setItemAsync("password", password);
-      router.replace("/feed");
-    }
-
+      const user = await getProfile();
+      if (!isProfileComplete(user)) {
+        await remove("token");
+        router.replace({
+          pathname: "/auth",
+          params: { token: res.data.access_token },
+        });
+      } else {
+        await SecureStore.setItemAsync("email", email);
+        await SecureStore.setItemAsync("password", password);
+        router.replace("/feed");
+      }
     } catch (error) {
+      console.log(error);
       if (error instanceof AxiosError) {
         alert(error.response?.data.message);
       }
