@@ -22,6 +22,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { Post, Program } from "@/constants/types";
 import imageUrl from "@/utils/imageUrl";
 import { useLoading } from "@/context/LoadingContext";
+import PostComponent from "@/components/posts/generalPost";
 
 type Props = {};
 
@@ -260,61 +261,31 @@ function Feed({}: Props) {
           ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
         />
       </View>
+
       <FlatList
         refreshing={refreshing}
         onRefresh={onRefresh}
-        ListHeaderComponent={() => <></>}
         data={posts}
-        renderItem={({ item }) =>
-          item.type === "event" ? (
-            <EventPost
-              post={item}
-              handleLike={(id: string) => handleLikePost(id)}
-              color={
-                programs.find((program) => program.id === item.programId)
-                  ?.accentColor
-              }
-            />
-          ) : item.images.length > 0 ? (
-            item.images[0].path.endsWith(".mp4") ? (
-              <VideoPost
-                handleLike={(id: string) => handleLikePost(id)}
-                post={item}
-                color={
-                  programs.find((program) => program.id === item.programId)
-                    ?.accentColor
-                }
-              />
-            ) : (
-              <ImagePost
-                handleLike={(id: string) => handleLikePost(id)}
-                post={item}
-                color={
-                  programs.find((program) => program.id === item.programId)
-                    ?.accentColor
-                }
-              />
-            )
-          ) : (
-            <NormalPost
-              handleLike={(id: string) => handleLikePost(id)}
-              post={item}
-              color={
-                programs.find((program) => program.id === item.programId)
-                  ?.accentColor
-              }
-            />
-          )
-        }
         keyExtractor={(item) => `post-${item.id}-${item.createdAt}`}
+        renderItem={({ item }) => {
+          // find the matching program accent color
+          const accentColor = programs.find(
+            (p) => p.id === item.programId
+          )?.accentColor;
+
+          return (
+            <PostComponent
+              post={item}
+              handleLike={handleLikePost}
+              color={accentColor}
+            />
+          );
+        }}
         onEndReached={loadMore}
         ListFooterComponent={() =>
           isLoadingMore ? (
             <View className="py-4">
-              <ActivityIndicator
-                size="small"
-                color={Colors[theme ?? "light"].primary}
-              />
+              <ActivityIndicator size="small" color={Colors[theme]?.primary} />
             </View>
           ) : null
         }
