@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -170,7 +171,7 @@ export default function AuthRedirectScreen() {
       type: "image/jpeg",
       name: "id_back.jpg",
     } as any);
-    
+
     const resp = await fetch("https://test.ylf-eg.org/api/users/uploadId", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -270,10 +271,24 @@ export default function AuthRedirectScreen() {
               Profile Picture
             </Text>
             {avatarUri ? (
-              <View className="flex-row justify-between items-center mb-2">
-                <Text>Selected</Text>
-                <TouchableOpacity onPress={() => setAvatarUri(null)}>
-                  <Text className="text-red-500">Remove</Text>
+              // <View className="flex-row justify-between items-center mb-2">
+              //   <Text>Selected</Text>
+              //   <TouchableOpacity onPress={() => setAvatarUri(null)}>
+              //     <Text className="text-red-500">Remove</Text>
+              //   </TouchableOpacity>
+              // </View>
+              <View className="items-center mb-2">
+                <Image
+                  source={{ uri: avatarUri }}
+                  className="w-32 h-32 rounded-full"
+                />
+                <TouchableOpacity
+                  onPress={() => setAvatarUri(null)}
+                  className="mt-4"
+                >
+                  <Text style={{ color: Colors[theme ?? "light"].primary }}>
+                    Change Photo
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
