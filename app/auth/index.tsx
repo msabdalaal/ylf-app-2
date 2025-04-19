@@ -170,6 +170,7 @@ export default function AuthRedirectScreen() {
       type: "image/jpeg",
       name: "id_back.jpg",
     } as any);
+    
     const resp = await fetch("https://test.ylf-eg.org/api/users/uploadId", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -212,11 +213,16 @@ export default function AuthRedirectScreen() {
       setLoading(true);
 
       // 1) patch profile fields
-      await patch("users/editProfile", {
-        ...formData,
-        age: Number(formData.age),
-        dateOfBirth: formData.dateOfBirth,
-      });
+      await patch(
+        "users/editProfile",
+        {
+          ...formData,
+          age: Number(formData.age),
+          dateOfBirth: formData.dateOfBirth,
+        },
+        {},
+        token as string
+      );
 
       // 2) upload avatar if provided
       if (avatarUri) await uploadAvatar();
