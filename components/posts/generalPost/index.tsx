@@ -85,13 +85,12 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
       className="rounded-[2rem] p-3 w-full mb-4"
       style={{ backgroundColor: containerBg }}
     >
-      {/* Header */}
       <View className="flex-row items-center gap-3 mb-3">
         <View className="w-10 h-10 bg-white rounded-full overflow-hidden">
           <Image
             src={imageUrl(user.avatar?.path ?? "")}
             className="w-full h-full"
-            resizeMode="cover"
+            resizeMode="contain"
           />
         </View>
         <View className="flex-row flex-1 items-center justify-between">
@@ -99,7 +98,6 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
         </View>
       </View>
 
-      {/* Body */}
       {post.content ? (
         <TouchableOpacity
           activeOpacity={0.8}

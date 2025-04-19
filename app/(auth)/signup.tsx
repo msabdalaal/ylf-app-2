@@ -18,6 +18,7 @@ import PasswordSetup from "@/components/signup/PasswordSetup";
 import UserInfo from "@/components/signup/UserInfo";
 import dayjs from "dayjs";
 import { useLoading } from "@/context/LoadingContext";
+import AvatarUpload from "@/components/signup/AvatarUpload";
 
 export interface formData {
   name: string;
@@ -26,6 +27,7 @@ export interface formData {
   confirmPassword: string;
   id_front: string;
   id_back: string;
+  avatar: string; // added
   phoneNumber: string;
   dateOfBirth: string | null;
   college: string;
@@ -53,6 +55,7 @@ const SignUp = () => {
     confirmPassword: "",
     id_front: "",
     id_back: "",
+    avatar: "", // initialize
     phoneNumber: "",
     dateOfBirth: null,
     college: "",
@@ -71,6 +74,21 @@ const SignUp = () => {
       updateState("user", user);
     });
   }, []);
+
+  const pickAvatar = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setFormData((prev) => ({
+        ...prev,
+        avatar: result.assets[0].uri,
+      }));
+    }
+  };
 
   const pickImage = async (side: "front" | "back") => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -108,18 +126,25 @@ const SignUp = () => {
         setStep(2);
         break;
       case 2:
+        // require ID upload
         if (!formData.id_front || !formData.id_back)
           return alert("Please upload both sides of your ID");
         setStep(3);
         break;
       case 3:
+        // require avatar upload
+        if (!formData.avatar) return alert("Please upload a profile picture");
+        setStep(4);
+        break;
+      case 4:
         if (formData.password !== confirmPassword)
           return alert("Passwords do not match");
         if (formData.password.length < 6)
           return alert("Password must be at least 6 characters");
-        setStep(4);
+        setStep(5);
         break;
-      case 4:
+      case 5:
+        // require user info
         if (!formData.phoneNumber) return alert("Phone number is required");
         if (!formData.dateOfBirth) return alert("Date of birth is required");
         if (!formData.jobTitle) return alert("Job title is required");
@@ -138,28 +163,19 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
     const realFormData = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (key === "id_front" || key === "id_back") {
+    Object.entries(formData).forEach(([key, val]) => {
+      if (key === "id_front" || key === "id_back" || key === "avatar") {
         realFormData.append(key, {
-          uri: formData[key],
+          uri: val as string,
           type: "image/jpeg",
           name: `${key}.jpg`,
         } as any);
       } else if (key === "dateOfBirth") {
-        realFormData.append(
-          key,
-          dayjs(formData[key] ?? "").toISOString() || ""
-        );
-      } else if (["languages", "skills"].includes(key)) {
-        realFormData.append(
-          key,
-          (formData[key as keyof typeof formData] as string[])?.join(",") || ""
-        );
+        realFormData.append(key, dayjs(val as string).toISOString() || "");
+      } else if (Array.isArray(val)) {
+        realFormData.append(key, (val as string[]).join(","));
       } else if (key !== "confirmPassword") {
-        realFormData.append(
-          key,
-          String(formData[key as keyof typeof formData] ?? "")
-        );
+        realFormData.append(key, String(val));
       }
     });
 
@@ -197,28 +213,36 @@ const SignUp = () => {
       case 2:
         return (
           <IdUpload
-            formData={formData}
             setFormData={setFormData}
-            pickImage={pickImage}
+            formData={formData}
+            pickImage={(side) => pickImage(side)}
             onBack={() => setStep(1)}
           />
         );
       case 3:
+        return (
+          <AvatarUpload
+            avatarUri={formData.avatar}
+            pickAvatar={() => pickAvatar()}
+            onBack={() => setStep(2)}
+          />
+        );
+      case 4:
         return (
           <PasswordSetup
             formData={formData}
             setFormData={setFormData}
             confirmPassword={confirmPassword}
             setConfirmPassword={setConfirmPassword}
-            onBack={() => setStep(2)}
+            onBack={() => setStep(3)}
           />
         );
-      case 4:
+      case 5:
         return (
           <UserInfo
             formData={formData}
             setFormData={setFormData}
-            onBack={() => setStep(3)}
+            onBack={() => setStep(4)}
           />
         );
     }
@@ -227,13 +251,11 @@ const SignUp = () => {
   return (
     <SafeAreaView
       className="flex-1 w-full container"
-      style={{
-        backgroundColor: Colors[theme ?? "light"].background,
-      }}
+      style={{ backgroundColor: Colors[theme].background }}
     >
       {renderStep()}
       <PrimaryButton onPress={handleContinue} className="my-6">
-        {loading ? "Signing Up ..." : step === 4 ? "Sign Up" : "Continue"}
+        {loading ? "Signing Up ..." : step === 5 ? "Sign Up" : "Continue"}
       </PrimaryButton>
       {step === 1 && (
         <>
