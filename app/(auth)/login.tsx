@@ -127,7 +127,7 @@ const Login = () => {
     const redirect = Linking.createURL("/");
 
     await WebBrowser.openAuthSessionAsync(
-      `https://test.ylf-eg.org/api/auth/google`,
+      `https://mobile.ylf-eg.org/api/auth/google`,
       redirect
     );
   };

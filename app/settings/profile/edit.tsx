@@ -81,7 +81,7 @@ export default function Edit({}: Props) {
         } as any);
         const token = await getValueFor("token");
         const response = await fetch(
-          "https://test.ylf-eg.org/api/users/uploadAvatar",
+          "https://mobile.ylf-eg.org/api/users/uploadAvatar",
           {
             method: "POST",
             body: realFormData,

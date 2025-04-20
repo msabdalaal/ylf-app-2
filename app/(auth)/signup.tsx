@@ -112,7 +112,7 @@ const SignUp = () => {
   const handleGoogleSignIn = async () => {
     const redirect = Linking.createURL("/");
     await WebBrowser.openAuthSessionAsync(
-      `https://test.ylf-eg.org/api/auth/google`,
+      `https://mobile.ylf-eg.org/api/auth/google`,
       redirect
     );
   };
@@ -183,7 +183,7 @@ const SignUp = () => {
       setLoading(true);
       showLoading();
       const response = await fetch(
-        "https://test.ylf-eg.org/api/auth/register",
+        "https://mobile.ylf-eg.org/api/auth/register",
         {
           method: "POST",
           body: realFormData,

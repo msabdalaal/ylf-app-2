@@ -12,7 +12,7 @@ export default async function uploadFile(
     name: name,
   } as any);
   const token = await getValueFor("token");
-  const response = await fetch("https://test.ylf-eg.org/api/upload/file", {
+  const response = await fetch("https://mobile.ylf-eg.org/api/upload/file", {
     method: "POST",
     body: realFormData,
     headers: {

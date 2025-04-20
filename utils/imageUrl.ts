@@ -1,3 +1,3 @@
 export default function imageUrl(url: string) {
-  return `https://test.ylf-eg.org/${url}`;
+  return `https://mobile.ylf-eg.org/${url}`;
 }

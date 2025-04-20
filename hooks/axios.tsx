@@ -11,7 +11,7 @@ export const get = async (
   config?: AxiosRequestConfig,
   customToken: string | null = null
 ): Promise<AxiosResponse> => {
-  const apiUrl = `https://test.ylf-eg.org/api/`;
+  const apiUrl = `https://mobile.ylf-eg.org/api/`;
   const token = customToken ? customToken : await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.get(apiUrl + url, { headers, ...config });
@@ -22,7 +22,7 @@ export const post = async (
   data: any,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse> => {
-  const apiUrl = `https://test.ylf-eg.org/api/`;
+  const apiUrl = `https://mobile.ylf-eg.org/api/`;
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.post(apiUrl + url, data, {
@@ -37,7 +37,7 @@ export const patch = async (
   config?: AxiosRequestConfig,
   customToken: string | null = null
 ): Promise<AxiosResponse> => {
-  const apiUrl = `https://test.ylf-eg.org/api/`;
+  const apiUrl = `https://mobile.ylf-eg.org/api/`;
   const token = customToken ? customToken : await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.patch(apiUrl + url, data, {
@@ -50,7 +50,7 @@ export const del = async (
   url: string,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse> => {
-  const apiUrl = `https://test.ylf-eg.org/api/`;
+  const apiUrl = `https://mobile.ylf-eg.org/api/`;
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return axios.delete(apiUrl + url, { headers, ...config });

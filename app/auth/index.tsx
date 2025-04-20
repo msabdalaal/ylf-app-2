@@ -149,11 +149,14 @@ export default function AuthRedirectScreen() {
       type: "image/png",
       name: "avatar.png",
     } as any);
-    const resp = await fetch("https://test.ylf-eg.org/api/users/uploadAvatar", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: form,
-    });
+    const resp = await fetch(
+      "https://mobile.ylf-eg.org/api/users/uploadAvatar",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      }
+    );
     const json = await resp.json();
     if (!resp.ok) throw new Error(json.message || "Avatar upload failed");
   };
@@ -172,7 +175,7 @@ export default function AuthRedirectScreen() {
       name: "id_back.jpg",
     } as any);
 
-    const resp = await fetch("https://test.ylf-eg.org/api/users/uploadId", {
+    const resp = await fetch("https://mobile.ylf-eg.org/api/users/uploadId", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: form,
