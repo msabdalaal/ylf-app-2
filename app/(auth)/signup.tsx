@@ -55,7 +55,7 @@ const SignUp = () => {
     confirmPassword: "",
     id_front: "",
     id_back: "",
-    avatar: "", // initialize
+    avatar: "",
     phoneNumber: "",
     dateOfBirth: null,
     college: "",
@@ -67,6 +67,30 @@ const SignUp = () => {
     languages: [""],
     skills: [""],
   });
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      id_front: "",
+      id_back: "",
+      avatar: "",
+      phoneNumber: "",
+      dateOfBirth: null,
+      college: "",
+      university: "",
+      experiences: "",
+      jobTitle: "",
+      age: "",
+      address: "",
+      languages: [""],
+      skills: [""],
+    });
+    setConfirmPassword("");
+    setStep(1);
+  };
 
   const getProfile = useCallback(async () => {
     await get("users/profile").then((res) => {
@@ -123,7 +147,17 @@ const SignUp = () => {
         if (!formData.name) return alert("Name cannot be empty");
         if (!validator.isEmail(formData.email))
           return alert("Email is not valid");
-        setStep(2);
+
+        await post("auth/isRegistered", {
+          email: formData.email,
+        })
+          .then((res) => {
+            setStep(2);
+          })
+          .catch((err) => {
+            alert(err.response.data.message);
+          });
+
         break;
       case 2:
         // require ID upload
@@ -217,6 +251,7 @@ const SignUp = () => {
             formData={formData}
             pickImage={(side) => pickImage(side)}
             onBack={() => setStep(1)}
+            resetForm={resetForm}
           />
         );
       case 3:

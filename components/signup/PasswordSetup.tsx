@@ -33,7 +33,7 @@ export default function PasswordSetup({
       >
         Create a password
       </Text>
-      <Text className="mt-4" style={{ fontFamily: "Inter" }}>
+      <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
         In order to keep your account safe you need to create a strong password.
       </Text>
       <View className="gap-4 mt-8">

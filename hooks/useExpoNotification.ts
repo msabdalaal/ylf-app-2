@@ -12,8 +12,8 @@ export const usePushNotifications = (): PushNotificationState => {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
     }),
   });
 
@@ -36,7 +36,6 @@ export const usePushNotifications = (): PushNotificationState => {
         finalStatus = status;
       }
       if (finalStatus !== "granted") {
-        // alert("Failed to get push token for push notification!");
         return;
       }
 
@@ -50,12 +49,11 @@ export const usePushNotifications = (): PushNotificationState => {
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#FF231F7C",
+          enableVibrate: true,
         });
       }
 
       return token;
-    } else {
-      // alert("Must use physical device for Push Notifications");
     }
   }
   useEffect(() => {

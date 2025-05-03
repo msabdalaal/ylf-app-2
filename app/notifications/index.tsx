@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
-import { get } from "@/hooks/axios";
+import { get, post } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { Notification } from "@/constants/types";
@@ -34,8 +34,8 @@ const NotificationItem = ({ item }: { item: Notification }) => {
         backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
       }}
     >
-        <NotificationBell />
-      
+      <NotificationBell />
+
       <View className="flex-1 flex-row items-center gap-2">
         <View className="flex-1">
           <Text
@@ -102,6 +102,9 @@ export default function Notifications() {
     await get("users/getUserNotifications")
       .then((res) => {
         setNotifications(res.data.data);
+      })
+      .then(async () => {
+        get("users/readAllNotifications");
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);

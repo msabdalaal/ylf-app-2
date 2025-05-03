@@ -300,7 +300,9 @@ export default function AuthRedirectScreen() {
                 className="border border-dashed border-gray-400 rounded-lg p-4 flex-row items-center"
               >
                 <Upload />
-                <Text className="ml-2">Upload Profile Picture</Text>
+                <Text className="ml-2 dark:text-white">
+                  Upload Profile Picture
+                </Text>
               </TouchableOpacity>
             )}
           </View>

@@ -148,15 +148,15 @@ const Login = () => {
       />
       <View className="mt-16 gap-4">
         <TextInputComponent
-          label="Your Email"
-          placeholder="email@example.com"
+          label="Email Address"
+          placeholder="Enter Your Email"
           value={formData.email}
           onChange={(text) => setFormData({ ...formData, email: text })}
         />
         <TextInputComponent
           label="Password"
           secure={true}
-          placeholder="**************"
+          placeholder="Enter Your Password"
           value={formData.password}
           onChange={(text) => setFormData({ ...formData, password: text })}
         />

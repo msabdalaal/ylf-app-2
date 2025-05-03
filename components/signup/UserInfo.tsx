@@ -54,7 +54,7 @@ export default function UserInfo({
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? "bg-gray-900" : "bg-white"}`}>
+    <SafeAreaView className={`flex-1 ${isDark ? "" : "bg-white"}`}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <BackButton onClick={onBack} />
         <View className="space-y-4">

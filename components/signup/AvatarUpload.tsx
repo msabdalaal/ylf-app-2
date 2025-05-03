@@ -22,10 +22,7 @@ const AvatarUpload: React.FC<Props> = ({ avatarUri, pickAvatar, onBack }) => {
     >
       <BackButton onClick={onBack} />
       <View className="p-6">
-        <Text
-          className="text-lg font-medium mb-4"
-          style={{ color: Colors[theme ?? "light"].text }}
-        >
+        <Text className="text-lg font-medium mb-4 dark:text-white">
           Upload Profile Picture
         </Text>
 
@@ -35,10 +32,7 @@ const AvatarUpload: React.FC<Props> = ({ avatarUri, pickAvatar, onBack }) => {
               source={{ uri: avatarUri }}
               className="w-32 h-32 rounded-full"
             />
-            <TouchableOpacity
-              onPress={pickAvatar}
-              className="mt-4"
-            >
+            <TouchableOpacity onPress={pickAvatar} className="mt-4 ">
               <Text style={{ color: Colors[theme ?? "light"].primary }}>
                 Change Photo
               </Text>
@@ -52,8 +46,7 @@ const AvatarUpload: React.FC<Props> = ({ avatarUri, pickAvatar, onBack }) => {
           >
             <Upload />
             <Text
-              className="mt-2"
-              style={{ color: Colors[theme ?? "light"].text }}
+              className="mt-2 dark:text-white"
             >
               Tap to select a profile picture
             </Text>

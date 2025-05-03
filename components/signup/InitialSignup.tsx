@@ -9,7 +9,10 @@ interface InitialSignupProps {
   setFormData: (data: formData) => void;
 }
 
-export default function InitialSignup({ formData, setFormData }: InitialSignupProps) {
+export default function InitialSignup({
+  formData,
+  setFormData,
+}: InitialSignupProps) {
   return (
     <>
       <TopBarTabs
@@ -21,13 +24,13 @@ export default function InitialSignup({ formData, setFormData }: InitialSignupPr
       <View className="mt-16 gap-4">
         <TextInputComponent
           label="Full Name"
-          placeholder="John Doe"
+          placeholder="Enter Full Name"
           value={formData.name}
           onChange={(text) => setFormData({ ...formData, name: text })}
         />
         <TextInputComponent
-          label="Your Email"
-          placeholder="email@example.com"
+          label="Email Address"
+          placeholder="Enter Your Email"
           value={formData.email}
           onChange={(text) => setFormData({ ...formData, email: text })}
         />

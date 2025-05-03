@@ -145,6 +145,26 @@ function Feed({}: Props) {
     getPrograms();
   }, [getPrograms]);
 
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  const getNotifications = async () => {
+    showLoading();
+    await get("users/getUserNotifications")
+      .then((res) => {
+        setNotificationCount(res.data.data.filter((n: any) => !n.read).length);
+      })
+      .catch((err) => {
+        if (err instanceof AxiosError) console.log(err.response?.data.message);
+      })
+      .finally(() => {
+        hideLoading();
+      });
+  };
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
   return (
     <View
       className="container bg-white flex-1"
@@ -171,6 +191,13 @@ function Feed({}: Props) {
             router.push("/notifications");
           }}
         >
+          {notificationCount != 0 ? (
+            <View className="absolute z-10 top-0 right-0 w-5 h-5 flex justify-center items-center bg-red-500 rounded-full">
+              <Text className="text-white text-xs font-bold text-center">
+                {notificationCount}
+              </Text>
+            </View>
+          ) : null}
           <Bell color={theme === "dark" ? "white" : undefined} />
         </TouchableOpacity>
       </View>

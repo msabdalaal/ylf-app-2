@@ -211,8 +211,8 @@ const SignUp = (props: Props) => {
             Please enter your email to reset the password
           </Text>
           <TextInputComponent
-            label="Your Email"
-            placeholder="Enter your email"
+            label="Email Address"
+            placeholder="Enter Your Email"
             className="mt-8"
             onChange={(text) => setEmail(text)}
             value={Email}

@@ -126,5 +126,6 @@ export interface Notification {
   id: string;
   title: string;
   userId: string;
+  read: boolean;
   link: string;
 }
