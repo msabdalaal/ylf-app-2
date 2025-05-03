@@ -151,7 +151,10 @@ function Feed({}: Props) {
     showLoading();
     await get("users/getUserNotifications")
       .then((res) => {
-        setNotificationCount(res.data.data.filter((n: any) => !n.read).length);
+        console.log(res);
+        const newNotifications = res.data.data.filter((n: any) => !n.read);
+        console.log(newNotifications);
+        setNotificationCount(newNotifications.length);
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
@@ -188,6 +191,7 @@ function Feed({}: Props) {
             backgroundColor: Colors[theme ?? "light"].bg_primary,
           }}
           onPress={() => {
+            setNotificationCount(0);
             router.push("/notifications");
           }}
         >

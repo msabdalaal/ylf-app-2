@@ -104,7 +104,8 @@ export default function Notifications() {
         setNotifications(res.data.data);
       })
       .then(async () => {
-        get("users/readAllNotifications");
+        const result = await get("users/readAllNotifications");
+        console.log(result);
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
