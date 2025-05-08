@@ -226,6 +226,7 @@ const SignUp = () => {
       const data = await response.json();
       if (response.ok) {
         if (data.access_token) await save("token", data.access_token);
+        hideLoading();
         await getProfile();
         router.replace("/feed");
       } else {

@@ -178,7 +178,7 @@ const SignUp = (props: Props) => {
             Verify Code
           </PrimaryButton>
           <View className="flex-row justify-center mt-8">
-            <Text>Haven't got the email yet? </Text>
+            <Text className="dark:text-white">Haven't got the email yet? </Text>
             <Pressable onPress={() => {}}>
               <Text
                 style={{

@@ -24,6 +24,7 @@ import PrimaryButton from "@/components/buttons/primary";
 import Upload from "@/assets/icons/upload";
 import dayjs from "dayjs";
 import { isProfileComplete } from "@/utils/profileComplete";
+import { useLoading } from "@/context/LoadingContext";
 
 type FormState = {
   phoneNumber: string;
@@ -43,7 +44,7 @@ export default function AuthRedirectScreen() {
   const { token } = useLocalSearchParams();
   const { theme } = useTheme();
   const { updateState } = useContext(ApplicationContext);
-
+  const { showLoading, hideLoading } = useLoading();
   const [checking, setChecking] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -70,6 +71,7 @@ export default function AuthRedirectScreen() {
   useEffect(() => {
     const checkProfile = async () => {
       try {
+        showLoading();
         const res = await get("users/profile", {}, token as string);
         const user = res.data.data;
         updateState("user", user);
@@ -109,6 +111,7 @@ export default function AuthRedirectScreen() {
         // If already complete, go to feed
         if (isProfileComplete(user)) {
           await save("token", token!.toString());
+          hideLoading();
           router.replace("/feed");
         }
       } catch (e) {
@@ -119,6 +122,7 @@ export default function AuthRedirectScreen() {
         }
       } finally {
         setChecking(false);
+        hideLoading();
       }
     };
 
@@ -149,6 +153,7 @@ export default function AuthRedirectScreen() {
       type: "image/png",
       name: "avatar.png",
     } as any);
+    showLoading();
     const resp = await fetch(
       "https://mobile.ylf-eg.org/api/users/uploadAvatar",
       {
@@ -159,6 +164,7 @@ export default function AuthRedirectScreen() {
     );
     const json = await resp.json();
     if (!resp.ok) throw new Error(json.message || "Avatar upload failed");
+    hideLoading();
   };
 
   // upload IDs
@@ -175,6 +181,7 @@ export default function AuthRedirectScreen() {
       name: "id_back.jpg",
     } as any);
 
+    showLoading();
     const resp = await fetch("https://mobile.ylf-eg.org/api/users/uploadId", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -184,28 +191,31 @@ export default function AuthRedirectScreen() {
       const json = await resp.json();
       throw new Error(json.message || "ID upload failed");
     }
+    hideLoading();
   };
-
+  console.log(missingFields);
+  console.log(formData);
   const handleComplete = async () => {
     // validate basic
     if (missingFields.avatar && !avatarUri)
       return Alert.alert("Error", "Please upload profile picture");
-    if (missingFields.phoneNumber)
+    if (missingFields.phoneNumber && !formData.phoneNumber.trim())
       return Alert.alert("Error", "Phone number is required");
-    if (missingFields.dateOfBirth)
+    if (missingFields.dateOfBirth && !formData.dateOfBirth)
       return Alert.alert("Error", "Date of birth is required");
-    if (missingFields.university)
+    if (missingFields.university && !formData.university.trim())
       return Alert.alert("Error", "University is required");
-    if (missingFields.college)
+    if (missingFields.college && !formData.college.trim())
       return Alert.alert("Error", "College is required");
-    if (missingFields.jobTitle)
+    if (missingFields.jobTitle && !formData.jobTitle.trim())
       return Alert.alert("Error", "Job title is required");
-    if (missingFields.age) return Alert.alert("Error", "Age is required");
-    if (missingFields.address)
+    if (missingFields.age && !formData.age.trim())
+      return Alert.alert("Error", "Age is required");
+    if (missingFields.address && !formData.address.trim())
       return Alert.alert("Error", "Address is required");
-    if (missingFields.languages)
+    if (missingFields.languages && !formData.languages[0])
       return Alert.alert("Error", "At least one language is required");
-    if (missingFields.skills)
+    if (missingFields.skills && !formData.skills[0])
       return Alert.alert("Error", "At least one skill is required");
     if (
       (missingFields.idFront || missingFields.idBack) &&
@@ -217,6 +227,7 @@ export default function AuthRedirectScreen() {
       setLoading(true);
 
       // 1) patch profile fields
+      showLoading();
       await patch(
         "users/editProfile",
         {
@@ -235,10 +246,12 @@ export default function AuthRedirectScreen() {
       if (idFront && idBack) await uploadIds();
 
       await save("token", token as string);
+      hideLoading();
       router.replace("/feed");
     } catch (e: any) {
       Alert.alert("Error", e.message || "Failed to complete profile");
     } finally {
+      hideLoading();
       setLoading(false);
     }
   };
@@ -385,17 +398,17 @@ export default function AuthRedirectScreen() {
         {(missingFields.idFront || missingFields.idBack) && (
           <View className="mt-6">
             <Text
-              className="mb-2"
+              className="mb-2 dark:text-white"
               style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
             >
               National ID
             </Text>
             {missingFields.idFront && (
               <View className="mb-4">
-                <Text className="mb-1">Front Side</Text>
+                <Text className="mb-1 dark:text-white">Front Side</Text>
                 {idFront ? (
                   <View className="flex-row justify-between items-center">
-                    <Text>Selected</Text>
+                    <Text className="dark:text-white">Selected</Text>
                     <TouchableOpacity onPress={() => setIdFront(null)}>
                       <Text className="text-red-500">Remove</Text>
                     </TouchableOpacity>
@@ -406,17 +419,17 @@ export default function AuthRedirectScreen() {
                     className="border border-dashed border-gray-400 rounded-lg p-4 flex-row items-center"
                   >
                     <Upload />
-                    <Text className="ml-2">Upload Front</Text>
+                    <Text className="ml-2 dark:text-white">Upload Front</Text>
                   </TouchableOpacity>
                 )}
               </View>
             )}
             {missingFields.idBack && (
               <View className="mb-4">
-                <Text className="mb-1">Back Side</Text>
+                <Text className="mb-1 dark:text-white">Back Side</Text>
                 {idBack ? (
                   <View className="flex-row justify-between items-center">
-                    <Text>Selected</Text>
+                    <Text className="dark:text-white">Selected</Text>
                     <TouchableOpacity onPress={() => setIdBack(null)}>
                       <Text className="text-red-500">Remove</Text>
                     </TouchableOpacity>
@@ -427,7 +440,7 @@ export default function AuthRedirectScreen() {
                     className="border border-dashed border-gray-400 rounded-lg p-4 flex-row items-center"
                   >
                     <Upload />
-                    <Text className="ml-2">Upload Back</Text>
+                    <Text className="ml-2 dark:text-white">Upload Back</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -439,13 +452,16 @@ export default function AuthRedirectScreen() {
         {missingFields.languages && (
           <View className="mt-6">
             <Text
-              className="mb-2"
+              className="mb-2 dark:text-white"
               style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
             >
               Languages
             </Text>
             {formData.languages.map((lng, ix) => (
-              <View key={ix} className="flex-row items-center mb-2">
+              <View
+                key={ix}
+                className="relative flex-row items-center gap-2 mb-3"
+              >
                 <TextInputComponent
                   placeholder="Language"
                   value={lng}
@@ -460,8 +476,9 @@ export default function AuthRedirectScreen() {
                     const arr = formData.languages.filter((_, i) => i !== ix);
                     setFormData((p) => ({ ...p, languages: arr }));
                   }}
+                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
                 >
-                  <Text className="text-red-500 ml-2">✕</Text>
+                  <Text className="text-white font-bold text-lg">X</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -470,6 +487,9 @@ export default function AuthRedirectScreen() {
                 setFormData((p) => ({ ...p, languages: [...p.languages, ""] }))
               }
               className="mb-6"
+              disabled={
+                !formData.languages[formData.languages.length - 1].trim()
+              }
             >
               Add Language
             </PrimaryButton>
@@ -480,13 +500,16 @@ export default function AuthRedirectScreen() {
         {missingFields.skills && (
           <View className="mt-6">
             <Text
-              className="mb-2"
+              className="mb-2 dark:text-white"
               style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
             >
               Skills
             </Text>
             {formData.skills.map((sk, ix) => (
-              <View key={ix} className="flex-row items-center mb-2">
+              <View
+                key={ix}
+                className="relative flex-row items-center gap-2 mb-3"
+              >
                 <TextInputComponent
                   placeholder="Skill"
                   value={sk}
@@ -501,8 +524,9 @@ export default function AuthRedirectScreen() {
                     const arr = formData.skills.filter((_, i) => i !== ix);
                     setFormData((p) => ({ ...p, skills: arr }));
                   }}
+                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
                 >
-                  <Text className="text-red-500 ml-2">✕</Text>
+                  <Text className="text-white font-bold text-lg">X</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -510,6 +534,7 @@ export default function AuthRedirectScreen() {
               onPress={() =>
                 setFormData((p) => ({ ...p, skills: [...p.skills, ""] }))
               }
+              disabled={!formData.skills[formData.skills.length - 1].trim()}
             >
               Add Skill
             </PrimaryButton>

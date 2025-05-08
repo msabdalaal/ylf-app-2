@@ -18,7 +18,7 @@ function Settings({}: Props) {
 
   const logout = async () => {
     await remove("token");
-    router.replace("/");
+    router.replace("/login");
   };
 
   return (

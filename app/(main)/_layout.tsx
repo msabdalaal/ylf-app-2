@@ -19,7 +19,8 @@ export default function TabLayout() {
       if (
         pathname === "/feed" ||
         pathname === "/programs" ||
-        pathname === "/settings"
+        pathname === "/settings" || 
+        pathname === "/opportunities"
       ) {
         Alert.alert(
           "Exit App",

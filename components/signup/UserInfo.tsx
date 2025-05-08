@@ -152,6 +152,9 @@ export default function UserInfo({
             ))}
             <PrimaryButton
               onPress={() => addArrayField("languages")}
+              disabled={
+                !formData.languages[formData.languages.length - 1].trim()
+              }
               className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
             >
               <Text className="text-white font-medium">Add New</Text>
@@ -186,6 +189,7 @@ export default function UserInfo({
             ))}
             <PrimaryButton
               onPress={() => addArrayField("skills")}
+              disabled={!formData.skills[formData.skills.length - 1].trim()}
               className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
             >
               <Text className="text-white font-medium">Add New</Text>
