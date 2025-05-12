@@ -44,46 +44,68 @@ export default function IdUpload({
         services.
       </Text>
 
-      <TouchableOpacity
-        onPress={() => pickImage(formData.id_front ? "back" : "front")}
-        disabled={formData.id_front !== "" && formData.id_back !== ""}
-      >
-        <View
-          className="border mt-7 border-dashed rounded-xl py-6 w-full gap-2 justify-center items-center "
-          style={{
-            backgroundColor: "#015CA41A",
-            borderColor: "#015CA44D",
-          }}
-        >
-          <Upload />
-          <Text
-            className="text-center font-bold mt-5 dark:text-white"
-            style={{ fontFamily: "Inter" }}
-          >
-            Browse {formData.id_front ? "Back" : "Front"} Side of ID
-          </Text>
+      <View className="mt-7 space-y-4">
+        <View>
+          <Text className="mb-2 dark:text-white">Front Side</Text>
+          {formData.id_front ? (
+            <View className="flex-row justify-between items-center border border-gray-400 p-2 rounded-md">
+              <Text className="dark:text-white">Front Id</Text>
+              <TouchableOpacity
+                onPress={() => setFormData({ ...formData, id_front: "" })}
+              >
+                <CloseIcon />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => pickImage("front")}
+              className="border border-dashed rounded-xl py-4 flex-row items-center justify-center"
+              style={{
+                backgroundColor: "#015CA41A",
+                borderColor: "#015CA44D",
+              }}
+            >
+              <Upload />
+              <Text
+                className="ml-2 dark:text-white"
+                style={{ fontFamily: "Inter" }}
+              >
+                Upload Front
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-      </TouchableOpacity>
-      <View className="mt-5">
-        <Text className="mb-2 dark:text-white">Uploaded:</Text>
-        {formData.id_front && (
-          <TouchableOpacity
-            onPress={() => setFormData({ ...formData, id_front: "" })}
-            className="border border-gray-400 p-2 rounded-md flex-row justify-between items-center"
-          >
-            <Text className="dark:text-white">Front Id</Text>
-            <CloseIcon />
-          </TouchableOpacity>
-        )}
-        {formData.id_back && (
-          <TouchableOpacity
-            onPress={() => setFormData({ ...formData, id_back: "" })}
-            className="border border-gray-400 p-2 mt-3 rounded-md flex-row justify-between items-center"
-          >
-            <Text className="dark:text-white">Back Id</Text>
-            <CloseIcon />
-          </TouchableOpacity>
-        )}
+
+        <View className="mt-2">
+          <Text className="mb-2 dark:text-white">Back Side</Text>
+          {formData.id_back ? (
+            <View className="flex-row justify-between items-center border border-gray-400 p-2 rounded-md">
+              <Text className="dark:text-white">Back Id</Text>
+              <TouchableOpacity
+                onPress={() => setFormData({ ...formData, id_back: "" })}
+              >
+                <CloseIcon />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => pickImage("back")}
+              className="border border-dashed rounded-xl py-4 flex-row items-center justify-center"
+              style={{
+                backgroundColor: "#015CA41A",
+                borderColor: "#015CA44D",
+              }}
+            >
+              <Upload />
+              <Text
+                className="ml-2 dark:text-white"
+                style={{ fontFamily: "Inter" }}
+              >
+                Upload Back
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </>
   );

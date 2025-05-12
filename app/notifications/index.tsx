@@ -25,6 +25,21 @@ const NotificationItem = ({ item }: { item: Notification }) => {
     }
   };
 
+  const getTimeDisplay = (createdAt: string) => {
+    const now = dayjs();
+    const created = dayjs(createdAt);
+    const hoursDiff = now.diff(created, "hour");
+
+    if (hoursDiff < 24) {
+      if (hoursDiff < 1) {
+        const minutesDiff = now.diff(created, "minute");
+        return `${minutesDiff} minutes ago`;
+      }
+      return `${hoursDiff} hours ago`;
+    }
+    return created.format("MMM D, YYYY");
+  };
+
   return (
     <TouchableOpacity
       onPress={handlePress}
@@ -38,15 +53,17 @@ const NotificationItem = ({ item }: { item: Notification }) => {
 
       <View className="flex-1 flex-row items-center gap-2">
         <View className="flex-1">
-          <Text
-            className="font-medium mb-1"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: isDark ? "white" : Colors.light.text,
-            }}
-          >
-            {item.title}
-          </Text>
+          <View className="flex-row justify-between items-center">
+            <Text
+              className="font-medium"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: isDark ? "white" : Colors.light.text,
+              }}
+            >
+              {item.title}
+            </Text>
+          </View>
           <Text
             className="text-sm"
             style={{
@@ -54,6 +71,14 @@ const NotificationItem = ({ item }: { item: Notification }) => {
             }}
           >
             {item.body}
+          </Text>
+          <Text
+            className="text-xs mt-1"
+            style={{
+              color: isDark ? "#9CA3AF" : Colors.light.text,
+            }}
+          >
+            {getTimeDisplay(item.createdAt.toString())}
           </Text>
         </View>
         {item.link && (

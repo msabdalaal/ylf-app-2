@@ -170,12 +170,12 @@ function Feed({}: Props) {
 
   return (
     <View
-      className="container bg-white flex-1"
+      className=" bg-white flex-1"
       style={{
         backgroundColor: Colors[theme === "dark" ? "dark" : "light"].background,
       }}
     >
-      <View className="text-white text-2xl font-bold mt-10 mb-5 flex-row justify-between w-full">
+      <View className="container text-white text-2xl font-bold mt-10 mb-5 flex-row justify-between w-full">
         <Image
           source={
             theme === "dark"
@@ -220,6 +220,10 @@ function Feed({}: Props) {
           ]}
           showsHorizontalScrollIndicator={false}
           className="my-5"
+          contentContainerStyle={{
+            paddingLeft: 16,
+            paddingRight: 16,
+          }}
           renderItem={({ item }) => (
             <View className="justify-center items-center w-20">
               <View
@@ -273,11 +277,12 @@ function Feed({}: Props) {
               <Text
                 className="text-center"
                 style={{
-                  color: item.accentColor
-                    ? item.accentColor
-                    : theme === "dark"
-                    ? "white"
-                    : "black",
+                  color:
+                    selectedProgram === item.id && item.accentColor
+                      ? item.accentColor
+                      : theme === "dark"
+                      ? "white"
+                      : "black",
                   width: 80,
                   fontFamily: "Poppins_Medium",
                 }}
@@ -292,37 +297,41 @@ function Feed({}: Props) {
           ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
         />
       </View>
+      <View className="container">
+        <FlatList
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          data={posts}
+          keyExtractor={(item) => `post-${item.id}-${item.createdAt}`}
+          renderItem={({ item }) => {
+            // find the matching program accent color
+            const accentColor = programs.find(
+              (p) => p.id === item.programId
+            )?.accentColor;
 
-      <FlatList
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        data={posts}
-        keyExtractor={(item) => `post-${item.id}-${item.createdAt}`}
-        renderItem={({ item }) => {
-          // find the matching program accent color
-          const accentColor = programs.find(
-            (p) => p.id === item.programId
-          )?.accentColor;
-
-          return (
-            <PostComponent
-              post={item}
-              handleLike={handleLikePost}
-              color={accentColor}
-            />
-          );
-        }}
-        onEndReached={loadMore}
-        ListFooterComponent={() =>
-          isLoadingMore ? (
-            <View className="py-4">
-              <ActivityIndicator size="small" color={Colors[theme]?.primary} />
-            </View>
-          ) : null
-        }
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        showsVerticalScrollIndicator={false}
-      />
+            return (
+              <PostComponent
+                post={item}
+                handleLike={handleLikePost}
+                color={accentColor}
+              />
+            );
+          }}
+          onEndReached={loadMore}
+          ListFooterComponent={() =>
+            isLoadingMore ? (
+              <View className="py-4">
+                <ActivityIndicator
+                  size="small"
+                  color={Colors[theme]?.primary}
+                />
+              </View>
+            ) : null
+          }
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
     </View>
   );
 }

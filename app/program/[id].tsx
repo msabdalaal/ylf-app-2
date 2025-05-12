@@ -230,65 +230,96 @@ export default function Program() {
           {expandedMore ? "Read Less" : "Read More"}
         </Text>
       </ScrollView>
-      <View
-        className="py-6 px-7 mt-2"
-        style={{
-          backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
-        }}
-      >
-        {program.forGroups && (
-          <View className="mb-3">
-            <PrimaryLink
-              style={{
-                backgroundColor:
-                  dayjs(new Date()).isAfter(
-                    dayjs(program.acceptApplicationDuration)
-                  ) || program.isRegistered
-                    ? "#D4D4D4"
-                    : program.accentColor,
-              }}
-              href={`/program/${program.id}/member`}
-              disabled={
+      {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration)) ||
+      program.isRegistered ? (
+        <View
+          className="py-6 px-7 mt-2"
+          style={{
+            backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
+          }}
+        >
+          <PrimaryLink
+            style={{
+              backgroundColor:
                 dayjs(new Date()).isAfter(
                   dayjs(program.acceptApplicationDuration)
                 ) || program.isRegistered
-              }
-            >
-              {dayjs(new Date()).isAfter(
-                dayjs(program.acceptApplicationDuration)
-              )
-                ? "Application Closed"
-                : program.isRegistered
-                ? "You are already registered"
-                : "Apply as a Member"}
-            </PrimaryLink>
-          </View>
-        )}
-        <PrimaryLink
-          style={{
-            backgroundColor:
+                  ? "#D4D4D4"
+                  : program.accentColor,
+            }}
+            href={`/program/${program.id}/member`}
+            disabled={
               dayjs(new Date()).isAfter(
                 dayjs(program.acceptApplicationDuration)
               ) || program.isRegistered
-                ? "#D4D4D4"
-                : program.accentColor,
+            }
+          >
+            {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
+              ? "Application Closed"
+              : "You are already registered"}
+          </PrimaryLink>
+        </View>
+      ) : (
+        <View
+          className="py-6 px-7 mt-2"
+          style={{
+            backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
           }}
-          href={`/program/${program.id}/application`}
-          disabled={
-            dayjs(new Date()).isAfter(
-              dayjs(program.acceptApplicationDuration)
-            ) || program.isRegistered
-          }
         >
-          {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
-            ? "Application Closed"
-            : program.isRegistered
-            ? "You are already registered"
-            : program.forGroups
-            ? "Apply as a Group"
-            : "Apply Now"}
-        </PrimaryLink>
-      </View>
+          {program.forGroups && (
+            <View className="mb-3">
+              <PrimaryLink
+                style={{
+                  backgroundColor:
+                    dayjs(new Date()).isAfter(
+                      dayjs(program.acceptApplicationDuration)
+                    ) || program.isRegistered
+                      ? "#D4D4D4"
+                      : program.accentColor,
+                }}
+                href={`/program/${program.id}/member`}
+                disabled={
+                  dayjs(new Date()).isAfter(
+                    dayjs(program.acceptApplicationDuration)
+                  ) || program.isRegistered
+                }
+              >
+                {dayjs(new Date()).isAfter(
+                  dayjs(program.acceptApplicationDuration)
+                )
+                  ? "Application Closed"
+                  : program.isRegistered
+                  ? "You are already registered"
+                  : "Apply as a Member"}
+              </PrimaryLink>
+            </View>
+          )}
+          <PrimaryLink
+            style={{
+              backgroundColor:
+                dayjs(new Date()).isAfter(
+                  dayjs(program.acceptApplicationDuration)
+                ) || program.isRegistered
+                  ? "#D4D4D4"
+                  : program.accentColor,
+            }}
+            href={`/program/${program.id}/application`}
+            disabled={
+              dayjs(new Date()).isAfter(
+                dayjs(program.acceptApplicationDuration)
+              ) || program.isRegistered
+            }
+          >
+            {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
+              ? "Application Closed"
+              : program.isRegistered
+              ? "You are already registered"
+              : program.forGroups
+              ? "Apply as a Group"
+              : "Apply Now"}
+          </PrimaryLink>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

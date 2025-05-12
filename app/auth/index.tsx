@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import { Picker } from "@react-native-picker/picker";
 
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { save } from "@/hooks/storage";
@@ -25,6 +26,7 @@ import Upload from "@/assets/icons/upload";
 import dayjs from "dayjs";
 import { isProfileComplete } from "@/utils/profileComplete";
 import { useLoading } from "@/context/LoadingContext";
+import universities from "@/constants/universities";
 
 type FormState = {
   phoneNumber: string;
@@ -193,8 +195,7 @@ export default function AuthRedirectScreen() {
     }
     hideLoading();
   };
-  console.log(missingFields);
-  console.log(formData);
+
   const handleComplete = async () => {
     // validate basic
     if (missingFields.avatar && !avatarUri)
@@ -339,7 +340,7 @@ export default function AuthRedirectScreen() {
             onChange={(d) => setFormData((p) => ({ ...p, dateOfBirth: d }))}
           />
         )}
-        {missingFields.university && (
+        {/* {missingFields.university && (
           <TextInputComponent
             label="University"
             placeholder="University"
@@ -347,6 +348,34 @@ export default function AuthRedirectScreen() {
             onChange={(v) => setFormData((p) => ({ ...p, university: v }))}
             className="mt-4"
           />
+        )} */}
+        {missingFields.university && (
+          <View className="mt-4">
+            <Text
+              className="mb-2 dark:text-white"
+              style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
+            >
+              University
+            </Text>
+            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+              <Picker
+                selectedValue={formData.university}
+                onValueChange={(v: string) =>
+                  setFormData((p) => ({ ...p, university: v }))
+                }
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                <Picker.Item label="Select University" value="" />
+                {universities
+                  .sort((a: string, b: string) => a.localeCompare(b))
+                  .map((u) => (
+                    <Picker.Item key={u} label={u} value={u} />
+                  ))}
+              </Picker>
+            </View>
+          </View>
         )}
         {missingFields.college && (
           <TextInputComponent
@@ -462,37 +491,49 @@ export default function AuthRedirectScreen() {
                 key={ix}
                 className="relative flex-row items-center gap-2 mb-3"
               >
-                <TextInputComponent
-                  placeholder="Language"
-                  value={lng}
-                  onChange={(v) => {
-                    const arr = [...formData.languages];
-                    arr[ix] = v;
-                    setFormData((p) => ({ ...p, languages: arr }));
-                  }}
-                />
-                <TouchableOpacity
-                  onPress={() => {
-                    const arr = formData.languages.filter((_, i) => i !== ix);
-                    setFormData((p) => ({ ...p, languages: arr }));
-                  }}
-                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                >
-                  <Text className="text-white font-bold text-lg">X</Text>
-                </TouchableOpacity>
+                <View className="flex-1">
+                  <TextInputComponent
+                    placeholder="Language"
+                    value={lng}
+                    onChange={(v) => {
+                      const arr = [...formData.languages];
+                      arr[ix] = v;
+                      setFormData((p) => ({ ...p, languages: arr }));
+                    }}
+                  />
+                </View>
+                <View className="flex-row items-center gap-2">
+                  {ix === formData.languages.length - 1 && lng.trim() && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        setFormData((p) => ({
+                          ...p,
+                          languages: [...p.languages, ""],
+                        }))
+                      }
+                      className="bg-primary py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {formData.languages.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        const arr = formData.languages.filter(
+                          (_, i) => i !== ix
+                        );
+                        setFormData((p) => ({ ...p, languages: arr }));
+                      }}
+                      className="bg-red-500 py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg">×</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             ))}
-            <PrimaryButton
-              onPress={() =>
-                setFormData((p) => ({ ...p, languages: [...p.languages, ""] }))
-              }
-              className="mb-6"
-              disabled={
-                !formData.languages[formData.languages.length - 1].trim()
-              }
-            >
-              Add Language
-            </PrimaryButton>
           </View>
         )}
 
@@ -510,34 +551,47 @@ export default function AuthRedirectScreen() {
                 key={ix}
                 className="relative flex-row items-center gap-2 mb-3"
               >
-                <TextInputComponent
-                  placeholder="Skill"
-                  value={sk}
-                  onChange={(v) => {
-                    const arr = [...formData.skills];
-                    arr[ix] = v;
-                    setFormData((p) => ({ ...p, skills: arr }));
-                  }}
-                />
-                <TouchableOpacity
-                  onPress={() => {
-                    const arr = formData.skills.filter((_, i) => i !== ix);
-                    setFormData((p) => ({ ...p, skills: arr }));
-                  }}
-                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                >
-                  <Text className="text-white font-bold text-lg">X</Text>
-                </TouchableOpacity>
+                <View className="flex-1">
+                  <TextInputComponent
+                    placeholder="Skill"
+                    value={sk}
+                    onChange={(v) => {
+                      const arr = [...formData.skills];
+                      arr[ix] = v;
+                      setFormData((p) => ({ ...p, skills: arr }));
+                    }}
+                  />
+                </View>
+                <View className="flex-row items-center gap-2">
+                  {ix === formData.skills.length - 1 && sk.trim() && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        setFormData((p) => ({
+                          ...p,
+                          skills: [...p.skills, ""],
+                        }))
+                      }
+                      className="bg-primary py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {formData.skills.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        const arr = formData.skills.filter((_, i) => i !== ix);
+                        setFormData((p) => ({ ...p, skills: arr }));
+                      }}
+                      className="bg-red-500 py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg">×</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             ))}
-            <PrimaryButton
-              onPress={() =>
-                setFormData((p) => ({ ...p, skills: [...p.skills, ""] }))
-              }
-              disabled={!formData.skills[formData.skills.length - 1].trim()}
-            >
-              Add Skill
-            </PrimaryButton>
           </View>
         )}
 

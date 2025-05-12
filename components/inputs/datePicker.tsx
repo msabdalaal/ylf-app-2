@@ -85,7 +85,7 @@ const DatePicker = ({ onChange, value, label, disabled }: Props) => {
         <DateTimePicker
           value={value || new Date()}
           onChange={setDate}
-          maximumDate={new Date()}
+          maximumDate={dayjs().subtract(10,"years").toDate()}
           timeZoneName={"Egypt"}
         />
       ) : null}

@@ -13,6 +13,9 @@ import dayjs from "dayjs";
 import { formData } from "@/app/(auth)/signup";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PrimaryButton from "../buttons/primary";
+import { Picker } from "@react-native-picker/picker";
+import { Colors } from "@/constants/Colors";
+import universities from "@/constants/universities";
 
 interface UserInfoProps {
   formData: formData;
@@ -97,14 +100,32 @@ export default function UserInfo({
               setFormData((prev) => ({ ...prev, address: text }))
             }
           />
-          <TextInputComponent
-            label="University"
-            placeholder="University"
-            value={formData.university}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, university: text }))
-            }
-          />
+          <View className="font-semibold">
+            <Text
+              className=" dark:text-white"
+              style={{ fontFamily: "Poppins_Medium" }}
+            >
+              University
+            </Text>
+            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+              <Picker
+                selectedValue={formData.university}
+                onValueChange={(v: string) =>
+                  setFormData((p) => ({ ...p, university: v }))
+                }
+                style={{
+                  color: isDark ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                <Picker.Item label="Select University" value="" />
+                {universities
+                  .sort((a: string, b: string) => a.localeCompare(b))
+                  .map((u) => (
+                    <Picker.Item key={u} label={u} value={u} />
+                  ))}
+              </Picker>
+            </View>
+          </View>
           <TextInputComponent
             label="College"
             placeholder="College"
@@ -135,30 +156,49 @@ export default function UserInfo({
                 key={index}
                 className="relative flex-row items-center gap-2 mb-3"
               >
-                <TextInputComponent
-                  placeholder="Language"
-                  value={lang}
-                  onChange={(text) =>
-                    updateArrayField("languages", index, text)
-                  }
-                />
-                <TouchableOpacity
-                  onPress={() => removeArrayField("languages", index)}
-                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                >
-                  <Text className="text-white font-bold text-lg">X</Text>
-                </TouchableOpacity>
+                <View className="flex-1">
+                  <TextInputComponent
+                    placeholder="Language"
+                    value={lang}
+                    onChange={(text) => {
+                      const arr = [...formData.languages];
+                      arr[index] = text;
+                      setFormData((prev) => ({ ...prev, languages: arr }));
+                    }}
+                  />
+                </View>
+                <View className="flex-row items-center gap-2">
+                  {index === formData.languages.length - 1 && lang.trim() && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          languages: [...prev.languages, ""],
+                        }))
+                      }
+                      className="bg-primary py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {formData.languages.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        const arr = formData.languages.filter(
+                          (_, i) => i !== index
+                        );
+                        setFormData((prev) => ({ ...prev, languages: arr }));
+                      }}
+                      className="bg-red-500 py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg">×</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             ))}
-            <PrimaryButton
-              onPress={() => addArrayField("languages")}
-              disabled={
-                !formData.languages[formData.languages.length - 1].trim()
-              }
-              className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
-            >
-              <Text className="text-white font-medium">Add New</Text>
-            </PrimaryButton>
           </View>
 
           <View className="mt-6">
@@ -174,26 +214,49 @@ export default function UserInfo({
                 key={index}
                 className="relative flex-row items-center gap-2 mb-3"
               >
-                <TextInputComponent
-                  placeholder="Skill"
-                  value={skill}
-                  onChange={(text) => updateArrayField("skills", index, text)}
-                />
-                <TouchableOpacity
-                  onPress={() => removeArrayField("skills", index)}
-                  className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                >
-                  <Text className="text-white font-bold text-lg">X</Text>
-                </TouchableOpacity>
+                <View className="flex-1">
+                  <TextInputComponent
+                    placeholder="Skill"
+                    value={skill}
+                    onChange={(text) => {
+                      const arr = [...formData.skills];
+                      arr[index] = text;
+                      setFormData((prev) => ({ ...prev, skills: arr }));
+                    }}
+                  />
+                </View>
+                <View className="flex-row items-center gap-2">
+                  {index === formData.skills.length - 1 && skill.trim() && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          skills: [...prev.skills, ""],
+                        }))
+                      }
+                      className="bg-primary py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {formData.skills.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        const arr = formData.skills.filter(
+                          (_, i) => i !== index
+                        );
+                        setFormData((prev) => ({ ...prev, skills: arr }));
+                      }}
+                      className="bg-red-500 py-1 px-2 rounded-lg"
+                    >
+                      <Text className="text-white font-bold text-lg">×</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             ))}
-            <PrimaryButton
-              onPress={() => addArrayField("skills")}
-              disabled={!formData.skills[formData.skills.length - 1].trim()}
-              className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
-            >
-              <Text className="text-white font-medium">Add New</Text>
-            </PrimaryButton>
           </View>
         </View>
       </ScrollView>
