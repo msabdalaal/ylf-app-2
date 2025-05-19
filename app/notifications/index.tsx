@@ -1,5 +1,5 @@
 import { View, Text, FlatList } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useLoading } from "@/context/LoadingContext";
 import NotificationBell from "@/assets/icons/NotificationBell";
+import { AppState, AppStateStatus } from "react-native";
 
 const NotificationItem = ({ item }: { item: Notification }) => {
   const { theme } = useTheme();
@@ -98,6 +99,7 @@ export default function Notifications() {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const { showLoading, hideLoading } = useLoading();
+  const appState = useRef(AppState.currentState);
 
   const renderSection = ({
     title,
@@ -149,6 +151,25 @@ export default function Notifications() {
   useEffect(() => {
     getNotifications();
   }, []);
+
+  // Function to handle app state changes
+  const handleAppStateChange = useCallback((nextAppState: AppStateStatus) => {
+    if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+      console.log('Notifications screen has come to the foreground!');
+      // Refresh notifications when app comes to foreground
+      getNotifications();
+    }
+    appState.current = nextAppState;
+  }, [getNotifications]);
+
+  // Set up AppState listener
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    
+    return () => {
+      subscription.remove();
+    };
+  }, [handleAppStateChange]);
 
   return (
     <SafeAreaView

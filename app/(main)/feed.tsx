@@ -6,6 +6,8 @@ import {
   Text,
   View,
   TouchableOpacity,
+  AppState,
+  AppStateStatus,
 } from "react-native";
 import { get, post } from "@/hooks/axios";
 import { remove } from "@/hooks/storage";
@@ -151,9 +153,9 @@ function Feed({}: Props) {
     showLoading();
     await get("users/getUserNotifications")
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         const newNotifications = res.data.data.filter((n: any) => !n.read);
-        console.log(newNotifications);
+        // console.log(newNotifications);
         setNotificationCount(newNotifications.length);
       })
       .catch((err) => {
@@ -167,6 +169,37 @@ function Feed({}: Props) {
   useEffect(() => {
     getNotifications();
   }, []);
+
+  const appState = useRef(AppState.currentState);
+
+  // Function to handle app state changes
+  const handleAppStateChange = useCallback(
+    (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        console.log("App has come to the foreground!");
+        // Refresh data when app comes to foreground
+        loadFirstPage();
+        getNotifications();
+      }
+      appState.current = nextAppState;
+    },
+    [loadFirstPage, getNotifications]
+  );
+
+  // Set up AppState listener
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [handleAppStateChange]);
 
   return (
     <View

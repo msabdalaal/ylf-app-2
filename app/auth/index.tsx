@@ -28,6 +28,20 @@ import { isProfileComplete } from "@/utils/profileComplete";
 import { useLoading } from "@/context/LoadingContext";
 import universities from "@/constants/universities";
 
+import {
+  validatePhoneNumber,
+  validateDateOfBirth,
+  validateRequired,
+  validateAge,
+  validateLanguage,
+  validateSkill,
+  validateEmail,
+  validatePassword,
+  validateName,
+} from "@/utils/validation";
+import { AxiosError } from "axios";
+import MultiSelect from "@/components/inputs/multiSelect";
+
 type FormState = {
   phoneNumber: string;
   dateOfBirth: string | null;
@@ -59,8 +73,8 @@ export default function AuthRedirectScreen() {
     jobTitle: "",
     age: "",
     address: "",
-    languages: [""],
-    skills: [""],
+    languages: [],
+    skills: [],
   });
 
   const [missingFields, setMissingFields] = useState<Record<string, boolean>>(
@@ -69,6 +83,78 @@ export default function AuthRedirectScreen() {
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [idFront, setIdFront] = useState<string | null>(null);
   const [idBack, setIdBack] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const validateField = (field: string, value: any): string | null => {
+    let error = null;
+
+    switch (field) {
+      case "phoneNumber":
+        error = validatePhoneNumber(value);
+        break;
+      case "dateOfBirth":
+        error = validateDateOfBirth(value ? new Date(value) : null);
+        break;
+      case "age":
+        error = validateAge(value);
+        break;
+      case "university":
+      case "college":
+      case "experiences":
+      case "jobTitle":
+      case "address":
+        error = validateRequired(
+          value,
+          field.charAt(0).toUpperCase() + field.slice(1)
+        );
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error || "" }));
+    return error;
+  };
+
+  const validateLanguageAt = (index: number, value: string): string | null => {
+    const error = validateLanguage(value);
+    if (error) {
+      setErrors((prev) => ({
+        ...prev,
+        [`language_${index}`]: error,
+      }));
+    } else {
+      const newErrors = { ...errors };
+      delete newErrors[`language_${index}`];
+      setErrors(newErrors);
+    }
+    return error;
+  };
+
+  const validateSkillAt = (index: number, value: string): string | null => {
+    const error = validateSkill(value);
+    if (error) {
+      setErrors((prev) => ({
+        ...prev,
+        [`skill_${index}`]: error,
+      }));
+    } else {
+      const newErrors = { ...errors };
+      delete newErrors[`skill_${index}`];
+      setErrors(newErrors);
+    }
+    return error;
+  };
+
+  // Update form data with validation
+  const updateFormField = (field: keyof FormState, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    validateField(field, value);
+  };
+
+  const handleDateChange = (date: string | null) => {
+    setFormData((prev) => ({ ...prev, dateOfBirth: date }));
+    validateField("dateOfBirth", date ? new Date(date) : null);
+  };
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -106,8 +192,8 @@ export default function AuthRedirectScreen() {
           jobTitle: user.jobTitle || "",
           age: user.age?.toString() || "",
           address: user.address || "",
-          languages: user.languages?.length ? user.languages : [""],
-          skills: user.skills?.length ? user.skills : [""],
+          languages: user.languages?.length ? user.languages : [],
+          skills: user.skills?.length ? user.skills : [],
         });
 
         // If already complete, go to feed
@@ -197,32 +283,107 @@ export default function AuthRedirectScreen() {
   };
 
   const handleComplete = async () => {
-    // validate basic
-    if (missingFields.avatar && !avatarUri)
-      return Alert.alert("Error", "Please upload profile picture");
-    if (missingFields.phoneNumber && !formData.phoneNumber.trim())
-      return Alert.alert("Error", "Phone number is required");
-    if (missingFields.dateOfBirth && !formData.dateOfBirth)
-      return Alert.alert("Error", "Date of birth is required");
-    if (missingFields.university && !formData.university.trim())
-      return Alert.alert("Error", "University is required");
-    if (missingFields.college && !formData.college.trim())
-      return Alert.alert("Error", "College is required");
-    if (missingFields.jobTitle && !formData.jobTitle.trim())
-      return Alert.alert("Error", "Job title is required");
-    if (missingFields.age && !formData.age.trim())
-      return Alert.alert("Error", "Age is required");
-    if (missingFields.address && !formData.address.trim())
-      return Alert.alert("Error", "Address is required");
-    if (missingFields.languages && !formData.languages[0])
-      return Alert.alert("Error", "At least one language is required");
-    if (missingFields.skills && !formData.skills[0])
-      return Alert.alert("Error", "At least one skill is required");
+    // Validate all fields first
+    let hasErrors = false;
+
+    // Validate basic fields
+    if (missingFields.avatar && !avatarUri) {
+      Alert.alert("Error", "Please upload profile picture");
+      return;
+    }
+
+    if (missingFields.phoneNumber) {
+      const phoneError = validateField("phoneNumber", formData.phoneNumber);
+      if (phoneError) hasErrors = true;
+    }
+
+    if (missingFields.dateOfBirth) {
+      const dobError = validateField(
+        "dateOfBirth",
+        formData.dateOfBirth ? new Date(formData.dateOfBirth) : null
+      );
+      if (dobError) hasErrors = true;
+    }
+
+    if (missingFields.university) {
+      const uniError = validateField("university", formData.university);
+      if (uniError) hasErrors = true;
+    }
+
+    if (missingFields.college) {
+      const collegeError = validateField("college", formData.college);
+      if (collegeError) hasErrors = true;
+    }
+
+    if (missingFields.jobTitle) {
+      const jobError = validateField("jobTitle", formData.jobTitle);
+      if (jobError) hasErrors = true;
+    }
+
+    if (missingFields.age) {
+      const ageError = validateField("age", formData.age);
+      if (ageError) hasErrors = true;
+    }
+
+    if (missingFields.address) {
+      const addressError = validateField("address", formData.address);
+      if (addressError) hasErrors = true;
+    }
+
+    // Validate languages
+    if (missingFields.languages) {
+      let languageErrors = false;
+      formData.languages.forEach((lang, index) => {
+        const langError = validateLanguageAt(index, lang);
+        if (langError) languageErrors = true;
+      });
+
+      if (formData.languages.length === 0 || !formData.languages[0]) {
+        setErrors((prev) => ({
+          ...prev,
+          languages: "At least one language is required",
+        }));
+        languageErrors = true;
+      }
+
+      if (languageErrors) hasErrors = true;
+    }
+
+    // Validate skills
+    if (missingFields.skills) {
+      let skillErrors = false;
+      formData.skills.forEach((skill, index) => {
+        const skillError = validateSkillAt(index, skill);
+        if (skillError) skillErrors = true;
+      });
+
+      if (formData.skills.length === 0 || !formData.skills[0]) {
+        setErrors((prev) => ({
+          ...prev,
+          skills: "At least one skill is required",
+        }));
+        skillErrors = true;
+      }
+
+      if (skillErrors) hasErrors = true;
+    }
+
+    // Validate ID uploads
     if (
       (missingFields.idFront || missingFields.idBack) &&
       (!idFront || !idBack)
-    )
-      return Alert.alert("Error", "Please upload both sides of your ID");
+    ) {
+      Alert.alert("Error", "Please upload both sides of your ID");
+      return;
+    }
+
+    if (hasErrors) {
+      Alert.alert(
+        "Error",
+        "Please fix the validation errors before continuing"
+      );
+      return;
+    }
 
     try {
       setLoading(true);
@@ -249,8 +410,12 @@ export default function AuthRedirectScreen() {
       await save("token", token as string);
       hideLoading();
       router.replace("/feed");
-    } catch (e: any) {
-      Alert.alert("Error", e.message || "Failed to complete profile");
+    } catch (e) {
+      if (e instanceof AxiosError)
+        Alert.alert(
+          "Error",
+          e.response?.data.message || "Failed to complete profile"
+        );
     } finally {
       hideLoading();
       setLoading(false);
@@ -328,7 +493,8 @@ export default function AuthRedirectScreen() {
             label="Phone Number"
             placeholder="Phone Number"
             value={formData.phoneNumber}
-            onChange={(v) => setFormData((p) => ({ ...p, phoneNumber: v }))}
+            onChange={(v) => updateFormField("phoneNumber", v)}
+            error={errors.phoneNumber}
           />
         )}
         {missingFields.dateOfBirth && (
@@ -337,18 +503,10 @@ export default function AuthRedirectScreen() {
             value={
               formData.dateOfBirth ? dayjs(formData.dateOfBirth).toDate() : null
             }
-            onChange={(d) => setFormData((p) => ({ ...p, dateOfBirth: d }))}
+            onChange={(d) => handleDateChange(d)}
+            error={errors.dateOfBirth}
           />
         )}
-        {/* {missingFields.university && (
-          <TextInputComponent
-            label="University"
-            placeholder="University"
-            value={formData.university}
-            onChange={(v) => setFormData((p) => ({ ...p, university: v }))}
-            className="mt-4"
-          />
-        )} */}
         {missingFields.university && (
           <View className="mt-4">
             <Text
@@ -360,9 +518,7 @@ export default function AuthRedirectScreen() {
             <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
               <Picker
                 selectedValue={formData.university}
-                onValueChange={(v: string) =>
-                  setFormData((p) => ({ ...p, university: v }))
-                }
+                onValueChange={(v: string) => updateFormField("university", v)}
                 style={{
                   color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
                 }}
@@ -375,6 +531,11 @@ export default function AuthRedirectScreen() {
                   ))}
               </Picker>
             </View>
+            {errors.university && (
+              <Text className="text-red-500 text-sm mt-1">
+                {errors.university}
+              </Text>
+            )}
           </View>
         )}
         {missingFields.college && (
@@ -382,8 +543,9 @@ export default function AuthRedirectScreen() {
             label="College"
             placeholder="College"
             value={formData.college}
-            onChange={(v) => setFormData((p) => ({ ...p, college: v }))}
+            onChange={(v) => updateFormField("college", v)}
             className="mt-4"
+            error={errors.college}
           />
         )}
         {missingFields.experiences && (
@@ -391,8 +553,9 @@ export default function AuthRedirectScreen() {
             label="Work Experience"
             placeholder="Experience"
             value={formData.experiences}
-            onChange={(v) => setFormData((p) => ({ ...p, experiences: v }))}
+            onChange={(v) => updateFormField("experiences", v)}
             className="mt-4"
+            error={errors.experiences}
           />
         )}
         {missingFields.jobTitle && (
@@ -400,8 +563,9 @@ export default function AuthRedirectScreen() {
             label="Job Title"
             placeholder="Job Title"
             value={formData.jobTitle}
-            onChange={(v) => setFormData((p) => ({ ...p, jobTitle: v }))}
+            onChange={(v) => updateFormField("jobTitle", v)}
             className="mt-4"
+            error={errors.jobTitle}
           />
         )}
         {missingFields.age && (
@@ -409,8 +573,9 @@ export default function AuthRedirectScreen() {
             label="Age"
             placeholder="Age"
             value={formData.age}
-            onChange={(v) => setFormData((p) => ({ ...p, age: v }))}
+            onChange={(v) => updateFormField("age", v)}
             className="mt-4"
+            error={errors.age}
           />
         )}
         {missingFields.address && (
@@ -418,8 +583,9 @@ export default function AuthRedirectScreen() {
             label="Address"
             placeholder="Address"
             value={formData.address}
-            onChange={(v) => setFormData((p) => ({ ...p, address: v }))}
+            onChange={(v) => updateFormField("address", v)}
             className="mt-4"
+            error={errors.address}
           />
         )}
 
@@ -480,13 +646,7 @@ export default function AuthRedirectScreen() {
         {/* Languages */}
         {missingFields.languages && (
           <View className="mt-6">
-            <Text
-              className="mb-2 dark:text-white"
-              style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
-            >
-              Languages
-            </Text>
-            {formData.languages.map((lng, ix) => (
+            {/* {formData.languages.map((lng, ix) => (
               <View
                 key={ix}
                 className="relative flex-row items-center gap-2 mb-3"
@@ -499,7 +659,9 @@ export default function AuthRedirectScreen() {
                       const arr = [...formData.languages];
                       arr[ix] = v;
                       setFormData((p) => ({ ...p, languages: arr }));
+                      validateLanguageAt(ix, v);
                     }}
+                    error={errors[`language_${ix}`]}
                   />
                 </View>
                 <View className="flex-row items-center gap-2">
@@ -533,20 +695,49 @@ export default function AuthRedirectScreen() {
                   )}
                 </View>
               </View>
-            ))}
+            ))} */}
+
+            <MultiSelect
+              label="Language"
+              options={["English", "Arabic", "French", "Spanish"]}
+              value={formData.languages}
+              onChange={(v) => {
+                setFormData((p) => ({ ...p, languages: v }));
+                let languageErrors = false;
+
+                if (v.length === 0 || !v[0]) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    languages: "At least one language is required",
+                  }));
+                  languageErrors = true;
+                } else {
+                  setErrors((prev) => ({
+                    ...prev,
+                    languages: "",
+                  }));
+                }
+              }}
+              placeholder="Language Selector"
+            />
+            {errors.languages && (
+              <Text className="text-red-500 text-sm mb-2">
+                {errors.languages}
+              </Text>
+            )}
           </View>
         )}
 
         {/* Skills */}
         {missingFields.skills && (
           <View className="mt-6">
-            <Text
+            {/* <Text
               className="mb-2 dark:text-white"
               style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
             >
               Skills
-            </Text>
-            {formData.skills.map((sk, ix) => (
+            </Text> */}
+            {/* {formData.skills.map((sk, ix) => (
               <View
                 key={ix}
                 className="relative flex-row items-center gap-2 mb-3"
@@ -559,7 +750,9 @@ export default function AuthRedirectScreen() {
                       const arr = [...formData.skills];
                       arr[ix] = v;
                       setFormData((p) => ({ ...p, skills: arr }));
+                      validateSkillAt(ix, v);
                     }}
+                    error={errors[`skill_${ix}`]}
                   />
                 </View>
                 <View className="flex-row items-center gap-2">
@@ -591,13 +784,43 @@ export default function AuthRedirectScreen() {
                   )}
                 </View>
               </View>
-            ))}
+            ))} */}
+            <MultiSelect
+              label="Skills"
+              options={[]} // Suggested options
+              value={formData.skills}
+              onChange={(v) => {
+                setFormData((p) => ({ ...p, skills: v }));
+                let skillErrors = false;
+
+                if (v.length === 0 || !v[0]) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    skills: "At least one skill is required",
+                  }));
+                  skillErrors = true;
+                } else {
+                  setErrors((prev) => ({
+                    ...prev,
+                    skills: "",
+                  }));
+                }
+              }}
+              placeholder="Skills"
+              freeType={true} // Enable free typing
+            />
+            {errors.skills && (
+              <Text className="text-red-500 text-sm mb-2">{errors.skills}</Text>
+            )}
           </View>
         )}
 
-        {/* Complete button */}
-        <PrimaryButton onPress={handleComplete} className="mt-8">
-          {loading ? "Completing Profile..." : "Complete Profile"}
+        <PrimaryButton
+          onPress={handleComplete}
+          disabled={loading}
+          className="mt-8"
+        >
+          Complete Profile
         </PrimaryButton>
       </ScrollView>
     </SafeAreaView>

@@ -14,6 +14,7 @@ type Props = {
   disabled?: boolean;
   className?: string;
   onEnter?: () => void;
+  error?: string;
 };
 
 const TextInputComponent = ({
@@ -25,6 +26,7 @@ const TextInputComponent = ({
   disabled,
   className,
   onEnter,
+  error,
 }: Props) => {
   const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(true);
@@ -86,11 +88,13 @@ const TextInputComponent = ({
           placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
           className={`w-full overflow-hidden text-left border rounded-xl py-4 px-5`}
           style={{
-            borderColor: focused
-              ? Colors[theme ?? "light"].primary
-              : isDark
-              ? "#374151"
-              : Colors.light.border,
+            borderColor: error 
+              ? "#EF4444" 
+              : focused
+                ? Colors[theme ?? "light"].primary
+                : isDark
+                ? "#374151"
+                : Colors.light.border,
             borderWidth: 2,
             fontFamily: "Poppins_Medium",
             color: isDark ? "#E5E5E5" : Colors.light.text,
@@ -105,6 +109,14 @@ const TextInputComponent = ({
           onSubmitEditing={onEnter}
         />
       </View>
+      {error ? (
+        <Text 
+          className="text-red-500 text-sm mt-1 ml-1" 
+          style={{ fontFamily: "Inter" }}
+        >
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 };

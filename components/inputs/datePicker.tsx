@@ -13,9 +13,10 @@ type Props = {
   value: Date | null;
   label?: string;
   disabled?: boolean;
+  error?: string;
 };
 
-const DatePicker = ({ onChange, value, label, disabled }: Props) => {
+const DatePicker = ({ onChange, value, label, disabled, error }: Props) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const { theme } = useTheme();
   const [focused, setFocused] = useState(false);
@@ -81,6 +82,14 @@ const DatePicker = ({ onChange, value, label, disabled }: Props) => {
           <Calendar color={isDark ? "#6B7280" : Colors.light.border} />
         </TouchableOpacity>
       </View>
+      {error ? (
+        <Text 
+          className="text-red-500 text-sm mt-1 ml-1" 
+          style={{ fontFamily: "Inter" }}
+        >
+          {error}
+        </Text>
+      ) : null}
       {datePickerOpen ? (
         <DateTimePicker
           value={value || new Date()}

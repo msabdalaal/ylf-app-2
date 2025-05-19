@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   Text,
@@ -16,6 +16,15 @@ import PrimaryButton from "../buttons/primary";
 import { Picker } from "@react-native-picker/picker";
 import { Colors } from "@/constants/Colors";
 import universities from "@/constants/universities";
+import {
+  validatePhoneNumber,
+  validateAge,
+  validateRequired,
+  validateDateOfBirth,
+  validateLanguage,
+  validateSkill,
+} from "@/utils/validation";
+import MultiSelect from "../inputs/multiSelect";
 
 interface UserInfoProps {
   formData: formData;
@@ -31,20 +40,78 @@ export default function UserInfo({
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const addArrayField = (field: "languages" | "skills") => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: [...prev[field], ""],
-    }));
+  // Add state for validation errors
+  const [errors, setErrors] = useState({
+    phoneNumber: "",
+    dateOfBirth: "",
+    jobTitle: "",
+    age: "",
+    address: "",
+    university: "",
+    college: "",
+    experiences: "",
+    languages: [""],
+    skills: [""],
+  });
+
+  // Validate a specific field
+  const validateField = (field: string, value: any) => {
+    let error = "";
+
+    switch (field) {
+      case "phoneNumber":
+        error = validatePhoneNumber(value) || "";
+        break;
+      case "dateOfBirth":
+        error = validateDateOfBirth(value) || "";
+        break;
+      case "age":
+        error = validateAge(value) || "";
+        break;
+      case "jobTitle":
+      case "address":
+      case "college":
+      case "experiences":
+        error =
+          validateRequired(
+            value,
+            field.charAt(0).toUpperCase() + field.slice(1)
+          ) || "";
+        break;
+      case "university":
+        error = value ? "" : "Please select a university";
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+    return error;
   };
 
-  const removeArrayField = (field: "languages" | "skills", index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index),
-    }));
+  // Validate language at specific index
+  const validateLanguageAt = (index: number, value: string) => {
+    const error = validateLanguage(value) || "";
+    setErrors((prev) => {
+      const newLanguageErrors = [...prev.languages];
+      newLanguageErrors[index] = error;
+      return { ...prev, languages: newLanguageErrors };
+    });
+    return error;
   };
 
+  // Validate skill at specific index
+  const validateSkillAt = (index: number, value: string) => {
+    const error = validateSkill(value) || "";
+    setErrors((prev) => {
+      const newSkillErrors = [...prev.skills];
+      newSkillErrors[index] = error;
+      return { ...prev, skills: newSkillErrors };
+    });
+    return error;
+  };
+
+  // Update array field with validation
   const updateArrayField = (
     field: "languages" | "skills",
     index: number,
@@ -54,6 +121,27 @@ export default function UserInfo({
       ...prev,
       [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }));
+
+    if (field === "languages") {
+      validateLanguageAt(index, value);
+    } else if (field === "skills") {
+      validateSkillAt(index, value);
+    }
+  };
+
+  // Handle phone number change with validation
+  const handlePhoneChange = (text: string) => {
+    setFormData((prev) => ({ ...prev, phoneNumber: text }));
+    validateField("phoneNumber", text);
+  };
+
+  // Handle date of birth change with validation
+  const handleDateChange = (date: Date | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      dateOfBirth: date ? date.toISOString() : null,
+    }));
+    validateField("dateOfBirth", date);
   };
 
   return (
@@ -65,40 +153,48 @@ export default function UserInfo({
             label="Phone Number"
             placeholder="Phone Number"
             value={formData.phoneNumber}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, phoneNumber: text }))
-            }
+            onChange={handlePhoneChange}
+            error={errors.phoneNumber}
           />
           <DatePicker
             value={
               formData.dateOfBirth ? dayjs(formData.dateOfBirth).toDate() : null
             }
-            onChange={(date) =>
-              setFormData((prev) => ({ ...prev, dateOfBirth: date }))
+            onChange={(date: string) =>
+              handleDateChange(date ? new Date(date) : null)
             }
             label="Date of Birth"
+            error={errors.dateOfBirth}
           />
           <TextInputComponent
             label="Job Title"
             placeholder="Job Title"
             value={formData.jobTitle}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, jobTitle: text }))
-            }
+            onChange={(text) => {
+              setFormData((prev) => ({ ...prev, jobTitle: text }));
+              validateField("jobTitle", text);
+            }}
+            error={errors.jobTitle}
           />
           <TextInputComponent
             label="Age"
             placeholder="Age"
             value={formData.age}
-            onChange={(text) => setFormData((prev) => ({ ...prev, age: text }))}
+            onChange={(text) => {
+              setFormData((prev) => ({ ...prev, age: text }));
+              validateField("age", text);
+            }}
+            error={errors.age}
           />
           <TextInputComponent
             label="Address"
             placeholder="Address"
             value={formData.address}
-            onChange={(text) =>
-              setFormData((prev) => ({ ...prev, address: text }))
-            }
+            onChange={(text) => {
+              setFormData((prev) => ({ ...prev, address: text }));
+              validateField("address", text);
+            }}
+            error={errors.address}
           />
           <View className="font-semibold">
             <Text
@@ -110,9 +206,10 @@ export default function UserInfo({
             <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
               <Picker
                 selectedValue={formData.university}
-                onValueChange={(v: string) =>
-                  setFormData((p) => ({ ...p, university: v }))
-                }
+                onValueChange={(v: string) => {
+                  setFormData((p) => ({ ...p, university: v }));
+                  validateField("university", v);
+                }}
                 style={{
                   color: isDark ? "#E5E5E5" : Colors.light.text,
                 }}
@@ -125,7 +222,16 @@ export default function UserInfo({
                   ))}
               </Picker>
             </View>
+            {errors.university ? (
+              <Text
+                className="text-red-500 text-sm mt-1 ml-1"
+                style={{ fontFamily: "Inter" }}
+              >
+                {errors.university}
+              </Text>
+            ) : null}
           </View>
+
           <TextInputComponent
             label="College"
             placeholder="College"
@@ -144,119 +250,28 @@ export default function UserInfo({
           />
 
           <View className="mt-6">
-            <Text
-              className={`text-lg font-medium mb-2 ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
-              Languages
-            </Text>
-            {formData.languages.map((lang, index) => (
-              <View
-                key={index}
-                className="relative flex-row items-center gap-2 mb-3"
-              >
-                <View className="flex-1">
-                  <TextInputComponent
-                    placeholder="Language"
-                    value={lang}
-                    onChange={(text) => {
-                      const arr = [...formData.languages];
-                      arr[index] = text;
-                      setFormData((prev) => ({ ...prev, languages: arr }));
-                    }}
-                  />
-                </View>
-                <View className="flex-row items-center gap-2">
-                  {index === formData.languages.length - 1 && lang.trim() && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          languages: [...prev.languages, ""],
-                        }))
-                      }
-                      className="bg-primary py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
-                        +
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {formData.languages.length > 1 && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        const arr = formData.languages.filter(
-                          (_, i) => i !== index
-                        );
-                        setFormData((prev) => ({ ...prev, languages: arr }));
-                      }}
-                      className="bg-red-500 py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg">×</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            ))}
+            <MultiSelect
+              label="Language"
+              options={["English", "Arabic", "French", "Spanish"]}
+              value={formData.languages}
+              onChange={(v) => {
+                setFormData((p) => ({ ...p, languages: v }));
+              }}
+              placeholder="Language Selector"
+            />
           </View>
 
           <View className="mt-6">
-            <Text
-              className={`text-lg font-medium mb-2 ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
-              Skills
-            </Text>
-            {formData.skills.map((skill, index) => (
-              <View
-                key={index}
-                className="relative flex-row items-center gap-2 mb-3"
-              >
-                <View className="flex-1">
-                  <TextInputComponent
-                    placeholder="Skill"
-                    value={skill}
-                    onChange={(text) => {
-                      const arr = [...formData.skills];
-                      arr[index] = text;
-                      setFormData((prev) => ({ ...prev, skills: arr }));
-                    }}
-                  />
-                </View>
-                <View className="flex-row items-center gap-2">
-                  {index === formData.skills.length - 1 && skill.trim() && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          skills: [...prev.skills, ""],
-                        }))
-                      }
-                      className="bg-primary py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
-                        +
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {formData.skills.length > 1 && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        const arr = formData.skills.filter(
-                          (_, i) => i !== index
-                        );
-                        setFormData((prev) => ({ ...prev, skills: arr }));
-                      }}
-                      className="bg-red-500 py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg">×</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            ))}
+            <MultiSelect
+              label="Skills"
+              options={[]} // Suggested options
+              value={formData.skills}
+              onChange={(v) => {
+                setFormData((p) => ({ ...p, skills: v }));
+              }}
+              placeholder="Skills"
+              freeType={true} // Enable free typing
+            />
           </View>
         </View>
       </ScrollView>

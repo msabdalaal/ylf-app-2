@@ -19,6 +19,17 @@ import UserInfo from "@/components/signup/UserInfo";
 import dayjs from "dayjs";
 import { useLoading } from "@/context/LoadingContext";
 import AvatarUpload from "@/components/signup/AvatarUpload";
+import {
+  validateEmail,
+  validatePassword,
+  validateName,
+  validatePhoneNumber,
+  validateAge,
+  validateRequired,
+  validateDateOfBirth,
+  validateLanguage,
+  validateSkill,
+} from "@/utils/validation";
 
 export interface formData {
   name: string;
@@ -64,8 +75,8 @@ const SignUp = () => {
     jobTitle: "",
     age: "",
     address: "",
-    languages: [""],
-    skills: [""],
+    languages: [],
+    skills: [],
   });
 
   const resetForm = () => {
@@ -85,8 +96,8 @@ const SignUp = () => {
       jobTitle: "",
       age: "",
       address: "",
-      languages: [""],
-      skills: [""],
+      languages: [],
+      skills: [],
     });
     setConfirmPassword("");
     setStep(1);
@@ -186,8 +197,10 @@ const SignUp = () => {
         if (!formData.address) return alert("Address is required");
         if (!formData.college) return alert("College is required");
         if (!formData.university) return alert("University is required");
-        if (!formData.languages?.[0])
+        if (!formData.languages?.[0]) {
+          console.log(formData);
           return alert("At least one language is required");
+        }
         if (!formData.skills?.[0])
           return alert("At least one skill is required");
         await handleSignUp();
@@ -195,7 +208,70 @@ const SignUp = () => {
     }
   };
 
+  const validateAllFields = () => {
+    // Validate fields based on current step
+    if (step === 1) {
+      return true; // Basic info validation already done
+    }
+
+    if (step === 2) {
+      // Validate user info fields
+      const phoneError = validatePhoneNumber(formData.phoneNumber);
+      const dobError = validateDateOfBirth(
+        formData.dateOfBirth ? new Date(formData.dateOfBirth) : null
+      );
+      const ageError = validateAge(formData.age);
+      const jobTitleError = validateRequired(formData.jobTitle, "Job Title");
+      const addressError = validateRequired(formData.address, "Address");
+      const universityError = formData.university
+        ? ""
+        : "Please select a university";
+      const collegeError = validateRequired(formData.college, "College");
+      const experiencesError = validateRequired(
+        formData.experiences,
+        "Work experience"
+      );
+
+      // Check languages
+      let languagesValid = true;
+      formData.languages.forEach((lang) => {
+        if (validateLanguage(lang)) languagesValid = false;
+      });
+
+      // Check skills
+      let skillsValid = true;
+      formData.skills.forEach((skill) => {
+        if (validateSkill(skill)) skillsValid = false;
+      });
+
+      return !(
+        phoneError ||
+        dobError ||
+        ageError ||
+        jobTitleError ||
+        addressError ||
+        universityError ||
+        collegeError ||
+        experiencesError ||
+        !languagesValid ||
+        !skillsValid
+      );
+    }
+
+    if (step === 3) {
+      // Validate ID uploads
+      return !!(formData.id_front && formData.id_back);
+    }
+
+    return true;
+  };
+
   const handleSignUp = async () => {
+    if (!validateAllFields()) {
+      alert("Please fix the errors before submitting");
+      return;
+    }
+
     const realFormData = new FormData();
     Object.entries(formData).forEach(([key, val]) => {
       if (key === "id_front" || key === "id_back" || key === "avatar") {
