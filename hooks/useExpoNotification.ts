@@ -50,6 +50,12 @@ export const usePushNotifications = (): PushNotificationState => {
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#FF231F7C",
           enableVibrate: true,
+          showBadge: true,
+          lockscreenVisibility:
+            Notifications.AndroidNotificationVisibility.PUBLIC,
+          // bypassDnd: true,
+          sound: "default",
+          
         });
       }
 
