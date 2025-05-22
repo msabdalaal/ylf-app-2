@@ -18,6 +18,7 @@ import { getValueFor } from "@/hooks/storage";
 import { Alert } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useLoading } from "@/context/LoadingContext";
+import MultiSelect from "@/components/inputs/multiSelect";
 
 type Props = {};
 const FormData = global.FormData;
@@ -288,82 +289,31 @@ export default function Edit({}: Props) {
           {/* Languages Section */}
           {isEditing && (
             <View className="mt-6">
-              <Text
-                style={{
-                  fontFamily: "Poppins_Medium",
-                  color: Colors[theme ?? "light"].text,
+              <MultiSelect
+                label="Language"
+                options={["English", "Arabic", "French", "Spanish"]}
+                value={edits?.languages || user?.languages || []}
+                onChange={(v) => {
+                  setEdits((prev) => ({ ...prev, languages: v }));
                 }}
-                className="text-lg mb-2"
-              >
-                Languages
-              </Text>
-              {(edits?.languages || user?.languages || [""]).map(
-                (lang, index) => (
-                  <View
-                    key={index}
-                    className="relative flex-row items-center gap-2 mb-3"
-                  >
-                    <TextInputComponent
-                      placeholder="Language"
-                      value={edits?.languages?.[index] || lang}
-                      onChange={(text) =>
-                        updateArrayField("languages", index, text)
-                      }
-                    />
-                    <TouchableOpacity
-                      onPress={() => removeArrayField("languages", index)}
-                      className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                    >
-                      <Text className="text-white font-bold text-lg">X</Text>
-                    </TouchableOpacity>
-                  </View>
-                )
-              )}
-              <PrimaryButton
-                onPress={() => addArrayField("languages")}
-                className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
-              >
-                Add Language
-              </PrimaryButton>
+                placeholder="Language Selector"
+                freeType
+              />
             </View>
           )}
 
           {/* Skills Section */}
           {isEditing && (
             <View className="mt-6">
-              <Text
-                style={{
-                  fontFamily: "Poppins_Medium",
-                  color: Colors[theme ?? "light"].text,
+              <MultiSelect
+                label="Skills"
+                value={edits?.skills || user?.skills || []}
+                onChange={(v) => {
+                  setEdits((prev) => ({ ...prev, skills: v }));
                 }}
-                className="text-lg mb-2"
-              >
-                Skills
-              </Text>
-              {(edits?.skills || user?.skills || [""]).map((skill, index) => (
-                <View
-                  key={index}
-                  className="relative flex-row items-center gap-2 mb-3"
-                >
-                  <TextInputComponent
-                    placeholder="Skill"
-                    value={edits?.skills?.[index] || skill}
-                    onChange={(text) => updateArrayField("skills", index, text)}
-                  />
-                  <TouchableOpacity
-                    onPress={() => removeArrayField("skills", index)}
-                    className="bg-red-500 py-1 px-2 rounded-lg active:bg-red-600 absolute right-0 -top-1"
-                  >
-                    <Text className="text-white font-bold text-lg">X</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              <PrimaryButton
-                onPress={() => addArrayField("skills")}
-                className="bg-primary px-3 py-1 rounded-lg active:bg-primary/80"
-              >
-                Add Skill
-              </PrimaryButton>
+                placeholder="Skills"
+                freeType={true} // Enable free typing
+              />
             </View>
           )}
 
@@ -378,9 +328,34 @@ export default function Edit({}: Props) {
               >
                 Languages
               </Text>
-              <Text className="dark:text-white">
-                {user.languages.join(", ")}
-              </Text>
+              <View
+                style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 8 }}
+              >
+                {user.languages.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      backgroundColor: theme == "dark" ? "#374151" : "#F3F4F6",
+                      borderRadius: 16,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginRight: 8,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: theme == "dark" ? "white" : "black",
+                        fontFamily: "Inter",
+                      }}
+                    >
+                      {item}
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
           )}
 
@@ -394,7 +369,34 @@ export default function Edit({}: Props) {
               >
                 Skills
               </Text>
-              <Text className="dark:text-white">{user.skills.join(", ")}</Text>
+              <View
+                style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 8 }}
+              >
+                {user.skills.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      backgroundColor: theme == "dark" ? "#374151" : "#F3F4F6",
+                      borderRadius: 16,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginRight: 8,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: theme == "dark" ? "white" : "black",
+                        fontFamily: "Inter",
+                      }}
+                    >
+                      {item}
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
           )}
 

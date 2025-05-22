@@ -718,6 +718,7 @@ export default function AuthRedirectScreen() {
                   }));
                 }
               }}
+              freeType
               placeholder="Language Selector"
             />
             {errors.languages && (
@@ -787,7 +788,6 @@ export default function AuthRedirectScreen() {
             ))} */}
             <MultiSelect
               label="Skills"
-              options={[]} // Suggested options
               value={formData.skills}
               onChange={(v) => {
                 setFormData((p) => ({ ...p, skills: v }));

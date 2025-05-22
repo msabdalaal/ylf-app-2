@@ -6,7 +6,6 @@ import {
   TextInput,
   ScrollView,
   Animated,
-  StyleSheet,
   Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,23 +35,39 @@ const MultiSelect = ({
   const isDark = theme === 'dark';
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [filteredOptions, setFilteredOptions] = useState<string[]>(options);
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const dropdownAnimation = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
+  
+  // Check if options is valid array with items
+  const hasOptions = Array.isArray(options) && options.length > 0;
 
   // Filter options based on input and already selected values
   useEffect(() => {
+    // If not in free type mode and no options, just set empty array and return
+    if (!freeType && (!options || options.length === 0)) {
+      setFilteredOptions([]);
+      return;
+    }
+    
     if (freeType) {
       // In free type mode, filter based on input
       if (inputValue.trim()) {
-        const filtered = options.filter(
-          option => 
-            option.toLowerCase().includes(inputValue.toLowerCase()) && 
-            !value.includes(option)
-        );
+        // Only filter if we have options to filter
+        const filtered = hasOptions 
+          ? options.filter(
+              option => 
+                option.toLowerCase().includes(inputValue.toLowerCase()) && 
+                !value.includes(option)
+            )
+          : [];
         
         // Add the current input as an option if it's not already in the options
-        if (!filtered.includes(inputValue) && !options.includes(inputValue)) {
+        if (
+          inputValue.trim() && 
+          !value.includes(inputValue) &&
+          (!filtered.includes(inputValue))
+        ) {
           setFilteredOptions([inputValue, ...filtered]);
         } else {
           setFilteredOptions(filtered);
@@ -61,17 +76,15 @@ const MultiSelect = ({
         // Keep dropdown open when there's input text in free type mode
         setIsOpen(true);
       } else {
-        setFilteredOptions(options.filter(option => !value.includes(option)));
-        // Only close dropdown if there's no input text
-        if (freeType) {
-          setIsOpen(false);
-        }
+        // If no input text, show all unselected options or empty list
+        setFilteredOptions(hasOptions ? options.filter(option => !value.includes(option)) : []);
+        setIsOpen(false);
       }
-    } else {
+    } else if (hasOptions) {
       // In dropdown mode, only show options that haven't been selected yet
       setFilteredOptions(options.filter(option => !value.includes(option)));
     }
-  }, [inputValue, options, value, freeType]);
+  }, [inputValue, value, freeType, hasOptions]);
 
   // Animation for dropdown
   useEffect(() => {
@@ -88,13 +101,13 @@ const MultiSelect = ({
   }, [isOpen, dropdownAnimation]);
 
   const toggleDropdown = () => {
-    // Only toggle dropdown in non-free type mode or when free type with empty input
-    if (!freeType || (freeType && !inputValue.trim())) {
+    // For non-free type mode OR free type mode with options, toggle dropdown on click
+    if (!freeType || (freeType && hasOptions)) {
       setIsOpen(!isOpen);
     }
     
-    if (!isOpen && freeType) {
-      // Focus the input when opening in free type mode
+    // In free type mode, always focus the input
+    if (freeType) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -106,10 +119,7 @@ const MultiSelect = ({
       onChange([...value, option]);
     }
     setInputValue('');
-    
-    if (!freeType) {
-      setIsOpen(false);
-    }
+    setIsOpen(false);
   };
 
   const handleRemove = (option: string) => {
@@ -118,9 +128,10 @@ const MultiSelect = ({
 
   const handleInputChange = (text: string) => {
     setInputValue(text);
-    // In free type mode, dropdown state is controlled by the useEffect
-    if (!freeType && !isOpen && text.trim()) {
-      setIsOpen(true);
+    
+    // In free type mode, only open dropdown when there's text
+    if (freeType) {
+      setIsOpen(text.trim().length > 0);
     }
   };
 
@@ -169,7 +180,10 @@ const MultiSelect = ({
                 padding: 0,
               }}
               onFocus={() => {
-                if (inputValue.trim()) {
+                // Always open dropdown on focus if there are options in free type mode
+                if (freeType && hasOptions) {
+                  setIsOpen(true);
+                } else if (inputValue.trim()) {
                   setIsOpen(true);
                 }
               }}
@@ -186,8 +200,8 @@ const MultiSelect = ({
             </Text>
           )}
           
-          {/* Only show dropdown icon in non-free type mode */}
-          {!freeType && (
+          {/* Only show dropdown icon when options exist */}
+          {hasOptions && (
             <Ionicons
               name={isOpen ? 'chevron-up' : 'chevron-down'}
               size={20}
@@ -196,6 +210,7 @@ const MultiSelect = ({
           )}
         </View>
       </TouchableOpacity>
+      
       {/* Dropdown */}
       <Animated.View
         style={{
@@ -210,26 +225,40 @@ const MultiSelect = ({
       >
         <ScrollView nestedScrollEnabled>
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleSelect(option)}
-                style={{
-                  padding: 12,
-                  borderBottomWidth: index < filteredOptions.length - 1 ? 1 : 0,
-                  borderBottomColor: isDark ? '#374151' : '#E5E7EB',
-                }}
-              >
-                <Text
+            filteredOptions.map((option, index) => {
+              // Check if this is a custom typed option (first item when typing)
+              const isCustomOption = freeType && 
+                inputValue.trim() && 
+                index === 0 && 
+                option === inputValue;
+                
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleSelect(option)}
                   style={{
-                    color: isDark ? 'white' : 'black',
-                    fontFamily: 'Inter',
+                    padding: 12,
+                    borderBottomWidth: index < filteredOptions.length - 1 ? 1 : 0,
+                    borderBottomColor: isDark ? '#374151' : '#E5E7EB',
+                    backgroundColor: isCustomOption 
+                      ? (isDark ? '#2D3748' : '#EDF2F7') 
+                      : 'transparent',
                   }}
                 >
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))
+                  <Text
+                    style={{
+                      color: isDark 
+                        ? (isCustomOption ? '#90CDF4' : '#E2E8F0') 
+                        : (isCustomOption ? '#2B6CB0' : '#1A202C'),
+                      fontFamily: 'Inter',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {isCustomOption ? `Add "${option}"` : option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
           ) : (
             <View style={{ padding: 12 }}>
               <Text
@@ -247,6 +276,7 @@ const MultiSelect = ({
           )}
         </ScrollView>
       </Animated.View>
+      
       {/* Selected items */}
       {value.filter(item => item.trim() !== '').length > 0 && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
@@ -280,8 +310,6 @@ const MultiSelect = ({
           ))}
         </View>
       )}
-
-
 
       {/* Error message */}
       {error && (

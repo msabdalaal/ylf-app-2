@@ -12,7 +12,7 @@ import {
 import { get, post } from "@/hooks/axios";
 import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { produce } from "immer";
 import NormalPost from "@/components/posts/normalPost";
 import ImagePost from "@/components/posts/imagePost";
@@ -43,6 +43,7 @@ function Feed({}: Props) {
   // Ref to prevent concurrent fetches
   const isFetchingRef = useRef(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { theme } = useTheme();
 
   const logout = async () => {
@@ -180,13 +181,22 @@ function Feed({}: Props) {
         nextAppState === "active"
       ) {
         console.log("App has come to the foreground!");
-        // Refresh data when app comes to foreground
-        loadFirstPage();
-        getNotifications();
+
+        // Check if current path is feed before refreshing
+        const currentPath = pathname;
+        console.log(pathname);
+        if (currentPath === "/feed") {
+          console.log("Currently on feed path, refreshing data");
+          // Refresh data when app comes to foreground and we're on feed
+          loadFirstPage();
+          getNotifications();
+        } else {
+          console.log("Not on feed path, skipping refresh");
+        }
       }
       appState.current = nextAppState;
     },
-    [loadFirstPage, getNotifications]
+    [loadFirstPage, getNotifications, pathname]
   );
 
   // Set up AppState listener

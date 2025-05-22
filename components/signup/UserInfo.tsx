@@ -258,19 +258,19 @@ export default function UserInfo({
                 setFormData((p) => ({ ...p, languages: v }));
               }}
               placeholder="Language Selector"
+              freeType
             />
           </View>
 
-          <View className="mt-6">
+          <View className="mt-3 mb-5">
             <MultiSelect
               label="Skills"
-              options={[]} // Suggested options
               value={formData.skills}
               onChange={(v) => {
                 setFormData((p) => ({ ...p, skills: v }));
               }}
               placeholder="Skills"
-              freeType={true} // Enable free typing
+              freeType={true}
             />
           </View>
         </View>
