@@ -1,5 +1,6 @@
 import Bell from "@/assets/icons/bell";
 import ProgramCard from "@/components/cards/programCards";
+import NotificationIcon from "@/components/notificationIcon";
 import { Colors } from "@/constants/Colors";
 import { Program } from "@/constants/types";
 import { useLoading } from "@/context/LoadingContext";
@@ -50,17 +51,7 @@ function Programs({}: Props) {
         >
           Select Your Program
         </Text>
-        <TouchableOpacity
-          className={`rounded-full w-11 h-11 flex justify-center items-center`}
-          style={{
-            backgroundColor: Colors[theme ?? "light"].bg_primary,
-          }}
-          onPress={() => {
-            router.push("/notifications");
-          }}
-        >
-          <Bell color={theme === "dark" ? "white" : undefined} />
-        </TouchableOpacity>
+        <NotificationIcon/>
       </View>
       <FlatList
         className="mb-2"

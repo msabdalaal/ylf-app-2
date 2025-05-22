@@ -25,6 +25,7 @@ import { Post, Program } from "@/constants/types";
 import imageUrl from "@/utils/imageUrl";
 import { useLoading } from "@/context/LoadingContext";
 import PostComponent from "@/components/posts/generalPost";
+import NotificationIcon from "@/components/notificationIcon";
 
 type Props = {};
 
@@ -148,28 +149,8 @@ function Feed({}: Props) {
     getPrograms();
   }, [getPrograms]);
 
-  const [notificationCount, setNotificationCount] = useState(0);
 
-  const getNotifications = async () => {
-    showLoading();
-    await get("users/getUserNotifications")
-      .then((res) => {
-        // console.log(res);
-        const newNotifications = res.data.data.filter((n: any) => !n.read);
-        // console.log(newNotifications);
-        setNotificationCount(newNotifications.length);
-      })
-      .catch((err) => {
-        if (err instanceof AxiosError) console.log(err.response?.data.message);
-      })
-      .finally(() => {
-        hideLoading();
-      });
-  };
 
-  useEffect(() => {
-    getNotifications();
-  }, []);
 
   const appState = useRef(AppState.currentState);
 
@@ -189,14 +170,13 @@ function Feed({}: Props) {
           console.log("Currently on feed path, refreshing data");
           // Refresh data when app comes to foreground and we're on feed
           loadFirstPage();
-          getNotifications();
         } else {
           console.log("Not on feed path, skipping refresh");
         }
       }
       appState.current = nextAppState;
     },
-    [loadFirstPage, getNotifications, pathname]
+    [loadFirstPage, pathname]
   );
 
   // Set up AppState listener
@@ -228,25 +208,7 @@ function Feed({}: Props) {
           className="w-24 h-12"
           resizeMode="contain"
         />
-        <TouchableOpacity
-          className="rounded-full w-11 h-11 flex justify-center items-center"
-          style={{
-            backgroundColor: Colors[theme ?? "light"].bg_primary,
-          }}
-          onPress={() => {
-            setNotificationCount(0);
-            router.push("/notifications");
-          }}
-        >
-          {notificationCount != 0 ? (
-            <View className="absolute z-10 top-0 right-0 w-5 h-5 flex justify-center items-center bg-red-500 rounded-full">
-              <Text className="text-white text-xs font-bold text-center">
-                {notificationCount}
-              </Text>
-            </View>
-          ) : null}
-          <Bell color={theme === "dark" ? "white" : undefined} />
-        </TouchableOpacity>
+        <NotificationIcon/>
       </View>
       <View>
         <FlatList
