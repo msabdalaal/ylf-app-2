@@ -18,6 +18,7 @@ import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
 import { useTheme } from "@/context/ThemeContext";
 import { useLoading } from "@/context/LoadingContext";
+import { adjustColorOpacity } from "@/components/cards/programCards";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -106,7 +107,10 @@ export default function Program() {
               }`}
             >
               <LinearGradient
-                colors={["rgba(0, 0, 0, 0)", program.accentColor]}
+                colors={[
+                  "rgba(0, 0, 0, 0)",
+                  adjustColorOpacity(program.accentColor, 0.6),
+                ]}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
                 style={{
@@ -114,23 +118,27 @@ export default function Program() {
                   inset: 0,
                 }}
               />
-              <Image
-                src={imageUrl(program.logo?.path)}
-                className="h-48 w-full"
-                resizeMode="contain"
-              />
-              <Text
-                className="text-white font-bold text-xl mt-7"
-                style={{ fontFamily: "Inter" }}
-              >
-                {program.name}
-              </Text>
-              <Text
-                className=" text-[#D4D4D4] text-xs mt-2"
-                style={{ fontFamily: "Inter" }}
-              >
-                {program.name}
-              </Text>
+              <View className="flex-row justify-between items-center mt-auto mb-4">
+                <View>
+                  <Text
+                    className="text-white font-bold text-xl mt-7"
+                    style={{ fontFamily: "Inter" }}
+                  >
+                    {program.name}
+                  </Text>
+                  <Text
+                    className=" text-[#D4D4D4] text-xs mt-2"
+                    style={{ fontFamily: "Inter" }}
+                  >
+                    {program.name}
+                  </Text>
+                </View>
+                <Image
+                  src={imageUrl(program.logo?.path)}
+                  className="w-24 h-24"
+                  resizeMode="contain"
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -138,7 +146,10 @@ export default function Program() {
       <ScrollView
         className="container flex-1 mt-4"
         showsVerticalScrollIndicator={false}
-        onScroll={(e) => setShowHeader(false)}
+        onScroll={(e) => {
+          const offsetY = e.nativeEvent.contentOffset.y;
+          setShowHeader(offsetY <= 0);
+        }}
         scrollEventThrottle={16}
       >
         <Text
@@ -153,16 +164,16 @@ export default function Program() {
           numberOfLines={expandedDescription ? undefined : 8}
         >
           {program.description}
+          {program.description?.length > 0 && program.description?.split('\n').length > 8 && (
+            <Text
+              style={{ fontFamily: "Inter", color: program.accentColor }}
+              onPress={() => setExpandedDescription((prev) => !prev)}
+            >
+              {" "}{expandedDescription ? "Read Less" : "Read More"}
+            </Text>
+          )}
         </Text>
-        <Text
-          className="mt-1"
-          style={{ fontFamily: "Inter", color: program.accentColor }}
-          onPress={() => {
-            setExpandedDescription((prev) => !prev);
-          }}
-        >
-          {expandedDescription ? "Read Less" : "Read More"}
-        </Text>
+
         <Text
           className="font-bold text-lg mt-2"
           style={{ color: program.accentColor }}
@@ -175,16 +186,16 @@ export default function Program() {
           numberOfLines={expandedVision ? undefined : 3}
         >
           {program.vision}
+          {program.vision?.length > 0 && program.vision?.split('\n').length > 3 && (
+            <Text
+              style={{ fontFamily: "Inter", color: program.accentColor }}
+              onPress={() => setExpandedVision((prev) => !prev)}
+            >
+              {" "}{expandedVision ? "Read Less" : "Read More"}
+            </Text>
+          )}
         </Text>
-        <Text
-          className="mt-1"
-          style={{ fontFamily: "Inter", color: program.accentColor }}
-          onPress={() => {
-            setExpandedVision((prev) => !prev);
-          }}
-        >
-          {expandedVision ? "Read Less" : "Read More"}
-        </Text>
+
         <Text
           className="font-bold text-lg mt-2"
           style={{ color: program.accentColor }}
@@ -197,16 +208,16 @@ export default function Program() {
           numberOfLines={expandedMission ? undefined : 3}
         >
           {program.mission}
+          {program.mission?.length > 0 && program.mission?.split('\n').length > 3 && (
+            <Text
+              style={{ fontFamily: "Inter", color: program.accentColor }}
+              onPress={() => setExpandedMission((prev) => !prev)}
+            >
+              {" "}{expandedMission ? "Read Less" : "Read More"}
+            </Text>
+          )}
         </Text>
-        <Text
-          className="mt-1"
-          style={{ fontFamily: "Inter", color: program.accentColor }}
-          onPress={() => {
-            setExpandedMission((prev) => !prev);
-          }}
-        >
-          {expandedMission ? "Read Less" : "Read More"}
-        </Text>
+
         <Text
           className="font-bold text-lg mt-2"
           style={{ color: program.accentColor }}
@@ -219,15 +230,14 @@ export default function Program() {
           numberOfLines={expandedMore ? undefined : 3}
         >
           {program.more}
-        </Text>
-        <Text
-          className="mt-1"
-          style={{ fontFamily: "Inter", color: program.accentColor }}
-          onPress={() => {
-            setExpandedMore((prev) => !prev);
-          }}
-        >
-          {expandedMore ? "Read Less" : "Read More"}
+          {program.more?.length > 0 && program.more?.split('\n').length > 3 && (
+            <Text
+              style={{ fontFamily: "Inter", color: program.accentColor }}
+              onPress={() => setExpandedMore((prev) => !prev)}
+            >
+              {" "}{expandedMore ? "Read Less" : "Read More"}
+            </Text>
+          )}
         </Text>
       </ScrollView>
       {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration)) ||

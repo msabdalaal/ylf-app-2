@@ -59,7 +59,7 @@ function Programs({}: Props) {
         renderItem={(post) => (
           <ProgramCard
             color={post.item.accentColor}
-            image={imageUrl(post.item.Image[0].path)}
+            image={imageUrl(post.item.croppedImage?.path ? post.item.croppedImage.path :post.item.Image[0].path)}
             linkText={post.item.name}
             link={("/program/" + post.item.id) as RelativePathString}
             logo={imageUrl(post.item.logo.path)}

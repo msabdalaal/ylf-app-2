@@ -95,6 +95,7 @@ export interface Program {
   achieve: string;
   Image: Logo[];
   logo: Logo;
+  croppedImage?: Logo;
   isRegistered?: boolean;
 }
 
