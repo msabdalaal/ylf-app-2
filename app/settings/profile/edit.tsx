@@ -321,9 +321,9 @@ export default function Edit({}: Props) {
           {!isEditing && user?.languages && user.languages.length > 0 && (
             <View className="mt-4">
               <Text
+                className="dark:text-white"
                 style={{
                   fontFamily: "Poppins_Medium",
-                  color: Colors[theme ?? "light"].text,
                 }}
               >
                 Languages
@@ -362,9 +362,9 @@ export default function Edit({}: Props) {
           {!isEditing && user?.skills && user.skills.length > 0 && (
             <View className="mt-4">
               <Text
+                className="dark:text-white"
                 style={{
                   fontFamily: "Poppins_Medium",
-                  color: Colors[theme ?? "light"].text,
                 }}
               >
                 Skills
@@ -401,11 +401,7 @@ export default function Edit({}: Props) {
           )}
 
           {isEditing && (
-            <PrimaryButton
-              className="mt-4 mb-8"
-              onPress={handleUpdateProfile}
-              color="#000"
-            >
+            <PrimaryButton className="mt-4 mb-8" onPress={handleUpdateProfile}>
               Update Profile
             </PrimaryButton>
           )}

@@ -2,11 +2,11 @@ import Logout from "@/assets/icons/logout";
 import BackButton from "@/components/buttons/backButton";
 import NormalPost from "@/components/posts/normalPost";
 import { Colors } from "@/constants/Colors";
-import type { Comment as CommentType, Post } from "@/constants/types";
+import type { Comment as CommentType, Post, Program } from "@/constants/types";
 import { get, post as AxiosPost, del } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import { useLocalSearchParams } from "expo-router/build/hooks";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Comment from "@/components/posts/comment";
@@ -18,6 +18,7 @@ import EventPost from "@/components/posts/eventPost";
 import { setupNotifications } from "@/utils/notificationHandler";
 import { useTheme } from "@/context/ThemeContext";
 import { useLoading } from "@/context/LoadingContext";
+import PostComponent from "@/components/posts/generalPost";
 
 export default function Post() {
   const [post, setPost] = useState<Post>();
@@ -26,7 +27,6 @@ export default function Post() {
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
-
   useEffect(() => {
     const subscription = setupNotifications();
     return () => subscription.remove();
@@ -120,6 +120,20 @@ export default function Post() {
       ]
     );
   };
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const getPrograms = useCallback(async () => {
+    try {
+      const res = await get("programs/getAll");
+      setPrograms(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    getPrograms();
+  }, [getPrograms]);
+
   return (
     <SafeAreaView
       className="container bg-white flex-1"
@@ -127,8 +141,8 @@ export default function Post() {
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
-      <BackButton className="mt-5" />
-      {post?.userId && post && post.type == "event" ? (
+      <BackButton className="my-5" />
+      {/* {post?.userId && post && post.type == "event" ? (
         <EventPost
           className="mt-8"
           post={post}
@@ -156,6 +170,15 @@ export default function Post() {
           handleLike={(id) => handleLikePost(id)}
           className="mt-8"
           showAll={true}
+        />
+      )} */}
+      {post && (
+        <PostComponent
+          post={post}
+          handleLike={handleLikePost}
+          color={
+            programs.find((p) => p.id === post.programId)?.accentColor || ""
+          }
         />
       )}
       <Text

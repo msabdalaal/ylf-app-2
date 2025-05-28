@@ -129,4 +129,5 @@ export interface Notification {
   userId: string;
   read: boolean;
   link: string;
+  programId: string;
 }

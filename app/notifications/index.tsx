@@ -1,12 +1,19 @@
-import { View, Text, FlatList } from "react-native";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { View, Text, FlatList, Image } from "react-native";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
 import { get, post } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
-import { Notification } from "@/constants/types";
+import { Notification, Program } from "@/constants/types";
 import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
 import { TouchableOpacity } from "react-native";
@@ -15,84 +22,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLoading } from "@/context/LoadingContext";
 import NotificationBell from "@/assets/icons/NotificationBell";
 import { AppState, AppStateStatus } from "react-native";
-
-const NotificationItem = ({ item }: { item: Notification }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  const handlePress = () => {
-    if (item.link) {
-      router.push(item.link as any);
-    }
-  };
-
-  const getTimeDisplay = (createdAt: string) => {
-    const now = dayjs();
-    const created = dayjs(createdAt);
-    const hoursDiff = now.diff(created, "hour");
-
-    if (hoursDiff < 24) {
-      if (hoursDiff < 1) {
-        const minutesDiff = now.diff(created, "minute");
-        return `${minutesDiff} minutes ago`;
-      }
-      return `${hoursDiff} hours ago`;
-    }
-    return created.format("MMM D, YYYY");
-  };
-
-  return (
-    <TouchableOpacity
-      onPress={handlePress}
-      disabled={!item.link}
-      className="p-4 rounded-xl flex-row items-center gap-4 mb-3 active:opacity-80"
-      style={{
-        backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
-      }}
-    >
-      <NotificationBell />
-
-      <View className="flex-1 flex-row items-center gap-2">
-        <View className="flex-1">
-          <View className="flex-row justify-between items-center">
-            <Text
-              className="font-medium"
-              style={{
-                fontFamily: "Poppins_Medium",
-                color: isDark ? "white" : Colors.light.text,
-              }}
-            >
-              {item.title}
-            </Text>
-          </View>
-          <Text
-            className="text-sm"
-            style={{
-              color: isDark ? "#9CA3AF" : Colors.light.text,
-            }}
-          >
-            {item.body}
-          </Text>
-          <Text
-            className="text-xs mt-1"
-            style={{
-              color: isDark ? "#9CA3AF" : Colors.light.text,
-            }}
-          >
-            {getTimeDisplay(item.createdAt.toString())}
-          </Text>
-        </View>
-        {item.link && (
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={isDark ? "#9CA3AF" : Colors.light.text}
-          />
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-};
+import imageUrl from "@/utils/imageUrl";
 
 export default function Notifications() {
   const { theme } = useTheme();
@@ -100,6 +30,114 @@ export default function Notifications() {
   const [refreshing, setRefreshing] = useState(false);
   const { showLoading, hideLoading } = useLoading();
   const appState = useRef(AppState.currentState);
+
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const getPrograms = useCallback(async () => {
+    try {
+      const res = await get("programs/getAll");
+      setPrograms(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    getPrograms();
+  }, [getPrograms]);
+
+  const NotificationItem = useCallback(({ item }: { item: Notification }) => {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
+
+    const handlePress = () => {
+      if (item.link) {
+        router.push(item.link as any);
+      }
+    };
+
+    const getTimeDisplay = (createdAt: string) => {
+      const now = dayjs();
+      const created = dayjs(createdAt);
+      const hoursDiff = now.diff(created, "hour");
+
+      if (hoursDiff < 24) {
+        if (hoursDiff < 1) {
+          const minutesDiff = now.diff(created, "minute");
+          return `${minutesDiff} minutes ago`;
+        }
+        return `${hoursDiff} hours ago`;
+      }
+      return created.format("MMM D, YYYY");
+    };
+
+    return (
+      <TouchableOpacity
+        onPress={handlePress}
+        disabled={!item.link}
+        className="p-4 rounded-xl flex-row items-center gap-4 mb-3 active:opacity-80"
+        style={{
+          backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
+        }}
+      >
+        <View className="w-12 h-12 p-2 rounded-full overflow-hidden bg-gray-200">
+          {item.programId ? (
+            <Image
+              src={imageUrl(
+                programs.find((p) => p.id === item.programId)?.logo.path || ""
+              )}
+              resizeMode="contain"
+              className="w-full h-full rounded-full"
+            />
+          ) : (
+            <Image
+              source={require("@/assets/images/splash-icon.png")}
+              className="w-full h-full"
+              resizeMode="contain"
+            />
+          )}
+        </View>
+
+        <View className="flex-1 flex-row items-center gap-2">
+          <View className="flex-1">
+            <View className="flex-row justify-between items-center">
+              <Text
+                className="font-medium"
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: isDark ? "white" : Colors.light.text,
+                }}
+              >
+                {item.title}
+              </Text>
+            </View>
+            <Text
+              className="text-sm"
+              style={{
+                color: isDark ? "#9CA3AF" : Colors.light.text,
+              }}
+            >
+              {item.body}
+            </Text>
+            <Text
+              className="text-xs mt-1"
+              style={{
+                color: isDark ? "#9CA3AF" : Colors.light.text,
+              }}
+            >
+              {getTimeDisplay(item.createdAt.toString())}
+            </Text>
+          </View>
+          {item.link && (
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? "#9CA3AF" : Colors.light.text}
+            />
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  }, []);
 
   const renderSection = ({
     title,
@@ -131,8 +169,7 @@ export default function Notifications() {
         setNotifications(res.data.data);
       })
       .then(async () => {
-        const result = await get("users/readAllNotifications");
-        console.log(result);
+        await get("users/readAllNotifications");
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
@@ -153,19 +190,28 @@ export default function Notifications() {
   }, []);
 
   // Function to handle app state changes
-  const handleAppStateChange = useCallback((nextAppState: AppStateStatus) => {
-    if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-      console.log('Notifications screen has come to the foreground!');
-      // Refresh notifications when app comes to foreground
-      getNotifications();
-    }
-    appState.current = nextAppState;
-  }, [getNotifications]);
+  const handleAppStateChange = useCallback(
+    (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        console.log("Notifications screen has come to the foreground!");
+        // Refresh notifications when app comes to foreground
+        getNotifications();
+      }
+      appState.current = nextAppState;
+    },
+    [getNotifications]
+  );
 
   // Set up AppState listener
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
     return () => {
       subscription.remove();
     };

@@ -162,7 +162,6 @@ const MultiSelect = ({
           borderColor: isDark ? '#374151' : '#E5E7EB',
           borderRadius: 8,
           padding: 12,
-          backgroundColor: isDark ? '#1F2937' : '#F9FAFB',
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

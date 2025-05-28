@@ -1,11 +1,10 @@
 import BackButton from "@/components/buttons/backButton";
 import { Colors } from "@/constants/Colors";
 import React, { useCallback, useEffect, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Program as ProgramType } from "@/constants/types";
-
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -19,19 +18,57 @@ import dayjs from "dayjs";
 import { useTheme } from "@/context/ThemeContext";
 import { useLoading } from "@/context/LoadingContext";
 import { adjustColorOpacity } from "@/components/cards/programCards";
+import { Dimensions } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
 });
 
+// 🔸 ExpandableText Component
+const ExpandableText = ({
+  label,
+  text,
+  threshold = 200,
+  color,
+}: {
+  label: string;
+  text: string;
+  threshold?: number;
+  color: string;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = text?.length > threshold;
+  const displayedText =
+    expanded || !isLong ? text : `${text.slice(0, threshold)}...`;
+
+  return (
+    <View className="mt-4">
+      <Text className="font-bold text-lg" style={{ color }}>
+        {label}
+      </Text>
+      <Text className="mt-2.5 dark:text-white">
+        {displayedText}
+        {isLong && (
+          <Text
+            onPress={() => setExpanded((prev) => !prev)}
+            style={{ fontFamily: "Inter", color }}
+          >
+            {" "}
+            {expanded ? "Read Less" : "Read More"}
+          </Text>
+        )}
+      </Text>
+    </View>
+  );
+};
+
 export default function Program() {
+  const screenHeight = Dimensions.get("window").height;
+  const [contentHeight, setContentHeight] = useState(0);
   const { showLoading, hideLoading } = useLoading();
   const { id } = useLocalSearchParams();
-  const [expandedDescription, setExpandedDescription] = useState(false);
-  const [expandedVision, setExpandedVision] = useState(false);
-  const [expandedMission, setExpandedMission] = useState(false);
-  const [expandedMore, setExpandedMore] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [program, setProgram] = useState<ProgramType>({
     id: "1",
@@ -51,6 +88,7 @@ export default function Program() {
     logo: { path: "" },
     accentColor: "rgba(42, 154, 151, 0)",
   });
+
   const getProgram = useCallback(async () => {
     showLoading();
     await get("programs/get/" + id)
@@ -64,10 +102,18 @@ export default function Program() {
         hideLoading();
       });
   }, []);
+
   useEffect(() => {
     getProgram();
   }, []);
+
   const { theme } = useTheme();
+  useFocusEffect(
+    useCallback(() => {
+      setShowHeader(true);
+      setContentHeight(0); // reset to force recalculation
+    }, [])
+  );
   return (
     <SafeAreaView
       className="bg-white flex-1"
@@ -75,8 +121,8 @@ export default function Program() {
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
-      {showHeader ? (
-        <View className=" container flex-row items-center gap-3 mb-6 mt-5">
+      {showHeader && (
+        <View className="container flex-row items-center gap-3 mb-6 mt-5">
           <BackButton />
           <Text
             style={{
@@ -87,7 +133,7 @@ export default function Program() {
             {program.name}
           </Text>
         </View>
-      ) : null}
+      )}
       <View className={`transition-all ${showHeader ? "container" : ""}`}>
         <View
           className={`relative h-80 bg-white overflow-hidden ${
@@ -102,7 +148,7 @@ export default function Program() {
           </View>
           <View className={`absolute w-full h-full`}>
             <View
-              className={`w-full h-full justify-center  ${
+              className={`w-full h-full justify-center ${
                 showHeader ? "px-5" : "container"
               }`}
             >
@@ -127,7 +173,7 @@ export default function Program() {
                     {program.name}
                   </Text>
                   <Text
-                    className=" text-[#D4D4D4] text-xs mt-2"
+                    className="text-[#D4D4D4] text-xs mt-2"
                     style={{ fontFamily: "Inter" }}
                   >
                     {program.name}
@@ -143,126 +189,62 @@ export default function Program() {
           </View>
         </View>
       </View>
+
       <ScrollView
         className="container flex-1 mt-4"
         showsVerticalScrollIndicator={false}
         onScroll={(e) => {
           const offsetY = e.nativeEvent.contentOffset.y;
-          setShowHeader(offsetY <= 0);
+          const SCROLL_THRESHOLD = 35;
+          if (contentHeight > SCROLL_THRESHOLD) {
+            setShowHeader(offsetY <= SCROLL_THRESHOLD);
+          } else {
+            if (!showHeader) setShowHeader(true);
+          }
         }}
-        scrollEventThrottle={16}
+        onContentSizeChange={(_, height) => setContentHeight(height)}
+        scrollEventThrottle={5}
       >
-        <Text
-          className="font-bold text-lg"
-          style={{ color: program.accentColor }}
-        >
-          Description
-        </Text>
-        <Text
-          className="mt-2.5 dark:text-white"
-          ellipsizeMode="tail"
-          numberOfLines={expandedDescription ? undefined : 8}
-        >
-          {program.description}
-          {program.description?.length > 0 && program.description?.split('\n').length > 8 && (
-            <Text
-              style={{ fontFamily: "Inter", color: program.accentColor }}
-              onPress={() => setExpandedDescription((prev) => !prev)}
-            >
-              {" "}{expandedDescription ? "Read Less" : "Read More"}
-            </Text>
-          )}
-        </Text>
-
-        <Text
-          className="font-bold text-lg mt-2"
-          style={{ color: program.accentColor }}
-        >
-          Vision
-        </Text>
-        <Text
-          className="mt-2.5 dark:text-white"
-          ellipsizeMode="tail"
-          numberOfLines={expandedVision ? undefined : 3}
-        >
-          {program.vision}
-          {program.vision?.length > 0 && program.vision?.split('\n').length > 3 && (
-            <Text
-              style={{ fontFamily: "Inter", color: program.accentColor }}
-              onPress={() => setExpandedVision((prev) => !prev)}
-            >
-              {" "}{expandedVision ? "Read Less" : "Read More"}
-            </Text>
-          )}
-        </Text>
-
-        <Text
-          className="font-bold text-lg mt-2"
-          style={{ color: program.accentColor }}
-        >
-          Mission
-        </Text>
-        <Text
-          className="mt-2.5 dark:text-white"
-          ellipsizeMode="tail"
-          numberOfLines={expandedMission ? undefined : 3}
-        >
-          {program.mission}
-          {program.mission?.length > 0 && program.mission?.split('\n').length > 3 && (
-            <Text
-              style={{ fontFamily: "Inter", color: program.accentColor }}
-              onPress={() => setExpandedMission((prev) => !prev)}
-            >
-              {" "}{expandedMission ? "Read Less" : "Read More"}
-            </Text>
-          )}
-        </Text>
-
-        <Text
-          className="font-bold text-lg mt-2"
-          style={{ color: program.accentColor }}
-        >
-          More about the program
-        </Text>
-        <Text
-          className="mt-2.5 dark:text-white"
-          ellipsizeMode="tail"
-          numberOfLines={expandedMore ? undefined : 3}
-        >
-          {program.more}
-          {program.more?.length > 0 && program.more?.split('\n').length > 3 && (
-            <Text
-              style={{ fontFamily: "Inter", color: program.accentColor }}
-              onPress={() => setExpandedMore((prev) => !prev)}
-            >
-              {" "}{expandedMore ? "Read Less" : "Read More"}
-            </Text>
-          )}
-        </Text>
+        <ExpandableText
+          label="Description"
+          text={program.description}
+          threshold={250}
+          color={program.accentColor}
+        />
+        <ExpandableText
+          label="Vision"
+          text={program.vision}
+          threshold={200}
+          color={program.accentColor}
+        />
+        <ExpandableText
+          label="Mission"
+          text={program.mission}
+          threshold={200}
+          color={program.accentColor}
+        />
+        <ExpandableText
+          label="More about the program"
+          text={program.more}
+          threshold={200}
+          color={program.accentColor}
+        />
       </ScrollView>
+
       {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration)) ||
       program.isRegistered ? (
         <View
           className="py-6 px-7 mt-2"
           style={{
-            backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
+            backgroundColor: theme === "dark" ? "#21252d" : "#F0F5FA",
           }}
         >
           <PrimaryLink
             style={{
-              backgroundColor:
-                dayjs(new Date()).isAfter(
-                  dayjs(program.acceptApplicationDuration)
-                ) || program.isRegistered
-                  ? "#D4D4D4"
-                  : program.accentColor,
+              backgroundColor: "#D4D4D4",
             }}
             href={`/program/${program.id}/member`}
-            disabled={
-              dayjs(new Date()).isAfter(
-                dayjs(program.acceptApplicationDuration)
-              ) || program.isRegistered
-            }
+            disabled
           >
             {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
               ? "Application Closed"
@@ -273,60 +255,28 @@ export default function Program() {
         <View
           className="py-6 px-7 mt-2"
           style={{
-            backgroundColor: theme == "dark" ? "#21252d" : "#F0F5FA",
+            backgroundColor: theme === "dark" ? "#21252d" : "#F0F5FA",
           }}
         >
           {program.forGroups && (
             <View className="mb-3">
               <PrimaryLink
                 style={{
-                  backgroundColor:
-                    dayjs(new Date()).isAfter(
-                      dayjs(program.acceptApplicationDuration)
-                    ) || program.isRegistered
-                      ? "#D4D4D4"
-                      : program.accentColor,
+                  backgroundColor: program.accentColor,
                 }}
                 href={`/program/${program.id}/member`}
-                disabled={
-                  dayjs(new Date()).isAfter(
-                    dayjs(program.acceptApplicationDuration)
-                  ) || program.isRegistered
-                }
               >
-                {dayjs(new Date()).isAfter(
-                  dayjs(program.acceptApplicationDuration)
-                )
-                  ? "Application Closed"
-                  : program.isRegistered
-                  ? "You are already registered"
-                  : "Apply as a Member"}
+                Apply as a Member
               </PrimaryLink>
             </View>
           )}
           <PrimaryLink
             style={{
-              backgroundColor:
-                dayjs(new Date()).isAfter(
-                  dayjs(program.acceptApplicationDuration)
-                ) || program.isRegistered
-                  ? "#D4D4D4"
-                  : program.accentColor,
+              backgroundColor: program.accentColor,
             }}
             href={`/program/${program.id}/application`}
-            disabled={
-              dayjs(new Date()).isAfter(
-                dayjs(program.acceptApplicationDuration)
-              ) || program.isRegistered
-            }
           >
-            {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration))
-              ? "Application Closed"
-              : program.isRegistered
-              ? "You are already registered"
-              : program.forGroups
-              ? "Apply as a Group"
-              : "Apply Now"}
+            {program.forGroups ? "Apply as a Group" : "Apply Now"}
           </PrimaryLink>
         </View>
       )}
