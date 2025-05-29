@@ -1,7 +1,15 @@
 import BackButton from "@/components/buttons/backButton";
 import { Colors } from "@/constants/Colors";
-import React, { useCallback, useEffect, useState } from "react";
-import { Image, ScrollView, Text, View, TouchableOpacity } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Image,
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Program as ProgramType } from "@/constants/types";
@@ -67,6 +75,13 @@ const ExpandableText = ({
 export default function Program() {
   const screenHeight = Dimensions.get("window").height;
   const [contentHeight, setContentHeight] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimer = useRef<NodeJS.Timeout>();
+  const lastScrollY = useRef(0);
+  const HIDE_THRESHOLD = 100; // scroll down past this → hide header
+  const SHOW_THRESHOLD = 20; // scroll back up above this → show header
+  const SCROLL_DEBOUNCE = 200; // ms
+
   const { showLoading, hideLoading } = useLoading();
   const { id } = useLocalSearchParams();
   const [showHeader, setShowHeader] = useState(true);
@@ -114,6 +129,43 @@ export default function Program() {
       setContentHeight(0); // reset to force recalculation
     }, [])
   );
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetY = e.nativeEvent.contentOffset.y;
+
+      // if content too short, always show
+      // if (contentHeight <= screenHeight - 500) {
+      //   if (!showHeader) setShowHeader(true);
+      //   return;
+      // }
+
+      // Only hide when scrolling down past HIDE_THRESHOLD
+      if (offsetY > HIDE_THRESHOLD && showHeader) {
+        setShowHeader(false);
+      }
+      // Only show when scrolling back up above SHOW_THRESHOLD
+      else if (offsetY < SHOW_THRESHOLD && !showHeader) {
+        setShowHeader(true);
+      }
+
+      // debounce resets (optional—keeps it from jittering)
+      if (scrollTimer.current) clearTimeout(scrollTimer.current);
+      scrollTimer.current = setTimeout(() => {
+        // nothing needed here unless you want to “snap” or do other cleanup
+      }, SCROLL_DEBOUNCE);
+    },
+    [contentHeight, screenHeight, showHeader]
+  );
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimer.current) {
+        clearTimeout(scrollTimer.current);
+      }
+    };
+  }, []);
+
   return (
     <SafeAreaView
       className="bg-white flex-1"
@@ -193,17 +245,15 @@ export default function Program() {
       <ScrollView
         className="container flex-1 mt-4"
         showsVerticalScrollIndicator={false}
-        onScroll={(e) => {
-          const offsetY = e.nativeEvent.contentOffset.y;
-          const SCROLL_THRESHOLD = 35;
-          if (contentHeight > SCROLL_THRESHOLD) {
-            setShowHeader(offsetY <= SCROLL_THRESHOLD);
-          } else {
-            if (!showHeader) setShowHeader(true);
+        onScroll={handleScroll}
+        onContentSizeChange={(_, height) => {
+          setContentHeight(height);
+          // Show header by default if content is shorter than screen
+          if (height <= screenHeight) {
+            setShowHeader(true);
           }
         }}
-        onContentSizeChange={(_, height) => setContentHeight(height)}
-        scrollEventThrottle={5}
+        scrollEventThrottle={16} // Increased for smoother scrolling
       >
         <ExpandableText
           label="Description"

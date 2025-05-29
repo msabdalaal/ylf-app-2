@@ -19,7 +19,7 @@ export default function TabLayout() {
       if (
         pathname === "/feed" ||
         pathname === "/programs" ||
-        pathname === "/settings" || 
+        pathname === "/settings" ||
         pathname === "/opportunities"
       ) {
         Alert.alert(
@@ -61,7 +61,7 @@ export default function TabLayout() {
           tabBarButton: HapticTab,
           tabBarStyle: {
             backgroundColor: "#015CA4",
-            height: 65, // Slightly increased height
+            height: 70, // Slightly increased height
             borderTopWidth: 0,
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
@@ -73,12 +73,13 @@ export default function TabLayout() {
             paddingVertical: 8,
           },
           tabBarItemStyle: {
-            paddingVertical: 10,
+            paddingVertical: 5,
           },
           tabBarLabelStyle: {
             fontFamily: "SF_pro",
             fontSize: 11, // Slightly smaller font
             color: "white",
+            marginTop: 2,
           },
         }}
       >
