@@ -45,99 +45,101 @@ export default function Notifications() {
     getPrograms();
   }, [getPrograms]);
 
-  const NotificationItem = useCallback(({ item }: { item: Notification }) => {
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+  const NotificationItem = useCallback(
+    ({ item }: { item: Notification }) => {
+      const { theme } = useTheme();
+      const isDark = theme === "dark";
 
-    const handlePress = () => {
-      if (item.link) {
-        router.push(item.link as any);
-      }
-    };
-
-    const getTimeDisplay = (createdAt: string) => {
-      const now = dayjs();
-      const created = dayjs(createdAt);
-      const hoursDiff = now.diff(created, "hour");
-
-      if (hoursDiff < 24) {
-        if (hoursDiff < 1) {
-          const minutesDiff = now.diff(created, "minute");
-          return `${minutesDiff} minutes ago`;
+      const handlePress = () => {
+        if (item.link) {
+          router.push(item.link as any);
         }
-        return `${hoursDiff} hours ago`;
-      }
-      return created.format("MMM D, YYYY");
-    };
+      };
 
-    return (
-      <TouchableOpacity
-        onPress={handlePress}
-        disabled={!item.link}
-        className="p-4 rounded-xl flex-row items-center gap-4 mb-3 active:opacity-80"
-        style={{
-          backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
-        }}
-      >
-        <View className="w-12 h-12 p-2 rounded-full overflow-hidden bg-gray-200">
-          {item.programId ? (
-            <Image
-              src={imageUrl(
-                programs.find((p) => p.id === item.programId)?.logo.path || ""
-              )}
-              resizeMode="contain"
-              className="w-full h-full rounded-full"
-            />
-          ) : (
-            <Image
-              source={require("@/assets/images/splash-icon.png")}
-              className="w-full h-full"
-              resizeMode="contain"
-            />
-          )}
-        </View>
+      const getTimeDisplay = (createdAt: string) => {
+        const now = dayjs();
+        const created = dayjs(createdAt);
+        const hoursDiff = now.diff(created, "hour");
 
-        <View className="flex-1 flex-row items-center gap-2">
-          <View className="flex-1">
-            <View className="flex-row justify-between items-center">
+        if (hoursDiff < 24) {
+          if (hoursDiff < 1) {
+            const minutesDiff = now.diff(created, "minute");
+            return `${minutesDiff} minutes ago`;
+          }
+          return `${hoursDiff} hours ago`;
+        }
+        return created.format("MMM D, YYYY");
+      };
+      return (
+        <TouchableOpacity
+          onPress={handlePress}
+          disabled={!item.link}
+          className="p-4 rounded-xl flex-row items-center gap-4 mb-3 active:opacity-80"
+          style={{
+            backgroundColor: isDark ? Colors.dark.postBackground : "#F6F8FA",
+          }}
+        >
+          <View className="w-12 h-12 p-2 rounded-full overflow-hidden bg-gray-200">
+            {item.programId ? (
+              <Image
+                src={imageUrl(
+                  programs.find((p) => p.id === item.programId)?.logo.path ?? ""
+                )}
+                resizeMode="contain"
+                className="w-full h-full rounded-full"
+              />
+            ) : (
+              <Image
+                source={require("@/assets/images/splash-icon.png")}
+                className="w-full h-full"
+                resizeMode="contain"
+              />
+            )}
+          </View>
+
+          <View className="flex-1 flex-row items-center gap-2">
+            <View className="flex-1">
+              <View className="flex-row justify-between items-center">
+                <Text
+                  className="font-medium"
+                  style={{
+                    fontFamily: "Poppins_Medium",
+                    color: isDark ? "white" : Colors.light.text,
+                  }}
+                >
+                  {item.title}
+                </Text>
+              </View>
               <Text
-                className="font-medium"
+                className="text-sm"
                 style={{
-                  fontFamily: "Poppins_Medium",
-                  color: isDark ? "white" : Colors.light.text,
+                  color: isDark ? "#9CA3AF" : Colors.light.text,
                 }}
               >
-                {item.title}
+                {item.body}
+              </Text>
+              <Text
+                className="text-xs mt-1"
+                style={{
+                  color: isDark ? "#9CA3AF" : Colors.light.text,
+                }}
+              >
+                {getTimeDisplay(item.createdAt.toString())}
               </Text>
             </View>
-            <Text
-              className="text-sm"
-              style={{
-                color: isDark ? "#9CA3AF" : Colors.light.text,
-              }}
-            >
-              {item.body}
-            </Text>
-            <Text
-              className="text-xs mt-1"
-              style={{
-                color: isDark ? "#9CA3AF" : Colors.light.text,
-              }}
-            >
-              {getTimeDisplay(item.createdAt.toString())}
-            </Text>
+            {item.link && (
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={isDark ? "#9CA3AF" : Colors.light.text}
+              />
+            )}
           </View>
-          {item.link && (
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={isDark ? "#9CA3AF" : Colors.light.text}
-            />
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  }, []);
+        </TouchableOpacity>
+      );
+    },
+    [programs]
+  );
 
   const renderSection = ({
     title,

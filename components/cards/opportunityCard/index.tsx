@@ -53,7 +53,7 @@ function OpportunityCard({
         {post.tags.map((tag, index) => (
           <Text
             key={index}
-            className="text-[9px] rounded-sm font-semibold py-1 px-2.5 bg-[#E7EBF1]"
+            className="text-[9px] rounded-sm font-semibold py-1 px-2.5 bg-[#E7EBF1] dark:bg-[#015CA44D] dark:text-white"
             style={{ fontFamily: "Poppins_Medium" }}
           >
             {tag}

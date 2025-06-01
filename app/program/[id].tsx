@@ -78,13 +78,14 @@ export default function Program() {
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimer = useRef<NodeJS.Timeout>();
   const lastScrollY = useRef(0);
-  const HIDE_THRESHOLD = 100; // scroll down past this → hide header
+  const HIDE_THRESHOLD = 150; // scroll down past this → hide header
   const SHOW_THRESHOLD = 20; // scroll back up above this → show header
   const SCROLL_DEBOUNCE = 200; // ms
 
   const { showLoading, hideLoading } = useLoading();
   const { id } = useLocalSearchParams();
   const [showHeader, setShowHeader] = useState(true);
+  const [addSpacer, setAddSpacer] = useState(false);
   const [program, setProgram] = useState<ProgramType>({
     id: "1",
     achieve: "",
@@ -133,7 +134,7 @@ export default function Program() {
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetY = e.nativeEvent.contentOffset.y;
 
-      // if content too short, always show
+      // // if content too short, always show
       // if (contentHeight <= screenHeight - 500) {
       //   if (!showHeader) setShowHeader(true);
       //   return;
@@ -165,7 +166,14 @@ export default function Program() {
       }
     };
   }, []);
+  const scrollContentRef = useRef<View>(null);
 
+  const handleLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout;
+    setContentHeight(height);
+    const needsSpacer = height < screenHeight + 100;
+    setAddSpacer(needsSpacer);
+  };
   return (
     <SafeAreaView
       className="bg-white flex-1"
@@ -246,39 +254,36 @@ export default function Program() {
         className="container flex-1 mt-4"
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
-        onContentSizeChange={(_, height) => {
-          setContentHeight(height);
-          // Show header by default if content is shorter than screen
-          if (height <= screenHeight) {
-            setShowHeader(true);
-          }
-        }}
-        scrollEventThrottle={16} // Increased for smoother scrolling
+        scrollEventThrottle={16}
       >
-        <ExpandableText
-          label="Description"
-          text={program.description}
-          threshold={250}
-          color={program.accentColor}
-        />
-        <ExpandableText
-          label="Vision"
-          text={program.vision}
-          threshold={200}
-          color={program.accentColor}
-        />
-        <ExpandableText
-          label="Mission"
-          text={program.mission}
-          threshold={200}
-          color={program.accentColor}
-        />
-        <ExpandableText
-          label="More about the program"
-          text={program.more}
-          threshold={200}
-          color={program.accentColor}
-        />
+        <View onLayout={handleLayout} ref={scrollContentRef}>
+          <ExpandableText
+            label="Description"
+            text={program.description}
+            threshold={250}
+            color={program.accentColor}
+          />
+          <ExpandableText
+            label="Vision"
+            text={program.vision}
+            threshold={200}
+            color={program.accentColor}
+          />
+          <ExpandableText
+            label="Mission"
+            text={program.mission}
+            threshold={200}
+            color={program.accentColor}
+          />
+          <ExpandableText
+            label="More about the program"
+            text={program.more}
+            threshold={200}
+            color={program.accentColor}
+          />
+
+          {addSpacer && <View style={{ height: 150 }} />}
+        </View>
       </ScrollView>
 
       {dayjs(new Date()).isAfter(dayjs(program.acceptApplicationDuration)) ||

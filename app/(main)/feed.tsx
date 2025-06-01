@@ -149,9 +149,6 @@ function Feed({}: Props) {
     getPrograms();
   }, [getPrograms]);
 
-
-
-
   const appState = useRef(AppState.currentState);
 
   // Function to handle app state changes
@@ -208,7 +205,7 @@ function Feed({}: Props) {
           className="w-24 h-12"
           resizeMode="contain"
         />
-        <NotificationIcon/>
+        <NotificationIcon />
       </View>
       <View>
         <FlatList
@@ -302,14 +299,13 @@ function Feed({}: Props) {
           ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
         />
       </View>
-      <View className="container">
+      <View className="container flex-1">
         <FlatList
           refreshing={refreshing}
           onRefresh={onRefresh}
           data={posts}
           keyExtractor={(item) => `post-${item.id}-${item.createdAt}`}
           renderItem={({ item }) => {
-            // find the matching program accent color
             const accentColor = programs.find(
               (p) => p.id === item.programId
             )?.accentColor;
@@ -323,9 +319,10 @@ function Feed({}: Props) {
             );
           }}
           onEndReached={loadMore}
+          onEndReachedThreshold={0.2}
           ListFooterComponent={() =>
             isLoadingMore ? (
-              <View className="py-4">
+              <View style={{ marginBottom: 5 }}>
                 <ActivityIndicator
                   size="small"
                   color={Colors[theme]?.primary}
@@ -335,6 +332,10 @@ function Feed({}: Props) {
           }
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: 80, // يعوض المساحة السفلية ويخلي المؤشر يبان
+            paddingTop: 12,
+          }}
         />
       </View>
     </View>
