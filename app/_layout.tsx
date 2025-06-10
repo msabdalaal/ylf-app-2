@@ -45,21 +45,6 @@ function RootLayoutComponent() {
   const { isConnected, checkConnection } = useNetwork();
   const [serverDown, setServerDown] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
-      await checkConnection();
-
-      try {
-        await get("posts/getAll", { params: { page: 1 } });
-        setServerDown(false);
-      } catch (err) {
-        console.error("Server might be down:", err);
-        setServerDown(true);
-      }
-    };
-    init();
-  }, []);
-
   const { updateState, state } = useContext(ApplicationContext);
   const [loaded] = useFonts({
     SF_pro: require("../assets/fonts/SF-Pro.ttf"),
@@ -85,6 +70,16 @@ function RootLayoutComponent() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      await checkConnection();
+
+      try {
+        await get("auth/status");
+        setServerDown(false);
+      } catch (err) {
+        console.error("Server might be down:", err);
+        setServerDown(true);
+      }
+
       await checkToken();
       SplashScreen.hideAsync();
     };
@@ -140,7 +135,7 @@ function RootLayoutComponent() {
   if (serverDown) {
     return <ServerErrorScreen onRefresh={checkConnection} />;
   }
-  
+
   return (
     <>
       <Stack
