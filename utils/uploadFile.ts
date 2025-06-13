@@ -1,3 +1,4 @@
+import { del } from "@/hooks/axios";
 import { getValueFor } from "@/hooks/storage";
 
 export default async function uploadFile(
@@ -23,6 +24,17 @@ export default async function uploadFile(
   if (response.ok) {
     return data.path;
   } else {
+    console.log(data);
     alert(data.message);
+  }
+}
+
+export async function deleteFile(uri: string) {
+  try {
+    await del("upload/delete", {
+      path: uri,
+    });
+  } catch (error) {
+    console.log(error);
   }
 }

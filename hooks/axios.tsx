@@ -48,10 +48,15 @@ export const patch = async (
 
 export const del = async (
   url: string,
+  data?: any,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse> => {
   const apiUrl = `https://mobile.ylf-eg.org/api/`;
   const token = await getValueFor("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-  return axios.delete(apiUrl + url, { headers, ...config });
+  return axios.delete(apiUrl + url, {
+    headers,
+    data,
+    ...config,
+  });
 };
