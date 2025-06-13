@@ -4,7 +4,6 @@ import { useContext, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
-SplashScreen.preventAutoHideAsync();
 import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
@@ -68,18 +67,21 @@ function RootLayoutComponent() {
     }
   };
 
+  const checkServerDown = async () => {
+    try {
+      await get("auth/status");
+      setServerDown(false);
+    } catch (err) {
+      console.error("Server might be down:", err);
+      setServerDown(true);
+    }
+  };
+
   useEffect(() => {
     const initializeApp = async () => {
       await checkConnection();
 
-      try {
-        await get("auth/status");
-        setServerDown(false);
-      } catch (err) {
-        console.error("Server might be down:", err);
-        setServerDown(true);
-      }
-
+      await checkServerDown();
       await checkToken();
       SplashScreen.hideAsync();
     };
@@ -133,7 +135,7 @@ function RootLayoutComponent() {
   }
 
   if (serverDown) {
-    return <ServerErrorScreen onRefresh={checkConnection} />;
+    return <ServerErrorScreen onRefresh={checkServerDown} />;
   }
 
   return (
