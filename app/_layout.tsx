@@ -43,6 +43,8 @@ export default function RootLayout() {
 function RootLayoutComponent() {
   const { isConnected, checkConnection } = useNetwork();
   const [serverDown, setServerDown] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  // const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   const { updateState, state } = useContext(ApplicationContext);
   const [loaded] = useFonts({
@@ -51,21 +53,21 @@ function RootLayoutComponent() {
     Poppins: require("../assets/fonts/Poppins.ttf"),
     Poppins_Medium: require("../assets/fonts/Poppins-Medium.ttf"),
   });
-  const router = useRouter();
   const { expoPushToken: newToken, notification } = usePushNotifications();
 
-  const checkToken = async () => {
-    const token = await getValueFor("token");
-    const hasViewedWelcome = await getValueFor("hasViewedWelcome");
-    if (token) {
-      router.replace("/feed");
-    } else if (hasViewedWelcome === "true") {
-      router.replace("/login");
-    } else {
-      router.replace("/");
-      await save("hasViewedWelcome", "true");
-    }
-  };
+  // const checkToken = async (): Promise<string> => {
+  //   const token = await getValueFor("token");
+  //   const hasViewedWelcome = await getValueFor("hasViewedWelcome");
+
+  //   if (token) {
+  //     return "(main)";
+  //   } else if (hasViewedWelcome === "true") {
+  //     return "/login";
+  //   } else {
+  //     await save("hasViewedWelcome", "true");
+  //     return "/";
+  //   }
+  // };
 
   const checkServerDown = async () => {
     try {
@@ -80,25 +82,16 @@ function RootLayoutComponent() {
   useEffect(() => {
     const initializeApp = async () => {
       await checkConnection();
-
       await checkServerDown();
-      await checkToken();
-      SplashScreen.hideAsync();
+      // const target = await checkToken();
+      // console.log(target);
+      // setInitialRoute(target);
+      setIsReady(true);
+      await SplashScreen.hideAsync();
     };
-
-    let timer: NodeJS.Timeout | null = null;
     if (loaded) {
       initializeApp();
-    } else {
-      timer = setTimeout(() => {
-        SplashScreen.hideAsync();
-      }, 2000);
     }
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
   }, [loaded]);
 
   useEffect(() => {
@@ -126,10 +119,6 @@ function RootLayoutComponent() {
     }
   }, [notification]);
 
-  if (!loaded) {
-    return null;
-  }
-
   if (!isConnected) {
     return <NoInternet onRefresh={checkConnection} />;
   }
@@ -137,10 +126,13 @@ function RootLayoutComponent() {
   if (serverDown) {
     return <ServerErrorScreen onRefresh={checkServerDown} />;
   }
-
+  // if (!loaded || !isReady || !initialRoute) {
+  //   return null;
+  // }
   return (
     <>
       <Stack
+        // initialRouteName={initialRoute}
         screenOptions={{
           headerShown: false,
           gestureDirection: "horizontal",

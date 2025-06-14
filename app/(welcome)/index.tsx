@@ -1,67 +1,28 @@
-import Backdrop from "@/components/backdrop";
-import PrimaryLink from "@/components/links/primary";
-import SkinnyLink from "@/components/links/skinny";
-import { Colors } from "@/constants/Colors";
-import { useTheme } from "@/context/ThemeContext";
-import { getValueFor, remove, save } from "@/hooks/storage";
+// app/(welcome)/index.tsx
+import { useEffect } from "react";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { Image, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { getValueFor, save } from "@/hooks/storage";
 
-export default function index() {
+export default function WelcomeRedirect() {
   const router = useRouter();
-  const { theme } = useTheme();
 
-  return (
-    <SafeAreaView
-      className="flex-1 w-full container justify-center gap-2"
-      style={{
-        backgroundColor: Colors[theme ?? "light"].background,
-      }}
-    >
-      <Backdrop />
-      <View className="h-64 mb-6">
-        <Image
-          source={require("@/assets/images/welcome/welcome1.png")}
-          className="h-full"
-          style={{ width: "100%", objectFit: "contain" }}
-        />
-      </View>
-      <Text
-        className="text-center text-lg mb-5 dark:text-white"
-        style={{ fontFamily: "SF_pro", fontWeight: "bold" }}
-      >
-        Meet Awesome People & Enjoy yourself
-      </Text>
-      <Text
-        className="text-center text-lg font-light mb-5 dark:text-white"
-        style={{ fontFamily: "SF_pro" }}
-      >
-        Youth Leaders Foundation (YLF) is a non-profit organization with a
-        registered number 809 for 2017 providing targeted services to find
-        hidden calibers to support and strengthen Egypt's youth segment.
-      </Text>
-      <View className="w-full flex-row justify-center items-center gap-2 mb-8">
-        <View
-          className="h-2 w-6 rounded-full"
-          style={{ backgroundColor: Colors.light.primary }}
-        ></View>
-        <View
-          className="h-2 w-2 rounded-full"
-          style={{ backgroundColor: "#C4C4C4" }}
-        ></View>
-        <View
-          className="h-2 w-2 rounded-full"
-          style={{ backgroundColor: "#C4C4C4" }}
-        ></View>
-      </View>
-      <PrimaryLink href="/welcome2" className="mt-5">
-        Next
-      </PrimaryLink>
-      <SkinnyLink replace={true} href="/login">
-        Skip
-      </SkinnyLink>
-    </SafeAreaView>
-  );
+  useEffect(() => {
+    const checkAndRedirect = async () => {
+      const token = await getValueFor("token");
+      const hasViewedWelcome = await getValueFor("hasViewedWelcome");
+
+      if (token) {
+        router.replace("/(main)/feed");
+      } else if (hasViewedWelcome === "true") {
+        router.replace("/(auth)/login");
+      } else {
+        await save("hasViewedWelcome", "true");
+        router.replace("/(welcome)/welcome1"); // move your actual welcome screen to welcome.tsx
+      }
+    };
+
+    checkAndRedirect();
+  }, []);
+
+  return null;
 }

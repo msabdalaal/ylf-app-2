@@ -51,6 +51,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs
+        initialRouteName="feed"
         screenOptions={{
           animation: "none",
           tabBarActiveTintColor: "#015CA4",

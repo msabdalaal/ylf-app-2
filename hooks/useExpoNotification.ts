@@ -16,7 +16,7 @@ export const usePushNotifications = (): PushNotificationState => {
   const [notification, setNotification] = useState<
     Notifications.Notification | undefined
   >();
-   Notifications.setNotificationHandler({
+  Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
       shouldPlaySound: true,
@@ -29,10 +29,10 @@ export const usePushNotifications = (): PushNotificationState => {
 
   async function registerForPushNotificationsAsync() {
     if (!Device.isDevice) {
-      Alert.alert(
-        "Push Notifications",
-        "Use a physical device for push notifications."
-      );
+      // Alert.alert(
+      //   "Push Notifications",
+      //   "Use a physical device for push notifications."
+      // );
       return;
     }
 
