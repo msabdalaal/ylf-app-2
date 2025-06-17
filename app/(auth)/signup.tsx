@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import PrimaryButton from "@/components/buttons/primary";
@@ -15,7 +15,7 @@ import { useTheme } from "@/context/ThemeContext";
 import InitialSignup from "@/components/signup/InitialSignup";
 import IdUpload from "@/components/signup/IdUpload";
 import PasswordSetup from "@/components/signup/PasswordSetup";
-import UserInfo from "@/components/signup/UserInfo";
+import UserInfo, { UserInfoRef } from "@/components/signup/UserInfo";
 import dayjs from "dayjs";
 import { useLoading } from "@/context/LoadingContext";
 import AvatarUpload from "@/components/signup/AvatarUpload";
@@ -151,6 +151,7 @@ const SignUp = () => {
       redirect
     );
   };
+  const userInfoRef = useRef<UserInfoRef>(null);
 
   const handleContinue = async () => {
     switch (step) {
@@ -190,19 +191,12 @@ const SignUp = () => {
         break;
       case 5:
         // require user info
-        if (!formData.phoneNumber) return alert("Phone number is required");
-        if (!formData.dateOfBirth) return alert("Date of birth is required");
-        if (!formData.jobTitle) return alert("Job title is required");
-        if (!formData.age) return alert("Age is required");
-        if (!formData.address) return alert("Address is required");
-        if (!formData.college) return alert("College is required");
-        if (!formData.university) return alert("University is required");
-        if (!formData.languages?.[0]) {
-          console.log(formData);
-          return alert("At least one language is required");
+        if (userInfoRef.current) {
+          const isValid = userInfoRef.current.validate();
+          if (!isValid) {
+            return; // Don't proceed if validation fails
+          }
         }
-        if (!formData.skills?.[0])
-          return alert("At least one skill is required");
         await handleSignUp();
         break;
     }
@@ -232,17 +226,8 @@ const SignUp = () => {
         "Work experience"
       );
 
-      // Check languages
-      let languagesValid = true;
-      formData.languages.forEach((lang) => {
-        if (validateLanguage(lang)) languagesValid = false;
-      });
-
-      // Check skills
-      let skillsValid = true;
-      formData.skills.forEach((skill) => {
-        if (validateSkill(skill)) skillsValid = false;
-      });
+      const languageError = validateLanguage(formData.languages);
+      const skillError = validateSkill(formData.skills);
 
       return !(
         phoneError ||
@@ -253,8 +238,8 @@ const SignUp = () => {
         universityError ||
         collegeError ||
         experiencesError ||
-        !languagesValid ||
-        !skillsValid
+        languageError ||
+        skillError
       );
     }
 
@@ -268,10 +253,9 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
     if (!validateAllFields()) {
-      alert("Please fix the errors before submitting");
+      // alert("Please fix the errors before submitting");
       return;
     }
-
     const realFormData = new FormData();
     Object.entries(formData).forEach(([key, val]) => {
       if (key === "id_front" || key === "id_back" || key === "avatar") {
@@ -352,6 +336,7 @@ const SignUp = () => {
       case 5:
         return (
           <UserInfo
+            ref={userInfoRef}
             formData={formData}
             setFormData={setFormData}
             onBack={() => setStep(4)}

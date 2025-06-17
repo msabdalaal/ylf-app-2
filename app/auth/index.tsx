@@ -35,9 +35,6 @@ import {
   validateAge,
   validateLanguage,
   validateSkill,
-  validateEmail,
-  validatePassword,
-  validateName,
 } from "@/utils/validation";
 import { AxiosError } from "axios";
 import MultiSelect from "@/components/inputs/multiSelect";
@@ -112,36 +109,6 @@ export default function AuthRedirectScreen() {
     }
 
     setErrors((prev) => ({ ...prev, [field]: error || "" }));
-    return error;
-  };
-
-  const validateLanguageAt = (index: number, value: string): string | null => {
-    const error = validateLanguage(value);
-    if (error) {
-      setErrors((prev) => ({
-        ...prev,
-        [`language_${index}`]: error,
-      }));
-    } else {
-      const newErrors = { ...errors };
-      delete newErrors[`language_${index}`];
-      setErrors(newErrors);
-    }
-    return error;
-  };
-
-  const validateSkillAt = (index: number, value: string): string | null => {
-    const error = validateSkill(value);
-    if (error) {
-      setErrors((prev) => ({
-        ...prev,
-        [`skill_${index}`]: error,
-      }));
-    } else {
-      const newErrors = { ...errors };
-      delete newErrors[`skill_${index}`];
-      setErrors(newErrors);
-    }
     return error;
   };
 
@@ -223,13 +190,30 @@ export default function AuthRedirectScreen() {
 
   // pickAvatar or ID
   const pickImage = async (
-    setter: React.Dispatch<React.SetStateAction<string | null>>
+    setter: React.Dispatch<React.SetStateAction<string | null>>,
+    type?: 'avatar' | 'idFront' | 'idBack'
   ) => {
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-    if (!res.canceled) setter(res.assets[0].uri);
+    if (!res.canceled) {
+      setter(res.assets[0].uri);
+      // Clear relevant errors when an image is selected
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        if (type === 'avatar') {
+          delete newErrors.avatar;
+        } else if (type === 'idFront') {
+          delete newErrors.idFront;
+          delete newErrors.idUpload;
+        } else if (type === 'idBack') {
+          delete newErrors.idBack;
+          delete newErrors.idUpload;
+        }
+        return newErrors;
+      });
+    }
   };
 
   // upload avatar
@@ -283,105 +267,67 @@ export default function AuthRedirectScreen() {
   };
 
   const handleComplete = async () => {
-    // Validate all fields first
+    // Reset all errors
+    setErrors({});
     let hasErrors = false;
 
-    // Validate basic fields
+    // Validate avatar
     if (missingFields.avatar && !avatarUri) {
-      Alert.alert("Error", "Please upload profile picture");
-      return;
+      setErrors(prev => ({ ...prev, avatar: "Please upload profile picture" }));
+      hasErrors = true;
     }
 
-    if (missingFields.phoneNumber) {
-      const phoneError = validateField("phoneNumber", formData.phoneNumber);
-      if (phoneError) hasErrors = true;
-    }
+    // Validate basic fields
+    const validations = [
+      { field: 'phoneNumber', value: formData.phoneNumber, required: missingFields.phoneNumber },
+      { field: 'dateOfBirth', value: formData.dateOfBirth ? new Date(formData.dateOfBirth) : null, required: missingFields.dateOfBirth },
+      { field: 'university', value: formData.university, required: missingFields.university },
+      { field: 'college', value: formData.college, required: missingFields.college },
+      { field: 'jobTitle', value: formData.jobTitle, required: missingFields.jobTitle },
+      { field: 'age', value: formData.age, required: missingFields.age },
+      { field: 'address', value: formData.address, required: missingFields.address },
+      { field: 'experiences', value: formData.experiences, required: missingFields.experiences }
+    ];
 
-    if (missingFields.dateOfBirth) {
-      const dobError = validateField(
-        "dateOfBirth",
-        formData.dateOfBirth ? new Date(formData.dateOfBirth) : null
-      );
-      if (dobError) hasErrors = true;
-    }
-
-    if (missingFields.university) {
-      const uniError = validateField("university", formData.university);
-      if (uniError) hasErrors = true;
-    }
-
-    if (missingFields.college) {
-      const collegeError = validateField("college", formData.college);
-      if (collegeError) hasErrors = true;
-    }
-
-    if (missingFields.jobTitle) {
-      const jobError = validateField("jobTitle", formData.jobTitle);
-      if (jobError) hasErrors = true;
-    }
-
-    if (missingFields.age) {
-      const ageError = validateField("age", formData.age);
-      if (ageError) hasErrors = true;
-    }
-
-    if (missingFields.address) {
-      const addressError = validateField("address", formData.address);
-      if (addressError) hasErrors = true;
-    }
+    validations.forEach(({ field, value, required }) => {
+      if (required) {
+        const error = validateField(field, value);
+        if (error) hasErrors = true;
+      }
+    });
 
     // Validate languages
     if (missingFields.languages) {
-      let languageErrors = false;
-      formData.languages.forEach((lang, index) => {
-        const langError = validateLanguageAt(index, lang);
-        if (langError) languageErrors = true;
-      });
-
-      if (formData.languages.length === 0 || !formData.languages[0]) {
-        setErrors((prev) => ({
-          ...prev,
-          languages: "At least one language is required",
-        }));
-        languageErrors = true;
+      const languageError = validateLanguage(formData.languages);
+      if (languageError) {
+        setErrors(prev => ({ ...prev, languages: languageError }));
+        hasErrors = true;
       }
-
-      if (languageErrors) hasErrors = true;
     }
 
     // Validate skills
     if (missingFields.skills) {
-      let skillErrors = false;
-      formData.skills.forEach((skill, index) => {
-        const skillError = validateSkillAt(index, skill);
-        if (skillError) skillErrors = true;
-      });
-
-      if (formData.skills.length === 0 || !formData.skills[0]) {
-        setErrors((prev) => ({
-          ...prev,
-          skills: "At least one skill is required",
-        }));
-        skillErrors = true;
+      const skillError = validateSkill(formData.skills);
+      if (skillError) {
+        setErrors(prev => ({ ...prev, skills: skillError }));
+        hasErrors = true;
       }
-
-      if (skillErrors) hasErrors = true;
     }
 
     // Validate ID uploads
-    if (
-      (missingFields.idFront || missingFields.idBack) &&
-      (!idFront || !idBack)
-    ) {
-      Alert.alert("Error", "Please upload both sides of your ID");
-      return;
+    if (missingFields.idFront || missingFields.idBack) {
+      if (!idFront || !idBack) {
+        setErrors(prev => ({
+          ...prev,
+          idUpload: "Please upload both sides of your ID",
+          ...(!idFront && { idFront: "Front side is required" }),
+          ...(!idBack && { idBack: "Back side is required" })
+        }));
+        hasErrors = true;
+      }
     }
 
     if (hasErrors) {
-      Alert.alert(
-        "Error",
-        "Please fix the validation errors before continuing"
-      );
       return;
     }
 
@@ -453,12 +399,6 @@ export default function AuthRedirectScreen() {
               Profile Picture
             </Text>
             {avatarUri ? (
-              // <View className="flex-row justify-between items-center mb-2">
-              //   <Text>Selected</Text>
-              //   <TouchableOpacity onPress={() => setAvatarUri(null)}>
-              //     <Text className="text-red-500">Remove</Text>
-              //   </TouchableOpacity>
-              // </View>
               <View className="items-center mb-2">
                 <Image
                   source={{ uri: avatarUri }}
@@ -475,14 +415,23 @@ export default function AuthRedirectScreen() {
               </View>
             ) : (
               <TouchableOpacity
-                onPress={() => pickImage(setAvatarUri)}
-                className="border border-dashed border-gray-400 rounded-lg p-4 flex-row items-center"
+                onPress={() => pickImage(setAvatarUri, 'avatar')}
+                className={`border ${
+                  errors.avatar ? 'border-red-500' : 'border-gray-400'
+                } border-dashed rounded-lg p-4 flex-row items-center`}
               >
                 <Upload />
-                <Text className="ml-2 dark:text-white">
+                <Text className={`ml-2 ${
+                  errors.avatar ? 'text-red-500' : 'dark:text-white'
+                }`}>
                   Upload Profile Picture
                 </Text>
               </TouchableOpacity>
+            )}
+            {errors.avatar && (
+              <Text className="text-red-500 text-sm mt-1">
+                {errors.avatar}
+              </Text>
             )}
           </View>
         )}
@@ -598,6 +547,11 @@ export default function AuthRedirectScreen() {
             >
               National ID
             </Text>
+            {errors.idUpload && (
+              <Text className="text-red-500 text-sm mb-2">
+                {errors.idUpload}
+              </Text>
+            )}
             {missingFields.idFront && (
               <View className="mb-4">
                 <Text className="mb-1 dark:text-white">Front Side</Text>
@@ -610,12 +564,23 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImage(setIdFront)}
-                    className="border border-dashed border-gray-400 rounded-lg p-4 flex-row items-center"
+                    onPress={() => pickImage(setIdFront, 'idFront')}
+                    className={`border ${
+                      errors.idFront ? 'border-red-500' : 'border-gray-400'
+                    } border-dashed rounded-lg p-4 flex-row items-center`}
                   >
                     <Upload />
-                    <Text className="ml-2 dark:text-white">Upload Front</Text>
+                    <Text className={`ml-2 ${
+                      errors.idFront ? 'text-red-500' : 'dark:text-white'
+                    }`}>
+                      Upload Front
+                    </Text>
                   </TouchableOpacity>
+                )}
+                {errors.idFront && (
+                  <Text className="text-red-500 text-sm mt-1">
+                    {errors.idFront}
+                  </Text>
                 )}
               </View>
             )}
@@ -631,12 +596,23 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImage(setIdBack)}
-                    className="border border-dashed border-gray-400 rounded-lg p-4 flex-row items-center"
+                    onPress={() => pickImage(setIdBack, 'idBack')}
+                    className={`border ${
+                      errors.idBack ? 'border-red-500' : 'border-gray-400'
+                    } border-dashed rounded-lg p-4 flex-row items-center`}
                   >
                     <Upload />
-                    <Text className="ml-2 dark:text-white">Upload Back</Text>
+                    <Text className={`ml-2 ${
+                      errors.idBack ? 'text-red-500' : 'dark:text-white'
+                    }`}>
+                      Upload Back
+                    </Text>
                   </TouchableOpacity>
+                )}
+                {errors.idBack && (
+                  <Text className="text-red-500 text-sm mt-1">
+                    {errors.idBack}
+                  </Text>
                 )}
               </View>
             )}
@@ -646,57 +622,6 @@ export default function AuthRedirectScreen() {
         {/* Languages */}
         {missingFields.languages && (
           <View className="mt-6">
-            {/* {formData.languages.map((lng, ix) => (
-              <View
-                key={ix}
-                className="relative flex-row items-center gap-2 mb-3"
-              >
-                <View className="flex-1">
-                  <TextInputComponent
-                    placeholder="Language"
-                    value={lng}
-                    onChange={(v) => {
-                      const arr = [...formData.languages];
-                      arr[ix] = v;
-                      setFormData((p) => ({ ...p, languages: arr }));
-                      validateLanguageAt(ix, v);
-                    }}
-                    error={errors[`language_${ix}`]}
-                  />
-                </View>
-                <View className="flex-row items-center gap-2">
-                  {ix === formData.languages.length - 1 && lng.trim() && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        setFormData((p) => ({
-                          ...p,
-                          languages: [...p.languages, ""],
-                        }))
-                      }
-                      className="bg-primary py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
-                        +
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {formData.languages.length > 1 && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        const arr = formData.languages.filter(
-                          (_, i) => i !== ix
-                        );
-                        setFormData((p) => ({ ...p, languages: arr }));
-                      }}
-                      className="bg-red-500 py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg">×</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            ))} */}
-
             <MultiSelect
               label="Language"
               options={["English", "Arabic", "French", "Spanish"]}
@@ -732,60 +657,6 @@ export default function AuthRedirectScreen() {
         {/* Skills */}
         {missingFields.skills && (
           <View className="mt-6">
-            {/* <Text
-              className="mb-2 dark:text-white"
-              style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
-            >
-              Skills
-            </Text> */}
-            {/* {formData.skills.map((sk, ix) => (
-              <View
-                key={ix}
-                className="relative flex-row items-center gap-2 mb-3"
-              >
-                <View className="flex-1">
-                  <TextInputComponent
-                    placeholder="Skill"
-                    value={sk}
-                    onChange={(v) => {
-                      const arr = [...formData.skills];
-                      arr[ix] = v;
-                      setFormData((p) => ({ ...p, skills: arr }));
-                      validateSkillAt(ix, v);
-                    }}
-                    error={errors[`skill_${ix}`]}
-                  />
-                </View>
-                <View className="flex-row items-center gap-2">
-                  {ix === formData.skills.length - 1 && sk.trim() && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        setFormData((p) => ({
-                          ...p,
-                          skills: [...p.skills, ""],
-                        }))
-                      }
-                      className="bg-primary py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg bg-green-500 py-1 px-2 rounded-lg">
-                        +
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {formData.skills.length > 1 && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        const arr = formData.skills.filter((_, i) => i !== ix);
-                        setFormData((p) => ({ ...p, skills: arr }));
-                      }}
-                      className="bg-red-500 py-1 px-2 rounded-lg"
-                    >
-                      <Text className="text-white font-bold text-lg">×</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            ))} */}
             <MultiSelect
               label="Skills"
               value={formData.skills}

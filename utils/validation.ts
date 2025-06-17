@@ -56,12 +56,12 @@ export const validateDateOfBirth = (date: Date | null): string | null => {
   return null;
 };
 
-export const validateLanguage = (language: string): string | null => {
-  if (!language) return "Language cannot be empty";
+export const validateLanguage = (language: string[]): string | null => {
+  if (!language.length) return "Language cannot be empty";
   return null;
 };
 
-export const validateSkill = (skill: string): string | null => {
-  if (!skill) return "Skill cannot be empty";
+export const validateSkill = (skill: string[]): string | null => {
+  if (!skill.length) return "Skill cannot be empty";
   return null;
 };

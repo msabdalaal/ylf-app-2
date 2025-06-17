@@ -151,7 +151,9 @@ const Login = () => {
           label="Email Address"
           placeholder="Enter Your Email"
           value={formData.email}
-          onChange={(text) => setFormData({ ...formData, email: text })}
+          onChange={(text) =>
+            setFormData({ ...formData, email: text.toLocaleLowerCase() })
+          }
         />
         <TextInputComponent
           label="Password"
