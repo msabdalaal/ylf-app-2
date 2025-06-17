@@ -10,6 +10,10 @@ import {
 import { produce } from "immer";
 import { User } from "@/constants/types";
 import { get, post } from "@/hooks/axios";
+import {
+  registerBackgroundTask,
+  unregisterBackgroundTask,
+} from "@/utils/backgroundTasks";
 import { getPendingComments, retryPendingComments } from "@/utils/commentQueue";
 import { useNetInfo } from "@react-native-community/netinfo";
 
@@ -51,6 +55,7 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     [dispatch]
   );
   const netInfo = useNetInfo();
+  const { isInternetReachable } = netInfo;
 
   const getProfile = useCallback(async () => {
     try {
@@ -77,16 +82,50 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     }
   }, [state.expoPushToken, state.user]);
 
-  // Load pending comments and set up retry mechanism
+  // Handle pending comments with both foreground and background retries
   useEffect(() => {
-    // Set up interval to retry pending comments
-    const interval = setInterval(() => {
-      console.log("Internet is reachable, retrying pending comments");
-      retryPendingComments();
-    }, 60000); // Retry every minute
+    let isMounted = true;
+    let retryInterval: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
-  }, []);
+    const retryPending = async () => {
+      if (!isInternetReachable) return;
+      
+      try {
+        const pending = await getPendingComments();
+        if (pending.length > 0 && isMounted) {
+          console.log(`Found ${pending.length} pending comments, retrying...`);
+          await retryPendingComments();
+        }
+      } catch (error) {
+        console.error("Error retrying pending comments:", error);
+      }
+    };
+
+    const initBackgroundTasks = async () => {
+      try {
+        // Register background task for when app is in background
+        await registerBackgroundTask();
+        
+        // Initial retry on app start
+        await retryPending();
+        
+        // Set up foreground retry interval (30 seconds)
+        retryInterval = setInterval(retryPending, 30000);
+        
+      } catch (error) {
+        console.error("Error initializing comment retry system:", error);
+      }
+    };
+
+    initBackgroundTasks();
+
+    // Clean up
+    return () => {
+      isMounted = false;
+      if (retryInterval) clearInterval(retryInterval);
+      unregisterBackgroundTask();
+    };
+  }, [isInternetReachable]);
 
   useEffect(() => {
     if (state.user === null) {
