@@ -10,6 +10,8 @@ import {
 import { produce } from "immer";
 import { User } from "@/constants/types";
 import { get, post } from "@/hooks/axios";
+import { getPendingComments, retryPendingComments } from "@/utils/commentQueue";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export type State = {
   user: User | null;
@@ -48,6 +50,7 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
     () => (type: string, payload: any) => dispatch({ type, payload }),
     [dispatch]
   );
+  const netInfo = useNetInfo();
 
   const getProfile = useCallback(async () => {
     try {
@@ -73,6 +76,17 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
       setTimeout(saveToken, 5000);
     }
   }, [state.expoPushToken, state.user]);
+
+  // Load pending comments and set up retry mechanism
+  useEffect(() => {
+    // Set up interval to retry pending comments
+    const interval = setInterval(() => {
+      console.log("Internet is reachable, retrying pending comments");
+      retryPendingComments();
+    }, 60000); // Retry every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (state.user === null) {

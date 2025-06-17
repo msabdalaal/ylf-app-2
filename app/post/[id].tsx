@@ -78,23 +78,7 @@ export default function Post() {
         hideLoading();
       });
   };
-  // Load pending comments and set up retry mechanism
-  useEffect(() => {
-    const loadPendingComments = async () => {
-      const pending = await getPendingComments();
-      setPendingComments(pending.filter((c) => c.postId === id));
-    };
-    loadPendingComments();
 
-    // Set up interval to retry pending comments
-    const interval = setInterval(() => {
-      if (netInfo.isInternetReachable) {
-        retryPendingComments();
-      }
-    }, 60000); // Retry every minute
-
-    return () => clearInterval(interval);
-  }, [id, netInfo.isInternetReachable]);
 
   // Update online status
   useEffect(() => {
