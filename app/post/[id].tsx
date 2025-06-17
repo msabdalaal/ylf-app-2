@@ -7,26 +7,47 @@ import { get, post as AxiosPost, del } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, Text, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  View,
+  Keyboard,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Comment from "@/components/posts/comment";
 import TextInputComponent from "@/components/inputs/textInput";
 import SkinnyButton from "@/components/buttons/skinny";
-import ImagePost from "@/components/posts/imagePost";
-import VideoPost from "@/components/posts/videoPost";
-import EventPost from "@/components/posts/eventPost";
 import { setupNotifications } from "@/utils/notificationHandler";
 import { useTheme } from "@/context/ThemeContext";
 import { useLoading } from "@/context/LoadingContext";
 import PostComponent from "@/components/posts/generalPost";
+import { v4 as uuidv4 } from "uuid";
+import {
+  addPendingComment,
+  getPendingComments,
+  removePendingComment,
+  retryPendingComments,
+  PendingComment,
+} from "@/utils/commentQueue";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { useFocusEffect } from "expo-router";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 export default function Post() {
+  const headerHeight = useHeaderHeight();
   const [post, setPost] = useState<Post>();
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
+  const netInfo = useNetInfo();
+  const [pendingComments, setPendingComments] = useState<PendingComment[]>([]);
+  const [isOnline, setIsOnline] = useState(true);
   useEffect(() => {
     const subscription = setupNotifications();
     return () => subscription.remove();
@@ -57,9 +78,35 @@ export default function Post() {
         hideLoading();
       });
   };
+  // Load pending comments and set up retry mechanism
   useEffect(() => {
-    getPost();
-  }, []);
+    const loadPendingComments = async () => {
+      const pending = await getPendingComments();
+      setPendingComments(pending.filter((c) => c.postId === id));
+    };
+    loadPendingComments();
+
+    // Set up interval to retry pending comments
+    const interval = setInterval(() => {
+      if (netInfo.isInternetReachable) {
+        retryPendingComments();
+      }
+    }, 60000); // Retry every minute
+
+    return () => clearInterval(interval);
+  }, [id, netInfo.isInternetReachable]);
+
+  // Update online status
+  useEffect(() => {
+    setIsOnline(!!netInfo.isInternetReachable);
+  }, [netInfo.isInternetReachable]);
+
+  // Load post and comments
+  useFocusEffect(
+    React.useCallback(() => {
+      getPost();
+    }, [])
+  );
 
   const handleLikePost = async (id: string) => {
     await AxiosPost("posts/likePost/" + id, {})
@@ -80,22 +127,54 @@ export default function Post() {
   };
 
   const handlePostComment = async () => {
-    setLoading(true);
-    await AxiosPost("comments/create/" + id, {
-      content: newComment,
-    })
-      .then((res) => {
-        setComments((prev) => {
-          return [...prev, res.data.data];
-        });
-      })
-      .catch((err) => {
-        if (err instanceof AxiosError) console.log(err.response?.data.message);
-      })
-      .finally(() => {
-        setNewComment("");
-        setLoading(false);
+    if (!newComment.trim()) return;
+    const tempId = `temp_${Date.now()}`;
+    console.log(tempId);
+    const commentData = {
+      id: tempId,
+      postId: id as string,
+      content: newComment.trim(),
+      user: {
+        // Add minimal user data for local display
+        id: "current-user",
+        name: "You",
+        avatar: null,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Add to local state immediately for instant feedback
+    setComments((prev) => [commentData as unknown as CommentType, ...prev]);
+
+    // Add to pending comments queue
+    await addPendingComment({
+      id: tempId,
+      postId: id as string,
+      content: newComment.trim(),
+    });
+
+    // Clear input
+    setNewComment("");
+    setLoading(false);
+
+    // Try to post to server
+    try {
+      const response = await AxiosPost("comments/create/" + id, {
+        content: newComment.trim(),
       });
+
+      // Update the comment with server data when successful
+      setComments((prev) =>
+        prev.map((c) => (c.id === tempId ? response.data.data : c))
+      );
+
+      // Remove from pending queue
+      await removePendingComment(tempId);
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+      // The comment remains in the queue and will be retried
+    }
   };
 
   const deleteComment = async (commentId: string) => {
@@ -135,87 +214,111 @@ export default function Post() {
   }, [getPrograms]);
 
   return (
-    <SafeAreaView
-      className="container bg-white flex-1"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1 bg-white"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? headerHeight : 0}
     >
-      <BackButton className="my-5" />
-      {/* {post?.userId && post && post.type == "event" ? (
-        <EventPost
-          className="mt-8"
-          post={post}
-          handleLike={(id: string) => handleLikePost(id)}
-        />
-      ) : post && post.images.length > 0 ? (
-        post.images[0].path.endsWith(".mp4") ? (
-          <VideoPost
-            handleLike={(id: string) => handleLikePost(id)}
-            post={post}
-            className="mt-8"
-            showAll={true}
-          />
-        ) : (
-          <ImagePost
-            post={post!}
-            handleLike={(id) => handleLikePost(id)}
-            className="mt-8"
-            showAll={true}
-          />
-        )
-      ) : (
-        <NormalPost
-          post={post!}
-          handleLike={(id) => handleLikePost(id)}
-          className="mt-8"
-          showAll={true}
-        />
-      )} */}
-      {post && (
-        <PostComponent
-          post={post}
-          handleLike={handleLikePost}
-          color={
-            programs.find((p) => p.id === post.programId)?.accentColor || ""
-          }
-        />
-      )}
-      <Text
-        className="mt-6"
+      <SafeAreaView className="flex-1">
+        <ScrollView 
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <View className="container px-4">
+            <BackButton className="my-5" />
+            {post && (
+              <PostComponent
+                post={post}
+                handleLike={handleLikePost}
+                color={
+                  programs.find((p) => p.id === post.programId)?.accentColor || ""
+                }
+              />
+            )}
+            <Text
+              className="mt-6"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: Colors[theme == "dark" ? "dark" : "light"].primary,
+              }}
+            >
+              Comments
+            </Text>
+          </View>
+
+          <View className="flex-1 px-4">
+            {comments.length > 0 ? (
+              <FlatList
+                data={comments}
+                scrollEnabled={false}
+                renderItem={({ item }) => (
+                  <View
+                    className={`relative mb-3 ${
+                      pendingComments.some((c) => c.id === item.id)
+                        ? "opacity-70"
+                        : ""
+                    }`}
+                  >
+                    <Comment onDelete={deleteComment} comment={item} />
+                    {pendingComments.some((c) => c.id === item.id) && (
+                      <View className="absolute top-1 right-1 bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 rounded-full">
+                        <Text className="text-xs text-yellow-800 dark:text-yellow-200">
+                          {isOnline
+                            ? "Sending..."
+                            : "Offline - will send when online"}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
+                keyExtractor={(comment) => comment.id}
+                contentContainerStyle={{
+                  paddingBottom: 24,
+                }}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : (
+              <Text className="dark:text-white text-center py-4">
+                There are no comments yet
+              </Text>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+
+      <View
+        className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 pt-3 pb-6"
         style={{
-          fontFamily: "Poppins_Medium",
-          color: Colors[theme == "dark" ? "dark" : "light"].primary,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 5,
+          paddingBottom: Platform.OS === "ios" ? 34 : 24, // Extra padding for iOS home indicator
         }}
       >
-        Comments
-      </Text>
-      <FlatList
-        className="mt-3 flex-1"
-        data={comments}
-        renderItem={(comment) => (
-          <Comment onDelete={deleteComment} comment={comment.item} />
-        )}
-        keyExtractor={(comment) => comment.id}
-        ListEmptyComponent={() => (
-          <Text className="dark:text-white">There is no comments yet</Text>
-        )}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        showsVerticalScrollIndicator={false}
-      />
-      <View className="pt-2 pb-3 flex-row items-center gap-4">
-        <TextInputComponent
-          value={newComment}
-          onChange={setNewComment}
-          className="flex-1"
-          onEnter={handlePostComment}
-        />
-        <View className="">
-          <SkinnyButton onPress={handlePostComment} className="m-0 px-0">
+        <View className="flex-row items-center gap-3">
+          <TextInputComponent
+            value={newComment}
+            onChange={setNewComment}
+            className="flex-1"
+            onEnter={handlePostComment}
+            placeholder="Write a comment..."
+          />
+          <SkinnyButton
+            onPress={handlePostComment}
+            className="m-0 px-4 py-2 self-end"
+            disabled={!newComment.trim()}
+          >
             {loading ? "Posting..." : "Post"}
           </SkinnyButton>
         </View>
       </View>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
