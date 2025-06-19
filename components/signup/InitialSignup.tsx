@@ -27,6 +27,7 @@ export default function InitialSignup({
           placeholder="Enter Full Name"
           value={formData.name}
           onChange={(text) => setFormData({ ...formData, name: text })}
+          maxLength={30}
         />
         <TextInputComponent
           label="Email Address"

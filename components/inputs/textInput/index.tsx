@@ -16,7 +16,7 @@ type Props = {
   onEnter?: () => void;
   error?: string;
   icon?: ReactNode;
-  
+  maxLength?: number;
 };
 
 const TextInputComponent = ({
@@ -30,6 +30,7 @@ const TextInputComponent = ({
   onEnter,
   error,
   icon,
+  maxLength,
 }: Props) => {
   const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(true);
@@ -117,6 +118,7 @@ const TextInputComponent = ({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           onSubmitEditing={onEnter}
+          maxLength={maxLength}
         />
       </View>
       {error ? (
