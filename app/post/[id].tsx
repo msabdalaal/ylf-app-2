@@ -36,8 +36,10 @@ import {
 import { useNetInfo } from "@react-native-community/netinfo";
 import { useFocusEffect } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
+import { usePosts } from "@/context/postsContext";
 
 export default function Post() {
+  const { updatePost } = usePosts();
   const headerHeight = useHeaderHeight();
   const [post, setPost] = useState<Post>();
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -79,7 +81,6 @@ export default function Post() {
       });
   };
 
-
   // Update online status
   useEffect(() => {
     setIsOnline(!!netInfo.isInternetReachable);
@@ -104,6 +105,14 @@ export default function Post() {
             hasLiked: res.data.hasLiked,
           };
         });
+        if (post?.id) {
+          updatePost({
+            ...post,
+            likeCounter: res.data.data.likeCounter,
+            likedUsers: res.data.data.likedUsers,
+            hasLiked: res.data.hasLiked,
+          });
+        }
       })
       .catch((err) => {
         if (err instanceof AxiosError) console.log(err.response?.data.message);
@@ -130,6 +139,19 @@ export default function Post() {
 
     // Add to local state immediately for instant feedback
     setComments((prev) => [commentData as unknown as CommentType, ...prev]);
+    setPost((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        commentCounter: (prev.commentCounter ?? 0) + 1,
+      };
+    });
+    if (post?.id) {
+      updatePost({
+        ...post,
+        commentCounter: (post.commentCounter ?? 0) + 1,
+      });
+    }
 
     // Add to pending comments queue
     await addPendingComment({
@@ -207,7 +229,7 @@ export default function Post() {
       keyboardVerticalOffset={Platform.OS === "ios" ? headerHeight : 0}
     >
       <SafeAreaView className="flex-1">
-        <ScrollView 
+        <ScrollView
           className="flex-1"
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
@@ -220,7 +242,8 @@ export default function Post() {
                 post={post}
                 handleLike={handleLikePost}
                 color={
-                  programs.find((p) => p.id === post.programId)?.accentColor || ""
+                  programs.find((p) => p.id === post.programId)?.accentColor ||
+                  ""
                 }
               />
             )}

@@ -16,6 +16,7 @@ import { setupNotifications } from "@/utils/notificationHandler";
 import { LoadingProvider } from "@/context/LoadingContext";
 import { get } from "@/hooks/axios";
 import ServerErrorScreen from "@/components/ServerErrorScreen";
+import { PostProvider } from "@/context/postsContext";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -31,7 +32,9 @@ export default function RootLayout() {
         <ThemeProvider>
           <ThemeWrapper>
             <LoadingProvider>
-              <RootLayoutComponent />
+              <PostProvider>
+                <RootLayoutComponent />
+              </PostProvider>
             </LoadingProvider>
           </ThemeWrapper>
         </ThemeProvider>

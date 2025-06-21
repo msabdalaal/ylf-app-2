@@ -12,7 +12,7 @@ import {
 import { get, post } from "@/hooks/axios";
 import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
-import { usePathname, useRouter } from "expo-router";
+import { useFocusEffect, usePathname, useRouter } from "expo-router";
 import { produce } from "immer";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/context/ThemeContext";
@@ -21,11 +21,12 @@ import imageUrl from "@/utils/imageUrl";
 import { useLoading } from "@/context/LoadingContext";
 import PostComponent from "@/components/posts/generalPost";
 import NotificationIcon from "@/components/notificationIcon";
+import { usePosts } from "@/context/postsContext";
 
 type Props = {};
 
 function Feed({}: Props) {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const { setPosts, posts } = usePosts();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
@@ -114,7 +115,7 @@ function Feed({}: Props) {
     try {
       const res = await post("posts/likePost/" + id, {});
       setPosts(
-        produce((draft) => {
+        produce((draft: Post[]) => {
           const index = draft.findIndex((post) => post.id === id);
           if (index !== -1) {
             draft[index].likeCounter = res.data.data.likeCounter;
