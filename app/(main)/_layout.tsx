@@ -72,6 +72,7 @@ export default function TabLayout() {
             right: 0,
             elevation: 0,
             shadowOpacity: 0,
+            overflow: "hidden",
           },
           tabBarItemStyle: {
             paddingVertical: 0,

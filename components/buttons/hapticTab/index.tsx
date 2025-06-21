@@ -8,9 +8,8 @@ export function HapticTab(props: BottomTabBarButtonProps) {
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <View
         style={{
-          borderRadius: 100,
           marginHorizontal: 4,
-          width: 100,
+          width: 120,
           alignItems: "center",
           justifyContent: "center",
         }}
@@ -22,12 +21,12 @@ export function HapticTab(props: BottomTabBarButtonProps) {
             height: "100%",
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: 60,
+            borderRadius: 70,
           }}
           android_ripple={{
             // color: "rgba(255, 255, 255, 0.2)",
             borderless: false,
-            radius: 60,
+            radius: 55,
           }}
           onPressIn={(ev) => {
             if (process.env.EXPO_OS === "ios") {
