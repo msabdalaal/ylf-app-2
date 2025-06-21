@@ -14,12 +14,7 @@ import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { usePathname, useRouter } from "expo-router";
 import { produce } from "immer";
-import NormalPost from "@/components/posts/normalPost";
-import ImagePost from "@/components/posts/imagePost";
-import VideoPost from "@/components/posts/videoPost";
-import EventPost from "@/components/posts/eventPost";
 import { Colors } from "@/constants/Colors";
-import Bell from "@/assets/icons/bell";
 import { useTheme } from "@/context/ThemeContext";
 import { Post, Program } from "@/constants/types";
 import imageUrl from "@/utils/imageUrl";
@@ -69,6 +64,7 @@ function Feed({}: Props) {
       });
       setPosts(res.data.data);
       setPagination(res.data.pagination);
+      await getPrograms();
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status === 401) {
         logout();

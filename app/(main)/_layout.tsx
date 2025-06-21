@@ -62,7 +62,7 @@ export default function TabLayout() {
           tabBarButton: HapticTab,
           tabBarStyle: {
             backgroundColor: "#015CA4",
-            height: 70, // Slightly increased height
+            height: 80,
             borderTopWidth: 0,
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
@@ -71,16 +71,18 @@ export default function TabLayout() {
             right: 0,
             elevation: 0,
             shadowOpacity: 0,
-            paddingVertical: 8,
+            paddingTop: 6,
           },
           tabBarItemStyle: {
-            paddingVertical: 5,
+            paddingVertical: 0,
+            height: '100%',
           },
           tabBarLabelStyle: {
             fontFamily: "SF_pro",
-            fontSize: 11, // Slightly smaller font
+            fontSize: 11,
             color: "white",
-            marginTop: 2,
+            marginTop: 4,
+            marginBottom: 4,
           },
         }}
       >
