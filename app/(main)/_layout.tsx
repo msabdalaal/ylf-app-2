@@ -45,117 +45,115 @@ export default function TabLayout() {
   }, [pathname]);
 
   return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          backgroundColor: Colors[theme ?? "light"].background,
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: Colors[theme ?? "light"].background,
+      }}
+    >
+      <Tabs
+        initialRouteName="feed"
+        screenOptions={{
+          animation: "none",
+          tabBarActiveTintColor: "#015CA4",
+          tabBarInactiveTintColor: "white",
+          tabBarActiveBackgroundColor: "#015CA4",
+          tabBarInactiveBackgroundColor: "#015CA4",
+          headerShown: false,
+          tabBarButton: HapticTab,
+          tabBarStyle: {
+            backgroundColor: "#015CA4",
+            height: 80,
+            borderTopWidth: 0,
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          tabBarItemStyle: {
+            paddingVertical: 0,
+            height: "100%",
+          },
+          tabBarLabelStyle: {
+            fontFamily: "SF_pro",
+            fontSize: 11,
+            color: "white",
+            marginTop: 4,
+          },
         }}
       >
-        <Tabs
-          initialRouteName="feed"
-          screenOptions={{
-            animation: "none",
-            tabBarActiveTintColor: "#015CA4",
-            tabBarInactiveTintColor: "white",
-            tabBarActiveBackgroundColor: "#015CA4",
-            tabBarInactiveBackgroundColor: "#015CA4",
-            headerShown: false,
-            tabBarButton: HapticTab,
-            tabBarStyle: {
-              backgroundColor: "#015CA4",
-              height: 80,
-              borderTopWidth: 0,
-              borderTopLeftRadius: 15,
-              borderTopRightRadius: 15,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              paddingTop: 6,
-            },
-            tabBarItemStyle: {
-              paddingVertical: 0,
-              height: "100%",
-            },
-            tabBarLabelStyle: {
-              fontFamily: "SF_pro",
-              fontSize: 11,
-              color: "white",
-              marginTop: 4,
-              marginBottom: 4,
-            },
+        <Tabs.Screen
+          name="feed"
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <View
+                className={`rounded-full p-1 ${
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
+                }`}
+              >
+                <Home color={color} />
+              </View>
+            ),
           }}
-        >
-          <Tabs.Screen
-            name="feed"
-            options={{
-              title: "Home",
-              tabBarIcon: ({ color }) => (
-                <View
-                  className={`rounded-full p-1 ${
-                    color === Colors.light.primary
-                      ? "bg-[#E7C11E]"
-                      : "bg-transparent"
-                  }`}
-                >
-                  <Home color={color} />
-                </View>
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="programs"
-            options={{
-              title: "Programs",
-              tabBarIcon: ({ color }) => (
-                <View
-                  className={`rounded-full p-1 ${
-                    color === Colors.light.primary
-                      ? "bg-[#E7C11E]"
-                      : "bg-transparent"
-                  }`}
-                >
-                  <Programs color={color} />
-                </View>
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="opportunities"
-            options={{
-              title: "Opportunities",
-              tabBarIcon: ({ color }) => (
-                <View
-                  className={`rounded-full p-1 ${
-                    color === Colors.light.primary
-                      ? "bg-[#E7C11E]"
-                      : "bg-transparent"
-                  }`}
-                >
-                  <Opportunities color={color} />
-                </View>
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="settings"
-            options={{
-              title: "Settings",
-              tabBarIcon: ({ color }) => (
-                <View
-                  className={`rounded-full p-1 ${
-                    color === Colors.light.primary
-                      ? "bg-[#E7C11E]"
-                      : "bg-transparent"
-                  }`}
-                >
-                  <Settings color={color} />
-                </View>
-              ),
-            }}
-          />
-        </Tabs>
-      </SafeAreaView>
+        />
+        <Tabs.Screen
+          name="programs"
+          options={{
+            title: "Programs",
+            tabBarIcon: ({ color }) => (
+              <View
+                className={`rounded-full p-1 ${
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
+                }`}
+              >
+                <Programs color={color} />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="opportunities"
+          options={{
+            title: "Opportunities",
+            tabBarIcon: ({ color }) => (
+              <View
+                className={`rounded-full p-1 ${
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
+                }`}
+              >
+                <Opportunities color={color} />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "Settings",
+            tabBarIcon: ({ color }) => (
+              <View
+                className={`rounded-full p-1 ${
+                  color === Colors.light.primary
+                    ? "bg-[#E7C11E]"
+                    : "bg-transparent"
+                }`}
+              >
+                <Settings color={color} />
+              </View>
+            ),
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
   );
 }
