@@ -83,6 +83,7 @@ export default function TabLayout() {
             fontSize: 11,
             color: "white",
             marginTop: 4,
+            marginBottom: 1,
           },
         }}
       >
