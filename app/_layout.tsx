@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
 import "../global.css";
 import { getValueFor, save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
@@ -17,6 +18,7 @@ import { LoadingProvider } from "@/context/LoadingContext";
 import { get } from "@/hooks/axios";
 import ServerErrorScreen from "@/components/ServerErrorScreen";
 import { PostProvider } from "@/context/postsContext";
+import { I18nManager } from "react-native";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -26,6 +28,14 @@ export default function RootLayout() {
       subscription.remove();
     };
   }, []);
+
+  // Enforce LTR globally
+  React.useEffect(() => {
+    if (!I18nManager.isRTL) return;
+    I18nManager.forceRTL(false);
+    I18nManager.allowRTL(false);
+  }, []);
+
   return (
     <ApplicationProvider>
       <NetworkProvider>
@@ -111,7 +121,7 @@ function RootLayoutComponent() {
   }
 
   return (
-    <>
+    <View style={{ flex: 1, direction: "ltr" }}>
       <Stack
         // initialRouteName={initialRoute}
         screenOptions={{
@@ -165,6 +175,6 @@ function RootLayoutComponent() {
         />
       </Stack>
       <StatusBar style="auto" />
-    </>
+    </View>
   );
 }
