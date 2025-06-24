@@ -266,6 +266,8 @@ const SignUp = () => {
         } as any);
       } else if (key === "dateOfBirth") {
         realFormData.append(key, dayjs(val as string).toISOString() || "");
+      } else if (key === "email") {
+        realFormData.append(key, val.toLowerCase());
       } else if (Array.isArray(val)) {
         realFormData.append(key, (val as string[]).join(","));
       } else if (key !== "confirmPassword") {

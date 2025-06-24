@@ -63,13 +63,13 @@ const Login = () => {
     email?: string;
     password?: string;
   }) => {
-    if (!validator.isEmail(email)) return alert("Invalid Email");
+    if (!validator.isEmail(email.toLowerCase())) return alert("Invalid Email");
     if (password === "") return alert("Password cannot be empty");
 
     try {
       const res = await post(
         "auth/login",
-        email && password ? { email, password } : formData
+        email && password ? { email: email.toLowerCase(), password } : formData
       );
       const token = res.data.access_token;
       await save("token", token);
@@ -82,7 +82,7 @@ const Login = () => {
           params: { token: res.data.access_token },
         });
       } else {
-        await SecureStore.setItemAsync("email", email);
+        await SecureStore.setItemAsync("email", email.toLowerCase());
         await SecureStore.setItemAsync("password", password);
         router.replace("/feed");
       }
@@ -117,7 +117,10 @@ const Login = () => {
         alert("No credentials found. Please log in manually first.");
         return;
       }
-      handleLogin({ email: storedEmail, password: storedPassword });
+      handleLogin({
+        email: storedEmail.toLocaleLowerCase(),
+        password: storedPassword,
+      });
     } else {
       alert("Biometric authentication failed.");
     }
@@ -151,9 +154,7 @@ const Login = () => {
           label="Email Address"
           placeholder="Enter Your Email"
           value={formData.email}
-          onChange={(text) =>
-            setFormData({ ...formData, email: text.toLocaleLowerCase() })
-          }
+          onChange={(text) => setFormData({ ...formData, email: text })}
         />
         <TextInputComponent
           label="Password"

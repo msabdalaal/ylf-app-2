@@ -33,7 +33,7 @@ export default function InitialSignup({
           label="Email Address"
           placeholder="Enter Your Email"
           value={formData.email}
-          onChange={(text) => setFormData({ ...formData, email: text.toLocaleLowerCase() })}
+          onChange={(text) => setFormData({ ...formData, email: text })}
         />
       </View>
     </>

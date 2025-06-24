@@ -121,34 +121,6 @@ export default function Edit({}: Props) {
     }
   };
 
-  // New functions for array fields
-  const addArrayField = (field: "languages" | "skills") => {
-    setEdits((prev) => ({
-      ...prev,
-      [field]: [...(prev[field] || []), ""],
-    }));
-  };
-
-  const removeArrayField = (field: "languages" | "skills", index: number) => {
-    setEdits((prev) => ({
-      ...prev,
-      [field]: (prev[field] || []).filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateArrayField = (
-    field: "languages" | "skills",
-    index: number,
-    value: string
-  ) => {
-    setEdits((prev) => ({
-      ...prev,
-      [field]: (prev[field] || []).map((item, i) =>
-        i === index ? value : item
-      ),
-    }));
-  };
-
   return (
     <SafeAreaView
       className="bg-white container flex-1"
