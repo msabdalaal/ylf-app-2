@@ -89,143 +89,153 @@ const SignUp = (props: Props) => {
 
   return (
     <SafeAreaView
-      className="flex-1 w-full container pt-5"
+      className="flex-1 w-full pt-5"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
-      {token ? (
-        <>
-          <Text
-            className="mt-6 text-xl"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: Colors[theme ?? "light"].primary,
-            }}
-          >
-            Create a password
-          </Text>
-          <Text
-            className="mt-4 dark:text-white"
-            style={{ fontFamily: "Inter" }}
-          >
-            In order to keep your account safe you need to create a strong
-            password.
-          </Text>
-          <View className="gap-4 mt-8">
-            <TextInputComponent
-              label="Password"
-              secure={true}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(text) => setPassword(text)}
-            />
-            <TextInputComponent
-              label="Confirm Password"
-              secure={true}
-              placeholder="Re-enter password"
-              value={confirmPassword}
-              onChange={(text) => setConfirmPassword(text)}
+      <View className="container">
+        {token ? (
+          <>
+            <Text
+              className="mt-6 text-xl"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: Colors[theme ?? "light"].primary,
+              }}
+            >
+              Create a password
+            </Text>
+            <Text
+              className="mt-4 dark:text-white"
+              style={{ fontFamily: "Inter" }}
+            >
+              In order to keep your account safe you need to create a strong
+              password.
+            </Text>
+            <View className="gap-4 mt-8">
+              <TextInputComponent
+                label="Password"
+                secure={true}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(text) => setPassword(text)}
+              />
+              <TextInputComponent
+                label="Confirm Password"
+                secure={true}
+                placeholder="Re-enter password"
+                value={confirmPassword}
+                onChange={(text) => setConfirmPassword(text)}
+              />
+              <PrimaryButton
+                onPress={handleResetPassword}
+                disabled={!password || !confirmPassword}
+                className="mt-6"
+              >
+                Reset Password
+              </PrimaryButton>
+            </View>
+          </>
+        ) : emailSent ? (
+          <>
+            <BackButton onClick={() => setEmailSent(false)} />
+            <Text
+              className="mt-6 text-xl"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: Colors[theme ?? "light"].primary,
+              }}
+            >
+              Check your email
+            </Text>
+            <Text
+              className="mt-4 dark:text-white"
+              style={{ fontFamily: "Inter" }}
+            >
+              We sent a reset link to <Text className="font-bold">{Email}</Text>{" "}
+              enter 5 digit code that mentioned in the email
+            </Text>
+            <OTP
+              onChange1={setOtp_first}
+              onChange2={setOtp_second}
+              onChange3={setOtp_third}
+              onChange4={setOtp_fourth}
+              onChange5={setOtp_fifth}
+              value1={otp_first}
+              value2={otp_second}
+              value3={otp_third}
+              value4={otp_fourth}
+              value5={otp_fifth}
+              className="mt-8"
             />
             <PrimaryButton
-              onPress={handleResetPassword}
-              disabled={!password || !confirmPassword}
+              onPress={handleVerifyOtp}
+              disabled={
+                !(
+                  otp_first &&
+                  otp_second &&
+                  otp_third &&
+                  otp_fourth &&
+                  otp_fifth
+                )
+              }
+              className="mt-6"
+            >
+              Verify Code
+            </PrimaryButton>
+            <View className="flex-row justify-center mt-8">
+              <Text className="dark:text-white">
+                Haven't got the email yet?{" "}
+              </Text>
+              <Pressable onPress={() => {}}>
+                <Text
+                  style={{
+                    color: Colors.light.primary,
+                    fontWeight: "bold",
+                    textDecorationLine: "underline",
+                  }}
+                >
+                  Resend email
+                </Text>
+              </Pressable>
+            </View>
+          </>
+        ) : (
+          <>
+            <BackButton />
+            <Text
+              className="mt-6 text-xl"
+              style={{
+                fontFamily: "Poppins_Medium",
+                color: Colors[theme ?? "light"].primary,
+              }}
+            >
+              Forgot password
+            </Text>
+            <Text
+              className="mt-4 dark:text-white"
+              style={{ fontFamily: "Inter" }}
+            >
+              Please enter your email to reset the password
+            </Text>
+            <TextInputComponent
+              label="Email Address"
+              placeholder="Enter Your Email"
+              className="mt-8"
+              onChange={(text) => setEmail(text)}
+              value={Email}
+            />
+            <PrimaryButton
+              onPress={handleSendEmail}
+              disabled={!Email}
               className="mt-6"
             >
               Reset Password
             </PrimaryButton>
-          </View>
-        </>
-      ) : emailSent ? (
-        <>
-          <BackButton onClick={() => setEmailSent(false)} />
-          <Text
-            className="mt-6 text-xl"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: Colors[theme ?? "light"].primary,
-            }}
-          >
-            Check your email
-          </Text>
-          <Text
-            className="mt-4 dark:text-white"
-            style={{ fontFamily: "Inter" }}
-          >
-            We sent a reset link to <Text className="font-bold">{Email}</Text>{" "}
-            enter 5 digit code that mentioned in the email
-          </Text>
-          <OTP
-            onChange1={setOtp_first}
-            onChange2={setOtp_second}
-            onChange3={setOtp_third}
-            onChange4={setOtp_fourth}
-            onChange5={setOtp_fifth}
-            value1={otp_first}
-            value2={otp_second}
-            value3={otp_third}
-            value4={otp_fourth}
-            value5={otp_fifth}
-            className="mt-8"
-          />
-          <PrimaryButton
-            onPress={handleVerifyOtp}
-            disabled={
-              !(otp_first && otp_second && otp_third && otp_fourth && otp_fifth)
-            }
-            className="mt-6"
-          >
-            Verify Code
-          </PrimaryButton>
-          <View className="flex-row justify-center mt-8">
-            <Text className="dark:text-white">Haven't got the email yet? </Text>
-            <Pressable onPress={() => {}}>
-              <Text
-                style={{
-                  color: Colors.light.primary,
-                  fontWeight: "bold",
-                  textDecorationLine: "underline",
-                }}
-              >
-                Resend email
-              </Text>
-            </Pressable>
-          </View>
-        </>
-      ) : (
-        <>
-          <BackButton />
-          <Text
-            className="mt-6 text-xl"
-            style={{
-              fontFamily: "Poppins_Medium",
-              color: Colors[theme ?? "light"].primary,
-            }}
-          >
-            Forgot password
-          </Text>
-          <Text
-            className="mt-4 dark:text-white"
-            style={{ fontFamily: "Inter" }}
-          >
-            Please enter your email to reset the password
-          </Text>
-          <TextInputComponent
-            label="Email Address"
-            placeholder="Enter Your Email"
-            className="mt-8"
-            onChange={(text) => setEmail(text)}
-            value={Email}
-          />
-          <PrimaryButton
-            onPress={handleSendEmail}
-            disabled={!Email}
-            className="mt-6"
-          >
-            Reset Password
-          </PrimaryButton>
-        </>
-      )}
+          </>
+        )}
+      </View>
     </SafeAreaView>
   );
 };

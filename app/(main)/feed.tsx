@@ -12,7 +12,7 @@ import {
 import { get, post } from "@/hooks/axios";
 import { remove } from "@/hooks/storage";
 import { AxiosError } from "axios";
-import { useFocusEffect, usePathname, useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { produce } from "immer";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/context/ThemeContext";
@@ -240,7 +240,9 @@ function Feed({}: Props) {
                 }}
               >
                 <TouchableOpacity
-                  className="w-full h-full bg-gray-200 rounded-full p-2 justify-center items-center"
+                  className={`w-full h-full rounded-full p-2 justify-center items-center
+                    ${item.logo.path ? "bg-[#015CA4]" : "bg-gray-200"}
+                    `}
                   onPress={() => {
                     if (selectedProgram === item.id) return;
                     setPosts([]);

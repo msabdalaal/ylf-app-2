@@ -221,58 +221,64 @@ export default function Notifications() {
 
   return (
     <SafeAreaView
-      className="container flex-1"
+      className="flex-1"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
-      <View className="flex-row items-center gap-3 mb-6 mt-5">
-        <BackButton />
-        <Text
-          style={{
-            fontFamily: "Poppins_Medium",
-            color: Colors[theme ?? "light"].primary,
-          }}
-        >
-          Notification
-        </Text>
+      <View className="container flex-1">
+        <View className="flex-row items-center gap-3 mb-6 mt-5">
+          <BackButton />
+          <Text
+            style={{
+              fontFamily: "Poppins_Medium",
+              color: Colors[theme ?? "light"].primary,
+            }}
+          >
+            Notification
+          </Text>
+        </View>
+        <FlatList
+          refreshing={refreshing}
+          showsVerticalScrollIndicator={false}
+          onRefresh={onRefresh}
+          data={[1]}
+          renderItem={() => (
+            <View>
+              {notifications.filter((n) =>
+                dayjs(n.createdAt).isSame(dayjs(), "day")
+              ).length > 0 &&
+                renderSection({
+                  title: "Today",
+                  data: notifications.filter((n) =>
+                    dayjs(n.createdAt).isSame(dayjs(), "day")
+                  ),
+                })}
+              {notifications.filter((n) =>
+                dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
+              ).length > 0 &&
+                renderSection({
+                  title: "Yesterday",
+                  data: notifications.filter((n) =>
+                    dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
+                  ),
+                })}
+              {notifications.filter((n) =>
+                dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
+              ).length > 0 &&
+                renderSection({
+                  title: "Older",
+                  data: notifications.filter((n) =>
+                    dayjs(n.createdAt).isBefore(
+                      dayjs().subtract(1, "day"),
+                      "day"
+                    )
+                  ),
+                })}
+            </View>
+          )}
+        />
       </View>
-      <FlatList
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        data={[1]}
-        renderItem={() => (
-          <View>
-            {notifications.filter((n) =>
-              dayjs(n.createdAt).isSame(dayjs(), "day")
-            ).length > 0 &&
-              renderSection({
-                title: "Today",
-                data: notifications.filter((n) =>
-                  dayjs(n.createdAt).isSame(dayjs(), "day")
-                ),
-              })}
-            {notifications.filter((n) =>
-              dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
-            ).length > 0 &&
-              renderSection({
-                title: "Yesterday",
-                data: notifications.filter((n) =>
-                  dayjs(n.createdAt).isSame(dayjs().subtract(1, "day"), "day")
-                ),
-              })}
-            {notifications.filter((n) =>
-              dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
-            ).length > 0 &&
-              renderSection({
-                title: "Older",
-                data: notifications.filter((n) =>
-                  dayjs(n.createdAt).isBefore(dayjs().subtract(1, "day"), "day")
-                ),
-              })}
-          </View>
-        )}
-      />
     </SafeAreaView>
   );
 }

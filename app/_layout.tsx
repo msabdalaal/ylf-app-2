@@ -46,8 +46,6 @@ export default function RootLayout() {
 function RootLayoutComponent() {
   const { isConnected, checkConnection } = useNetwork();
   const [serverDown, setServerDown] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-  // const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   const { updateState, state } = useContext(ApplicationContext);
   const [loaded] = useFonts({
@@ -57,20 +55,6 @@ function RootLayoutComponent() {
     Poppins_Medium: require("../assets/fonts/Poppins-Medium.ttf"),
   });
   const { expoPushToken: newToken, notification } = usePushNotifications();
-
-  // const checkToken = async (): Promise<string> => {
-  //   const token = await getValueFor("token");
-  //   const hasViewedWelcome = await getValueFor("hasViewedWelcome");
-
-  //   if (token) {
-  //     return "(main)";
-  //   } else if (hasViewedWelcome === "true") {
-  //     return "/login";
-  //   } else {
-  //     await save("hasViewedWelcome", "true");
-  //     return "/";
-  //   }
-  // };
 
   const checkServerDown = async () => {
     try {
@@ -86,10 +70,6 @@ function RootLayoutComponent() {
     const initializeApp = async () => {
       await checkConnection();
       await checkServerDown();
-      // const target = await checkToken();
-      // console.log(target);
-      // setInitialRoute(target);
-      setIsReady(true);
       await SplashScreen.hideAsync();
     };
     if (loaded) {
@@ -129,9 +109,7 @@ function RootLayoutComponent() {
   if (serverDown) {
     return <ServerErrorScreen onRefresh={checkServerDown} />;
   }
-  // if (!loaded || !isReady || !initialRoute) {
-  //   return null;
-  // }
+
   return (
     <>
       <Stack

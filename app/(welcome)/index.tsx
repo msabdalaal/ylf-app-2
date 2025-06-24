@@ -17,7 +17,7 @@ export default function WelcomeRedirect() {
         router.replace("/(auth)/login");
       } else {
         await save("hasViewedWelcome", "true");
-        router.replace("/(welcome)/welcome1"); // move your actual welcome screen to welcome.tsx
+        router.replace("/(welcome)/welcome1");
       }
     };
 

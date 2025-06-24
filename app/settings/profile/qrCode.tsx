@@ -15,11 +15,13 @@ const QrCode = (props: Props) => {
   const { theme } = useTheme();
   return (
     <SafeAreaView
-      className="container bg-white flex-1"
+      className="bg-white flex-1"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
+      <View className="container">
+
       <View className=" flex-row items-center gap-3 mb-6 mt-5">
         <BackButton />
         <Text
@@ -34,6 +36,7 @@ const QrCode = (props: Props) => {
       <View className="justify-center items-center ">
         <View className="bg-white p-6">
           <QRCode value={state.user?.id?.toString()} size={200} />
+          </View>
         </View>
       </View>
     </SafeAreaView>

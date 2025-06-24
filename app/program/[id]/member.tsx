@@ -58,11 +58,13 @@ const Member = (props: Props) => {
 
   return (
     <SafeAreaView
-      className="flex-1 container"
+      className="flex-1"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
+      <View className="container">
+
       <View className="flex-row items-center gap-3 my-5">
         <BackButton />
         <Text
@@ -95,7 +97,8 @@ const Member = (props: Props) => {
         <View className="mt-10">
           <PrimaryButton onPress={handleSubmit} disabled={isLoading}>
             {isLoading ? "Joining..." : "Join Group"}
-          </PrimaryButton>
+            </PrimaryButton>
+          </View>
         </View>
       </View>
     </SafeAreaView>

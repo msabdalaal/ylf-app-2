@@ -91,11 +91,13 @@ function Opportunities() {
 
   return (
     <View
-      className="container bg-white flex-1"
+      className="bg-white flex-1"
       style={{
         backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
       }}
     >
+      <View className="container">
+
       <Text
         className="mt-10 mb-6"
         style={{
@@ -219,8 +221,9 @@ function Opportunities() {
           />
         )}
         keyExtractor={(post) => post.id?.toString() || ""}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-      />
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        />
+      </View>
     </View>
   );
 }

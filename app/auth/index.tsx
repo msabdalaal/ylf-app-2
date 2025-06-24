@@ -378,10 +378,10 @@ export default function AuthRedirectScreen() {
 
   return (
     <SafeAreaView
-      className="flex-1"
+      className="flex-1 pt-5"
       style={{ backgroundColor: Colors[theme].background }}
     >
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView className="container">
         <Text
           className="text-xl mb-4"
           style={{ fontFamily: "Poppins_Medium", color: Colors[theme].primary }}

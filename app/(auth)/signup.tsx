@@ -349,46 +349,51 @@ const SignUp = () => {
 
   return (
     <SafeAreaView
-      className="flex-1 w-full container"
+      className="flex-1 w-full"
       style={{ backgroundColor: Colors[theme].background }}
     >
-      {renderStep()}
-      <PrimaryButton onPress={handleContinue} className="my-6">
-        {loading ? "Signing Up ..." : step === 5 ? "Sign Up" : "Continue"}
-      </PrimaryButton>
-      {step === 1 && (
-        <>
-          <View className="mt-8 flex-row items-center gap-4 justify-center">
-            <View
-              className="h-0.5 w-24"
-              style={{ backgroundColor: Colors.light.border }}
-            />
-            <Text className="font-bold" style={{ color: Colors.light.border }}>
-              Or
-            </Text>
-            <View
-              className="h-0.5 w-24"
-              style={{ backgroundColor: Colors.light.border }}
-            />
-          </View>
-          <TouchableOpacity
-            className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
-            style={{ borderColor: Colors.light.border }}
-            onPress={handleGoogleSignIn}
-          >
-            <Image
-              source={require("@/assets/images/iconImages/googleIcon.png")}
-              className="h-6 w-6 object-contain"
-            />
-            <Text
-              className="text-center font-bold dark:text-white"
-              style={{ fontFamily: "Inter" }}
+      <View className="container flex-1">
+        {renderStep()}
+        <PrimaryButton onPress={handleContinue} className="my-6">
+          {loading ? "Signing Up ..." : step === 5 ? "Sign Up" : "Continue"}
+        </PrimaryButton>
+        {step === 1 && (
+          <>
+            <View className="mt-8 flex-row items-center gap-4 justify-center">
+              <View
+                className="h-0.5 w-24"
+                style={{ backgroundColor: Colors.light.border }}
+              />
+              <Text
+                className="font-bold"
+                style={{ color: Colors.light.border }}
+              >
+                Or
+              </Text>
+              <View
+                className="h-0.5 w-24"
+                style={{ backgroundColor: Colors.light.border }}
+              />
+            </View>
+            <TouchableOpacity
+              className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
+              style={{ borderColor: Colors.light.border }}
+              onPress={handleGoogleSignIn}
             >
-              Sign Up with Google
-            </Text>
-          </TouchableOpacity>
-        </>
-      )}
+              <Image
+                source={require("@/assets/images/iconImages/googleIcon.png")}
+                className="h-6 w-6 object-contain"
+              />
+              <Text
+                className="text-center font-bold dark:text-white"
+                style={{ fontFamily: "Inter" }}
+              >
+                Sign Up with Google
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
     </SafeAreaView>
   );
 };

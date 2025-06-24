@@ -23,99 +23,101 @@ function Settings({}: Props) {
 
   return (
     <View
-      className="container bg-white flex-1"
+      className="bg-white flex-1"
       style={{
         backgroundColor: Colors[theme === "dark" ? "dark" : "light"].background,
       }}
     >
-      <Text
-        className="text-xl text-center mt-10 mb-9"
-        style={{
-          fontFamily: "Poppins_Medium",
-          color: theme == "dark" ? "white" : Colors.light.primary,
-        }}
-      >
-        Settings
-      </Text>
+      <View className="container">
+        <Text
+          className="text-xl text-center mt-10 mb-9"
+          style={{
+            fontFamily: "Poppins_Medium",
+            color: theme == "dark" ? "white" : Colors.light.primary,
+          }}
+        >
+          Settings
+        </Text>
 
-      <TouchableOpacity
-        onPress={() => router.push("/settings/profile")}
-        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl"
-      >
-        <View className="flex-row items-center gap-4">
-          <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
-            <UserIcon />
-          </View>
-          <Text
-            className="dark:text-white"
-            style={{ fontFamily: "Poppins_Medium" }}
-          >
-            Personal Info
-          </Text>
-        </View>
-        <AngleRight color={theme == "dark" ? "white" : ""} />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={toggleSystemTheme}
-        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mt-6"
-      >
-        <View className="flex-row items-center gap-4">
-          <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
-            <System />
-          </View>
-          <View>
-            <Text
-              className="dark:text-white"
-              style={{ fontFamily: "Poppins_Medium" }}
-            >
-              Use System Theme
-            </Text>
-            <Text className="text-gray-500 text-sm">
-              {isSystemTheme ? "On" : "Off"}
-            </Text>
-          </View>
-        </View>
-        <AngleRight color={theme === "dark" ? "white" : ""} />
-      </TouchableOpacity>
-
-      {!isSystemTheme && (
         <TouchableOpacity
-          onPress={toggleTheme}
-          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mt-6"
+          onPress={() => router.push("/settings/profile")}
+          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl"
         >
           <View className="flex-row items-center gap-4">
             <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
-              {theme === "dark" ? <Sun /> : <Moon />}
+              <UserIcon />
             </View>
             <Text
               className="dark:text-white"
               style={{ fontFamily: "Poppins_Medium" }}
             >
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              Personal Info
             </Text>
+          </View>
+          <AngleRight color={theme == "dark" ? "white" : ""} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={toggleSystemTheme}
+          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mt-6"
+        >
+          <View className="flex-row items-center gap-4">
+            <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
+              <System />
+            </View>
+            <View>
+              <Text
+                className="dark:text-white"
+                style={{ fontFamily: "Poppins_Medium" }}
+              >
+                Use System Theme
+              </Text>
+              <Text className="text-gray-500 text-sm">
+                {isSystemTheme ? "On" : "Off"}
+              </Text>
+            </View>
           </View>
           <AngleRight color={theme === "dark" ? "white" : ""} />
         </TouchableOpacity>
-      )}
 
-      <TouchableOpacity
-        onPress={logout}
-        className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between mt-6 items-center p-6 rounded-3xl"
-      >
-        <View className="flex-row items-center gap-4">
-          <View className="bg-[#F6F8FA] w-11 h-11 rounded-full justify-center items-center">
-            <Logout />
-          </View>
-          <Text
-            className="dark:text-white"
-            style={{ fontFamily: "Poppins_Medium" }}
+        {!isSystemTheme && (
+          <TouchableOpacity
+            onPress={toggleTheme}
+            className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between items-center p-6 rounded-3xl mt-6"
           >
-            Log Out
-          </Text>
-        </View>
-        <AngleRight color={theme == "dark" ? "white" : ""} />
-      </TouchableOpacity>
+            <View className="flex-row items-center gap-4">
+              <View className="bg-white w-11 h-11 rounded-full justify-center items-center">
+                {theme === "dark" ? <Sun /> : <Moon />}
+              </View>
+              <Text
+                className="dark:text-white"
+                style={{ fontFamily: "Poppins_Medium" }}
+              >
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              </Text>
+            </View>
+            <AngleRight color={theme === "dark" ? "white" : ""} />
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          onPress={logout}
+          className="bg-[#F6F8FA] dark:bg-[#015CA41A] flex-row justify-between mt-6 items-center p-6 rounded-3xl"
+        >
+          <View className="flex-row items-center gap-4">
+            <View className="bg-[#F6F8FA] w-11 h-11 rounded-full justify-center items-center">
+              <Logout />
+            </View>
+            <Text
+              className="dark:text-white"
+              style={{ fontFamily: "Poppins_Medium" }}
+            >
+              Log Out
+            </Text>
+          </View>
+          <AngleRight color={theme == "dark" ? "white" : ""} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

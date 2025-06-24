@@ -138,78 +138,80 @@ const Login = () => {
 
   return (
     <SafeAreaView
-      className="flex-1 w-full container bg-white"
+      className="flex-1 w-full bg-white"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
-      <TopBarTabs
-        links={[
-          { name: "Log In", link: "/login" },
-          { name: "Sign Up", link: "/signup" },
-        ]}
-      />
-      <View className="mt-16 gap-4">
-        <TextInputComponent
-          label="Email Address"
-          placeholder="Enter Your Email"
-          value={formData.email}
-          onChange={(text) => setFormData({ ...formData, email: text })}
+      <View className="container">
+        <TopBarTabs
+          links={[
+            { name: "Log In", link: "/login" },
+            { name: "Sign Up", link: "/signup" },
+          ]}
         />
-        <TextInputComponent
-          label="Password"
-          secure={true}
-          placeholder="Enter Your Password"
-          value={formData.password}
-          onChange={(text) => setFormData({ ...formData, password: text })}
-        />
-      </View>
-      <SkinnyLink bold href={"/forgotPassword"} TextClassName="text-right">
-        Forgot password?
-      </SkinnyLink>
-      <View className="flex-row gap-2 mt-5">
-        <PrimaryButton className="flex-1" onPress={() => handleLogin({})}>
-          Log In
-        </PrimaryButton>
-        {isBiometricSupported && (
-          <TouchableOpacity
-            className="border-2 rounded-xl"
-            style={{ borderColor: Colors.light.primary }}
-            onPress={handleBioMetricLogin}
-          >
-            <FingerPrint />
-          </TouchableOpacity>
-        )}
-      </View>
-      <View className="mt-8 flex-row items-center gap-4 justify-center">
-        <View
-          className="h-0.5 w-24"
-          style={{ backgroundColor: Colors.light.border }}
-        ></View>
-        <Text className=" font-bold" style={{ color: Colors.light.border }}>
-          Or
-        </Text>
-        <View
-          className="h-0.5 w-24"
-          style={{ backgroundColor: Colors.light.border }}
-        ></View>
-      </View>
-      <TouchableOpacity
-        onPress={handleGoogleSignIn}
-        className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
-        style={{ borderColor: Colors.light.border }}
-      >
-        <Image
-          source={require("@/assets/images/iconImages/googleIcon.png")}
-          className="h-6 w-6 object-contain"
-        />
-        <Text
-          className="text-center font-bold dark:text-white"
-          style={{ fontFamily: "Inter" }}
+        <View className="mt-16 gap-4">
+          <TextInputComponent
+            label="Email Address"
+            placeholder="Enter Your Email"
+            value={formData.email}
+            onChange={(text) => setFormData({ ...formData, email: text })}
+          />
+          <TextInputComponent
+            label="Password"
+            secure={true}
+            placeholder="Enter Your Password"
+            value={formData.password}
+            onChange={(text) => setFormData({ ...formData, password: text })}
+          />
+        </View>
+        <SkinnyLink bold href={"/forgotPassword"} TextClassName="text-right">
+          Forgot password?
+        </SkinnyLink>
+        <View className="flex-row gap-2 mt-5">
+          <PrimaryButton className="flex-1" onPress={() => handleLogin({})}>
+            Log In
+          </PrimaryButton>
+          {isBiometricSupported && (
+            <TouchableOpacity
+              className="border-2 rounded-xl"
+              style={{ borderColor: Colors.light.primary }}
+              onPress={handleBioMetricLogin}
+            >
+              <FingerPrint />
+            </TouchableOpacity>
+          )}
+        </View>
+        <View className="mt-8 flex-row items-center gap-4 justify-center">
+          <View
+            className="h-0.5 w-24"
+            style={{ backgroundColor: Colors.light.border }}
+          ></View>
+          <Text className=" font-bold" style={{ color: Colors.light.border }}>
+            Or
+          </Text>
+          <View
+            className="h-0.5 w-24"
+            style={{ backgroundColor: Colors.light.border }}
+          ></View>
+        </View>
+        <TouchableOpacity
+          onPress={handleGoogleSignIn}
+          className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
+          style={{ borderColor: Colors.light.border }}
         >
-          Login with Google
-        </Text>
-      </TouchableOpacity>
+          <Image
+            source={require("@/assets/images/iconImages/googleIcon.png")}
+            className="h-6 w-6 object-contain"
+          />
+          <Text
+            className="text-center font-bold dark:text-white"
+            style={{ fontFamily: "Inter" }}
+          >
+            Login with Google
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };

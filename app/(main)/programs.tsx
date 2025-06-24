@@ -36,38 +36,44 @@ function Programs({}: Props) {
   const router = useRouter();
   return (
     <View
-      className="container bg-white flex-1"
+      className="bg-white flex-1"
       style={{
         backgroundColor: Colors[theme == "dark" ? "dark" : "light"].background,
       }}
     >
-      <View className="text-white text-2xl font-bold flex-row justify-between items-center w-full">
-        <Text
-          className="mt-10 mb-8"
-          style={{
-            fontFamily: "Poppins_Medium",
-            color: theme == "dark" ? "white" : Colors.light.primary,
-          }}
-        >
-          Select Your Program
-        </Text>
-        <NotificationIcon/>
+      <View className="container">
+        <View className="text-white text-2xl font-bold flex-row justify-between items-center w-full">
+          <Text
+            className="mt-10 mb-8"
+            style={{
+              fontFamily: "Poppins_Medium",
+              color: theme == "dark" ? "white" : Colors.light.primary,
+            }}
+          >
+            Select Your Program
+          </Text>
+          <NotificationIcon />
+        </View>
+        <FlatList
+          className="mb-2"
+          data={programs}
+          renderItem={(post) => (
+            <ProgramCard
+              color={post.item.accentColor}
+              image={imageUrl(
+                post.item.croppedImage?.path
+                  ? post.item.croppedImage.path
+                  : post.item.Image[0].path
+              )}
+              linkText={post.item.name}
+              link={("/program/" + post.item.id) as RelativePathString}
+              logo={imageUrl(post.item.logo.path)}
+            />
+          )}
+          keyExtractor={(post) => post.id.toString()}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        />
       </View>
-      <FlatList
-        className="mb-2"
-        data={programs}
-        renderItem={(post) => (
-          <ProgramCard
-            color={post.item.accentColor}
-            image={imageUrl(post.item.croppedImage?.path ? post.item.croppedImage.path :post.item.Image[0].path)}
-            linkText={post.item.name}
-            link={("/program/" + post.item.id) as RelativePathString}
-            logo={imageUrl(post.item.logo.path)}
-          />
-        )}
-        keyExtractor={(post) => post.id.toString()}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-      />
     </View>
   );
 }

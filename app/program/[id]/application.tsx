@@ -318,11 +318,13 @@ export default function Application() {
 
   return (
     <SafeAreaView
-      className="flex-1 container"
+      className="flex-1"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
+      <View className="container">
+
       <FlatList
         data={questions}
         keyExtractor={(item) => item.id}
@@ -345,8 +347,9 @@ export default function Application() {
             <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
           </View>
         )}
-        showsVerticalScrollIndicator={false}
-      />
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
 
       {/* Dropdown Modal */}
       <Modal

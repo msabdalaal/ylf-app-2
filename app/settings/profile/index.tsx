@@ -41,11 +41,13 @@ const profile = (props: Props) => {
   }, [getProfile]);
   return (
     <SafeAreaView
-      className="container bg-white flex-1"
+      className="bg-white flex-1"
       style={{
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
+      <View className="container">
+
       <View className=" flex-row items-center gap-3 mb-6 mt-5">
         <BackButton />
         <Text
@@ -175,6 +177,7 @@ const profile = (props: Props) => {
       <PrimaryLink href="/settings/profile/edit" className="mt-7">
         More Details
       </PrimaryLink>
+      </View>
     </SafeAreaView>
   );
 };
