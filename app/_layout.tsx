@@ -1,12 +1,12 @@
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import "../global.css";
-import { getValueFor, save } from "@/hooks/storage";
+import {  save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
 import { usePushNotifications } from "../hooks/useExpoNotification";
 import { ThemeProvider } from "@/context/ThemeContext";

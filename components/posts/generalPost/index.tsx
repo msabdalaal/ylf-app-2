@@ -65,12 +65,11 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
   }, [isFullscreen]);
 
   const isEvent = !!post.eventId;
-  const isProgram = !!post.programId;
+  const isProgram = !!post.programId && !post.eventId;
   const isFile = !!post.file;
   const isVideo = !!post.videoUrl;
   const hasImage = post.images?.length > 0;
   const user = userOverride ?? post.user;
-
   // dynamic backgrounds
   const baseColor = color ? normalizeHex(color) : null;
   const containerBg = baseColor
