@@ -5,3 +5,4 @@ ios
 
 expo-env.d.ts
 credentials.json
+.DS_Store

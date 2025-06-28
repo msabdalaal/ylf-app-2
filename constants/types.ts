@@ -53,8 +53,12 @@ export interface User {
     name: string;
     referenceCode: string;
   }[];
+  groups: {
+    id: string;
+    name: string;
+    program: Program;
+  }[];
 }
-
 export interface ProgramApplication {
   id: string;
   programId: string;

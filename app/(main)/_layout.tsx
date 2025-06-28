@@ -10,7 +10,6 @@ import Settings from "@/assets/icons/settings";
 import Opportunities from "@/assets/icons/opportunities";
 import { View } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
-import { PostProvider } from "@/context/postsContext";
 
 export default function TabLayout() {
   const { theme } = useTheme();
@@ -63,7 +62,7 @@ export default function TabLayout() {
           tabBarButton: HapticTab,
           tabBarStyle: {
             backgroundColor: "#015CA4",
-            height: 80,
+            minHeight: 80,
             borderTopWidth: 0,
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
@@ -74,16 +73,11 @@ export default function TabLayout() {
             shadowOpacity: 0,
             overflow: "hidden",
           },
-          tabBarItemStyle: {
-            paddingVertical: 0,
-            height: "100%",
-          },
           tabBarLabelStyle: {
             fontFamily: "SF_pro",
             fontSize: 11,
             color: "white",
-            marginTop: 4,
-            marginBottom: 1,
+            paddingTop: 4,
           },
         }}
       >

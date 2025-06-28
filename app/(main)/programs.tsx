@@ -55,7 +55,7 @@ function Programs({}: Props) {
           <NotificationIcon />
         </View>
         <FlatList
-          className="mb-2"
+          className="mb-[90px] pb-10"
           data={programs}
           renderItem={(post) => (
             <ProgramCard
