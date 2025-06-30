@@ -262,6 +262,7 @@ export default function AuthRedirectScreen() {
     });
     if (!res.canceled) {
       setter(res.assets[0].uri);
+      console.log(res.assets[0].uri);
       // Clear relevant errors when an image is selected
       setErrors((prev) => {
         const newErrors = { ...prev };
