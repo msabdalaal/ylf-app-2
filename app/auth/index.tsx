@@ -26,7 +26,7 @@ import Upload from "@/assets/icons/upload";
 import dayjs from "dayjs";
 import { isProfileComplete } from "@/utils/profileComplete";
 import { useLoading } from "@/context/LoadingContext";
-import universities from "@/constants/universities";
+import universities, { governorates } from "@/constants/universities";
 
 import {
   validatePhoneNumber,
@@ -42,12 +42,16 @@ import MultiSelect from "@/components/inputs/multiSelect";
 type FormState = {
   phoneNumber: string;
   dateOfBirth: string | null;
-  university: string;
+  schoolType: "school" | "university" | "";
+  school: string;
   college: string;
   experiences: string;
   jobTitle: string;
   age: string;
   address: string;
+  government: string;
+  nationalNumber: string;
+  gender: "male" | "female" | "";
   languages: string[];
   skills: string[];
 };
@@ -64,12 +68,16 @@ export default function AuthRedirectScreen() {
   const [formData, setFormData] = useState<FormState>({
     phoneNumber: "",
     dateOfBirth: null,
-    university: "",
+    schoolType: "",
+    school: "",
     college: "",
     experiences: "",
     jobTitle: "",
     age: "",
     address: "",
+    government: "",
+    nationalNumber: "",
+    gender: "",
     languages: [],
     skills: [],
   });
@@ -94,8 +102,28 @@ export default function AuthRedirectScreen() {
       case "age":
         error = validateAge(value);
         break;
-      case "university":
+      case "schoolType":
+        error = validateRequired(value, "School Type");
+        break;
+      case "school":
+        error = validateRequired(value, "School");
+        break;
       case "college":
+        error = validateRequired(value, "College");
+        break;
+      case "government":
+        error = validateRequired(value, "Government");
+        break;
+      case "nationalNumber":
+        if (!value) {
+          error = "National number is required";
+        } else if (!/^\d{14}$/.test(value)) {
+          error = "National number must be exactly 14 digits";
+        }
+        break;
+      case "gender":
+        error = validateRequired(value, "Gender");
+        break;
       case "experiences":
       case "jobTitle":
       case "address":
@@ -136,12 +164,15 @@ export default function AuthRedirectScreen() {
         if (!user.avatar?.path) missing.avatar = true;
         if (!user.phoneNumber) missing.phoneNumber = true;
         if (!user.dateOfBirth) missing.dateOfBirth = true;
-        if (!user.university) missing.university = true;
-        if (!user.college) missing.college = true;
+        if (!user.schoolType) missing.schoolType = true;
+        if (!user.school) missing.school = true;
         if (!user.experiences) missing.experiences = true;
         if (!user.jobTitle) missing.jobTitle = true;
         if (!user.age) missing.age = true;
         if (!user.address) missing.address = true;
+        if (!user.government) missing.government = true;
+        if (!user.nationalNumber) missing.nationalNumber = true;
+        if (!user.gender) missing.gender = true;
         if (!user.languages?.[0]) missing.languages = true;
         if (!user.skills?.[0]) missing.skills = true;
         if (!user.idFront?.path) missing.idFront = true;
@@ -153,12 +184,16 @@ export default function AuthRedirectScreen() {
         setFormData({
           phoneNumber: user.phoneNumber || "",
           dateOfBirth: user.dateOfBirth || null,
-          university: user.university || "",
+          schoolType: user.schoolType || "",
+          school: user.school || "",
           college: user.college || "",
           experiences: user.experiences || "",
           jobTitle: user.jobTitle || "",
           age: user.age?.toString() || "",
           address: user.address || "",
+          government: user.government || "",
+          nationalNumber: user.nationalNumber || "",
+          gender: user.gender || "",
           languages: user.languages?.length ? user.languages : [],
           skills: user.skills?.length ? user.skills : [],
         });
@@ -191,7 +226,7 @@ export default function AuthRedirectScreen() {
   // pickAvatar or ID
   const pickImage = async (
     setter: React.Dispatch<React.SetStateAction<string | null>>,
-    type?: 'avatar' | 'idFront' | 'idBack'
+    type?: "avatar" | "idFront" | "idBack"
   ) => {
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -200,14 +235,14 @@ export default function AuthRedirectScreen() {
     if (!res.canceled) {
       setter(res.assets[0].uri);
       // Clear relevant errors when an image is selected
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
-        if (type === 'avatar') {
+        if (type === "avatar") {
           delete newErrors.avatar;
-        } else if (type === 'idFront') {
+        } else if (type === "idFront") {
           delete newErrors.idFront;
           delete newErrors.idUpload;
-        } else if (type === 'idBack') {
+        } else if (type === "idBack") {
           delete newErrors.idBack;
           delete newErrors.idUpload;
         }
@@ -273,20 +308,71 @@ export default function AuthRedirectScreen() {
 
     // Validate avatar
     if (missingFields.avatar && !avatarUri) {
-      setErrors(prev => ({ ...prev, avatar: "Please upload profile picture" }));
+      setErrors((prev) => ({
+        ...prev,
+        avatar: "Please upload profile picture",
+      }));
       hasErrors = true;
     }
 
     // Validate basic fields
     const validations = [
-      { field: 'phoneNumber', value: formData.phoneNumber, required: missingFields.phoneNumber },
-      { field: 'dateOfBirth', value: formData.dateOfBirth ? new Date(formData.dateOfBirth) : null, required: missingFields.dateOfBirth },
-      { field: 'university', value: formData.university, required: missingFields.university },
-      { field: 'college', value: formData.college, required: missingFields.college },
-      { field: 'jobTitle', value: formData.jobTitle, required: missingFields.jobTitle },
-      { field: 'age', value: formData.age, required: missingFields.age },
-      { field: 'address', value: formData.address, required: missingFields.address },
-      { field: 'experiences', value: formData.experiences, required: missingFields.experiences }
+      {
+        field: "phoneNumber",
+        value: formData.phoneNumber,
+        required: missingFields.phoneNumber,
+      },
+      {
+        field: "dateOfBirth",
+        value: formData.dateOfBirth ? new Date(formData.dateOfBirth) : null,
+        required: missingFields.dateOfBirth,
+      },
+      {
+        field: "schoolType",
+        value: formData.schoolType,
+        required: missingFields.schoolType,
+      },
+      {
+        field: "school",
+        value: formData.school,
+        required: missingFields.school,
+      },
+      {
+        field: "college",
+        value: formData.college,
+        required: missingFields.college,
+      },
+      {
+        field: "jobTitle",
+        value: formData.jobTitle,
+        required: missingFields.jobTitle,
+      },
+      { field: "age", value: formData.age, required: missingFields.age },
+      {
+        field: "address",
+        value: formData.address,
+        required: missingFields.address,
+      },
+      {
+        field: "government",
+        value: formData.government,
+        required: missingFields.government,
+      },
+      {
+        field: "nationalNumber",
+        value: formData.nationalNumber,
+        required: missingFields.nationalNumber,
+      },
+      {
+        field: "gender",
+        value: formData.gender,
+        required: missingFields.gender,
+      },
+      {
+        field: "experiences",
+        value: formData.experiences,
+        required: missingFields.experiences,
+      },
     ];
 
     validations.forEach(({ field, value, required }) => {
@@ -300,7 +386,7 @@ export default function AuthRedirectScreen() {
     if (missingFields.languages) {
       const languageError = validateLanguage(formData.languages);
       if (languageError) {
-        setErrors(prev => ({ ...prev, languages: languageError }));
+        setErrors((prev) => ({ ...prev, languages: languageError }));
         hasErrors = true;
       }
     }
@@ -309,7 +395,7 @@ export default function AuthRedirectScreen() {
     if (missingFields.skills) {
       const skillError = validateSkill(formData.skills);
       if (skillError) {
-        setErrors(prev => ({ ...prev, skills: skillError }));
+        setErrors((prev) => ({ ...prev, skills: skillError }));
         hasErrors = true;
       }
     }
@@ -317,11 +403,11 @@ export default function AuthRedirectScreen() {
     // Validate ID uploads
     if (missingFields.idFront || missingFields.idBack) {
       if (!idFront || !idBack) {
-        setErrors(prev => ({
+        setErrors((prev) => ({
           ...prev,
           idUpload: "Please upload both sides of your ID",
           ...(!idFront && { idFront: "Front side is required" }),
-          ...(!idBack && { idBack: "Back side is required" })
+          ...(!idBack && { idBack: "Back side is required" }),
         }));
         hasErrors = true;
       }
@@ -394,7 +480,9 @@ export default function AuthRedirectScreen() {
           <View className="mb-6">
             <Text
               className="mb-2"
-              style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
+              style={{
+                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+              }}
             >
               Profile Picture
             </Text>
@@ -415,23 +503,23 @@ export default function AuthRedirectScreen() {
               </View>
             ) : (
               <TouchableOpacity
-                onPress={() => pickImage(setAvatarUri, 'avatar')}
+                onPress={() => pickImage(setAvatarUri, "avatar")}
                 className={`border ${
-                  errors.avatar ? 'border-red-500' : 'border-gray-400'
+                  errors.avatar ? "border-red-500" : "border-gray-400"
                 } border-dashed rounded-lg p-4 flex-row items-center`}
               >
                 <Upload />
-                <Text className={`ml-2 ${
-                  errors.avatar ? 'text-red-500' : 'dark:text-white'
-                }`}>
+                <Text
+                  className={`ml-2 ${
+                    errors.avatar ? "text-red-500" : "dark:text-white"
+                  }`}
+                >
                   Upload Profile Picture
                 </Text>
               </TouchableOpacity>
             )}
             {errors.avatar && (
-              <Text className="text-red-500 text-sm mt-1">
-                {errors.avatar}
-              </Text>
+              <Text className="text-red-500 text-sm mt-1">{errors.avatar}</Text>
             )}
           </View>
         )}
@@ -456,38 +544,81 @@ export default function AuthRedirectScreen() {
             error={errors.dateOfBirth}
           />
         )}
-        {missingFields.university && (
+        {missingFields.schoolType && (
           <View className="mt-4">
             <Text
-              className="mb-2 dark:text-white"
-              style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
+              className="mb-2 font-semibold"
+              style={{
+                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+              }}
             >
-              University
+              School Type
             </Text>
             <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
               <Picker
-                selectedValue={formData.university}
-                onValueChange={(v: string) => updateFormField("university", v)}
+                selectedValue={formData.schoolType}
+                onValueChange={(v: string) => updateFormField("schoolType", v)}
                 style={{
                   color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
                 }}
               >
-                <Picker.Item label="Select University" value="" />
-                {universities
-                  .sort((a: string, b: string) => a.localeCompare(b))
-                  .map((u) => (
-                    <Picker.Item key={u} label={u} value={u} />
-                  ))}
+                <Picker.Item label="Select School Type" value="" />
+                <Picker.Item label="School" value="school" />
+                <Picker.Item label="University" value="university" />
               </Picker>
             </View>
-            {errors.university && (
+            {errors.schoolType && (
               <Text className="text-red-500 text-sm mt-1">
-                {errors.university}
+                {errors.schoolType}
               </Text>
             )}
           </View>
         )}
-        {missingFields.college && (
+        {missingFields.school && (
+          <View className="mt-4">
+            <Text
+              className="mb-2 font-semibold"
+              style={{
+                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+              }}
+            >
+              {formData.schoolType === "school" ? "School Name" : "University"}
+            </Text>
+            {formData.schoolType === "school" ? (
+              <TextInputComponent
+                placeholder="School Name"
+                value={formData.school}
+                onChange={(v) => updateFormField("school", v)}
+                error={errors.school}
+              />
+            ) : (
+              <View>
+                <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                  <Picker
+                    selectedValue={formData.school}
+                    onValueChange={(v: string) => updateFormField("school", v)}
+                    style={{
+                      color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                    }}
+                  >
+                    <Picker.Item label="Select University" value="" />
+                    {universities
+                      .sort((a: string, b: string) => a.localeCompare(b))
+                      .map((u) => (
+                        <Picker.Item key={u} label={u} value={u} />
+                      ))}
+                  </Picker>
+                </View>
+                {errors.school && (
+                  <Text className="text-red-500 text-sm mt-1">
+                    {errors.school}
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+        {missingFields.college && formData.schoolType === "university" && (
           <TextInputComponent
             label="College"
             placeholder="College"
@@ -537,13 +668,86 @@ export default function AuthRedirectScreen() {
             error={errors.address}
           />
         )}
+        {missingFields.government && (
+          <View className="mt-4">
+            <Text
+              className="mb-2 font-semibold"
+              style={{
+                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+              }}
+            >
+              Government
+            </Text>
+            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+              <Picker
+                selectedValue={formData.government}
+                onValueChange={(v: string) => updateFormField("government", v)}
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                <Picker.Item label="Select Government" value="" />
+                {governorates
+                  .sort((a: string, b: string) => a.localeCompare(b))
+                  .map((g) => (
+                    <Picker.Item key={g} label={g} value={g} />
+                  ))}
+              </Picker>
+            </View>
+            {errors.government && (
+              <Text className="text-red-500 text-sm mt-1">
+                {errors.government}
+              </Text>
+            )}
+          </View>
+        )}
+        {missingFields.nationalNumber && (
+          <TextInputComponent
+            label="National Number"
+            placeholder="National Number"
+            value={formData.nationalNumber}
+            onChange={(v) => updateFormField("nationalNumber", v)}
+            className="mt-4"
+            error={errors.nationalNumber}
+          />
+        )}
+        {missingFields.gender && (
+          <View className="mt-4">
+            <Text
+              className="mb-2 font-semibold"
+              style={{
+                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+              }}
+            >
+              Gender
+            </Text>
+            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+              <Picker
+                selectedValue={formData.gender}
+                onValueChange={(v: string) => updateFormField("gender", v)}
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                <Picker.Item label="Select Gender" value="" />
+                <Picker.Item label="Male" value="male" />
+                <Picker.Item label="Female" value="female" />
+              </Picker>
+            </View>
+            {errors.gender && (
+              <Text className="text-red-500 text-sm mt-1">{errors.gender}</Text>
+            )}
+          </View>
+        )}
 
         {/* ID Uploads */}
         {(missingFields.idFront || missingFields.idBack) && (
           <View className="mt-6">
             <Text
-              className="mb-2 dark:text-white"
-              style={{ fontFamily: "Poppins_Medium", fontSize: 16 }}
+              className="mb-2 font-semibold"
+              style={{
+                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+              }}
             >
               National ID
             </Text>
@@ -564,15 +768,17 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImage(setIdFront, 'idFront')}
+                    onPress={() => pickImage(setIdFront, "idFront")}
                     className={`border ${
-                      errors.idFront ? 'border-red-500' : 'border-gray-400'
+                      errors.idFront ? "border-red-500" : "border-gray-400"
                     } border-dashed rounded-lg p-4 flex-row items-center`}
                   >
                     <Upload />
-                    <Text className={`ml-2 ${
-                      errors.idFront ? 'text-red-500' : 'dark:text-white'
-                    }`}>
+                    <Text
+                      className={`ml-2 ${
+                        errors.idFront ? "text-red-500" : "dark:text-white"
+                      }`}
+                    >
                       Upload Front
                     </Text>
                   </TouchableOpacity>
@@ -596,15 +802,17 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImage(setIdBack, 'idBack')}
+                    onPress={() => pickImage(setIdBack, "idBack")}
                     className={`border ${
-                      errors.idBack ? 'border-red-500' : 'border-gray-400'
+                      errors.idBack ? "border-red-500" : "border-gray-400"
                     } border-dashed rounded-lg p-4 flex-row items-center`}
                   >
                     <Upload />
-                    <Text className={`ml-2 ${
-                      errors.idBack ? 'text-red-500' : 'dark:text-white'
-                    }`}>
+                    <Text
+                      className={`ml-2 ${
+                        errors.idBack ? "text-red-500" : "dark:text-white"
+                      }`}
+                    >
                       Upload Back
                     </Text>
                   </TouchableOpacity>

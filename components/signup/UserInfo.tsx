@@ -12,10 +12,9 @@ import BackButton from "@/components/buttons/backButton";
 import dayjs from "dayjs";
 import { formData } from "@/app/(auth)/signup";
 import { SafeAreaView } from "react-native-safe-area-context";
-import PrimaryButton from "../buttons/primary";
 import { Picker } from "@react-native-picker/picker";
 import { Colors } from "@/constants/Colors";
-import universities from "@/constants/universities";
+import universities, { governorates } from "@/constants/universities";
 import {
   validatePhoneNumber,
   validateAge,
@@ -25,6 +24,7 @@ import {
   validateSkill,
 } from "@/utils/validation";
 import MultiSelect from "../inputs/multiSelect";
+import { useTheme } from "@/context/ThemeContext";
 
 interface UserInfoProps {
   formData: formData;
@@ -38,7 +38,7 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
   ({ formData, setFormData, onBack }, ref) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
-
+    const { theme } = useTheme();
     // Add state for validation errors
     const [errors, setErrors] = useState({
       phoneNumber: "",
@@ -46,11 +46,15 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
       jobTitle: "",
       age: "",
       address: "",
-      university: "",
+      schoolType: "",
+      school: "",
       college: "",
       experiences: "",
       languages: "",
       skills: "",
+      government: "",
+      nationalNumber: "",
+      gender: "",
     });
 
     // Validate a specific field
@@ -77,14 +81,34 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
               field.charAt(0).toUpperCase() + field.slice(1)
             ) || "";
           break;
-        case "university":
-          error = value ? "" : "Please select a university";
+        case "schoolType":
+          error = value ? "" : "Please select a school type";
+          break;
+        case "school":
+          if (formData.schoolType === "school") {
+            error = value ? "" : "School name is required";
+          } else if (formData.schoolType === "university") {
+            error = value ? "" : "University is required";
+          } else {
+            error = "";
+          }
           break;
         case "languages":
           error = validateLanguage(value) || "";
           break;
         case "skills":
           error = validateSkill(value) || "";
+          break;
+        case "government":
+          error = value ? "" : "Please select a government";
+          break;
+        case "nationalNumber":
+          if (!value) error = "National number is required";
+          else if (!/^\d{14}$/.test(value))
+            error = "National number must be exactly 14 digits";
+          break;
+        case "gender":
+          error = value ? "" : "Please select a gender";
           break;
         default:
           break;
@@ -120,8 +144,20 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
       const jobTitleError = validateRequired(formData.jobTitle, "Job Title");
       const ageError = validateAge(formData.age);
       const addressError = validateRequired(formData.address, "Address");
-      const universityError = validateRequired(formData.university, "University");
-      const collegeError = validateRequired(formData.college, "College");
+      const schoolTypeError = validateRequired(
+        formData.schoolType,
+        "School Type"
+      );
+      let universityError = "";
+      if (formData.schoolType === "school") {
+        universityError = formData.school ? "" : "School name is required";
+      } else if (formData.schoolType === "university") {
+        universityError = formData.school ? "" : "University is required";
+      }
+      const collegeError =
+        formData.schoolType === "university"
+          ? validateRequired(formData.college, "College")
+          : null;
       const experiencesError = validateRequired(
         formData.experiences,
         "Work experience"
@@ -135,6 +171,14 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
       const skillError =
         formData.skills.length === 0 ? "Skill cannot be empty" : null;
 
+      // Validate government
+      const governmentError = validateField("government", formData.government);
+      const nationalNumberError = validateField(
+        "nationalNumber",
+        formData.nationalNumber
+      );
+      const genderError = validateField("gender", formData.gender);
+
       // Update error states
       setErrors((prev) => ({
         ...prev,
@@ -143,11 +187,15 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
         jobTitle: jobTitleError || "",
         age: ageError || "",
         address: addressError || "",
-        university: universityError || "",
+        schoolType: schoolTypeError || "",
+        school: universityError || "",
         college: collegeError || "",
         experiences: experiencesError || "",
         languages: languageError || "",
         skills: skillError || "",
+        government: governmentError || "",
+        nationalNumber: nationalNumberError || "",
+        gender: genderError || "",
       }));
 
       // Check if any errors exist
@@ -157,13 +205,17 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
         jobTitleError ||
         ageError ||
         addressError ||
+        schoolTypeError ||
         universityError ||
         collegeError ||
         experiencesError ||
         languageError ||
-        skillError
+        skillError ||
+        governmentError ||
+        nationalNumberError ||
+        genderError
       );
-console.log(languageError)
+      console.log(languageError);
       return isValid;
     };
     // Expose the validate function via ref
@@ -175,7 +227,7 @@ console.log(languageError)
       <SafeAreaView className={`flex-1 ${isDark ? "" : "bg-white"}`}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <BackButton onClick={onBack} />
-          <View className="space-y-4">
+          <View className="gap-4 mt-4">
             <TextInputComponent
               label="Phone Number"
               placeholder="Phone Number"
@@ -227,50 +279,108 @@ console.log(languageError)
             />
             <View className="font-semibold">
               <Text
-                className=" dark:text-white"
-                style={{ fontFamily: "Poppins_Medium" }}
+                className="mb-2 font-semibold"
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
               >
-                University
+                School Type
               </Text>
               <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
                 <Picker
-                  selectedValue={formData.university}
+                  selectedValue={formData.schoolType}
                   onValueChange={(v: string) => {
-                    setFormData((p) => ({ ...p, university: v }));
-                    validateField("university", v);
+                    setFormData((p) => ({
+                      ...p,
+                      schoolType: v as "school" | "university",
+                    }));
+                    validateField("schoolType", v);
                   }}
                   style={{
                     color: isDark ? "#E5E5E5" : Colors.light.text,
                   }}
                 >
-                  <Picker.Item label="Select University" value="" />
-                  {universities
-                    .sort((a: string, b: string) => a.localeCompare(b))
-                    .map((u) => (
-                      <Picker.Item key={u} label={u} value={u} />
-                    ))}
+                  <Picker.Item label="Select School Type" value="" />
+                  <Picker.Item label="School" value="school" />
+                  <Picker.Item label="University" value="university" />
                 </Picker>
               </View>
-              {errors.university ? (
+              {errors.schoolType ? (
                 <Text
                   className="text-red-500 text-sm mt-1 ml-1"
                   style={{ fontFamily: "Inter" }}
                 >
-                  {errors.university}
+                  {errors.schoolType}
                 </Text>
               ) : null}
             </View>
 
-            <TextInputComponent
-              label="College"
-              placeholder="College"
-              value={formData.college}
-              onChange={(text) => {
-                setFormData((prev) => ({ ...prev, college: text }));
-                validateField("college", text);
-              }}
-              error={errors.college}
-            />
+            <View className="font-semibold">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                {formData.schoolType === "school"
+                  ? "School Name"
+                  : "University"}
+              </Text>
+              {formData.schoolType === "school" ? (
+                <TextInputComponent
+                  placeholder="School Name"
+                  value={formData.school}
+                  onChange={(text) => {
+                    setFormData((prev) => ({ ...prev, school: text }));
+                    validateField("school", text);
+                  }}
+                  error={errors.school}
+                />
+              ) : (
+                <View>
+                  <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                    <Picker
+                      selectedValue={formData.school}
+                      onValueChange={(v: string) => {
+                        setFormData((p) => ({ ...p, school: v }));
+                        validateField("school", v);
+                      }}
+                      style={{
+                        color: isDark ? "#E5E5E5" : Colors.light.text,
+                      }}
+                    >
+                      <Picker.Item label="Select University" value="" />
+                      {universities
+                        .sort((a: string, b: string) => a.localeCompare(b))
+                        .map((u) => (
+                          <Picker.Item key={u} label={u} value={u} />
+                        ))}
+                    </Picker>
+                  </View>
+                  {errors.school ? (
+                    <Text
+                      className="text-red-500 text-sm mt-1 ml-1"
+                      style={{ fontFamily: "Inter" }}
+                    >
+                      {errors.school}
+                    </Text>
+                  ) : null}
+                </View>
+              )}
+            </View>
+
+            {formData.schoolType === "university" && (
+              <TextInputComponent
+                label="College"
+                placeholder="College"
+                value={formData.college}
+                onChange={(text) => {
+                  setFormData((prev) => ({ ...prev, college: text }));
+                  validateField("college", text);
+                }}
+                error={errors.college}
+              />
+            )}
             <TextInputComponent
               label="Work"
               placeholder="Work"
@@ -281,8 +391,85 @@ console.log(languageError)
               }}
               error={errors.experiences}
             />
-
-            <View className="mt-6">
+            <TextInputComponent
+              label="National Number"
+              placeholder="National Number"
+              value={formData.nationalNumber}
+              onChange={(text) => {
+                setFormData((prev) => ({ ...prev, nationalNumber: text }));
+                validateField("nationalNumber", text);
+              }}
+              error={errors.nationalNumber}
+            />
+            <View className="font-semibold">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                Government
+              </Text>
+              <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                <Picker
+                  selectedValue={formData.government}
+                  onValueChange={(v: string) => {
+                    setFormData((p) => ({ ...p, government: v }));
+                    validateField("government", v);
+                  }}
+                  style={{ color: isDark ? "#E5E5E5" : Colors.light.text }}
+                >
+                  <Picker.Item label="Select Government" value="" />
+                  {governorates.map((g) => (
+                    <Picker.Item key={g} label={g} value={g} />
+                  ))}
+                </Picker>
+              </View>
+              {errors.government ? (
+                <Text
+                  className="text-red-500 text-sm mt-1 ml-1"
+                  style={{ fontFamily: "Inter" }}
+                >
+                  {errors.government}
+                </Text>
+              ) : null}
+            </View>
+            <View className="font-semibold">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                Gender
+              </Text>
+              <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                <Picker
+                  selectedValue={formData.gender}
+                  onValueChange={(v: string) => {
+                    setFormData((p) => ({
+                      ...p,
+                      gender: v as "male" | "female",
+                    }));
+                    validateField("gender", v);
+                  }}
+                  style={{ color: isDark ? "#E5E5E5" : Colors.light.text }}
+                >
+                  <Picker.Item label="Select Gender" value="" />
+                  <Picker.Item label="Male" value="male" />
+                  <Picker.Item label="Female" value="female" />
+                </Picker>
+              </View>
+              {errors.gender ? (
+                <Text
+                  className="text-red-500 text-sm mt-1 ml-1"
+                  style={{ fontFamily: "Inter" }}
+                >
+                  {errors.gender}
+                </Text>
+              ) : null}
+            </View>
+            <View className="">
               <MultiSelect
                 label="Language"
                 options={["English", "Arabic", "French", "Spanish"]}
@@ -304,7 +491,7 @@ console.log(languageError)
               )}
             </View>
 
-            <View className="mt-3 mb-5">
+            <View className="mb-5">
               <MultiSelect
                 label="Skills"
                 value={formData.skills}

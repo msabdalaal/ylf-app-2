@@ -41,8 +41,9 @@ export interface User {
   experiences?: string;
   languages?: string[];
   skills?: string[];
+  schoolType?: "school" | "university";
+  school?: string;
   college?: string;
-  university?: string;
   groupId?: string;
   programApplications?: ProgramApplication[];
   idFront?: { path: string };
@@ -58,6 +59,9 @@ export interface User {
     name: string;
     program: Program;
   }[];
+  government?: string;
+  nationalNumber?: string;
+  gender?: "male" | "female";
 }
 export interface ProgramApplication {
   id: string;

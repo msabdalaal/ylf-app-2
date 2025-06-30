@@ -7,8 +7,7 @@ export const isProfileComplete = (user: User) => {
   if (!user.avatar?.path) missingFields.avatar = true;
   if (!user.phoneNumber) missingFields.phoneNumber = true;
   if (!user.dateOfBirth) missingFields.dateOfBirth = true;
-  if (!user.college) missingFields.college = true;
-  if (!user.university) missingFields.university = true;
+  if (!user.school) missingFields.school = true;
   if (!user.jobTitle) missingFields.jobTitle = true;
   if (!user.age) missingFields.age = true;
   if (!user.address) missingFields.address = true;

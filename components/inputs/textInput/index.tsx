@@ -42,9 +42,13 @@ const TextInputComponent = ({
     <View className={`w-full ${className}`}>
       {label ? (
         <Text
-          className="mb-2 font-semibold"
+          className="mb-2 text-base font-semibold"
           style={{
-            color: focused
+            color: disabled
+              ? isDark
+                ? "#6B7280"
+                : "#9CA3AF"
+              : focused
               ? Colors[theme ?? "light"].primary
               : isDark
               ? "#E5E5E5"

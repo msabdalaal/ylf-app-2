@@ -78,6 +78,12 @@
           "photosPermission": "The app accesses your photos for verification."
         }
       ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
       "expo-video"
     ],
     "experiments": {

@@ -17,7 +17,7 @@ import { get, post } from "@/hooks/axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import PrimaryButton from "@/components/buttons/primary";
-import uploadFile from "@/utils/uploadFile";
+import uploadFile, { deleteFile } from "@/utils/uploadFile";
 import { useTheme } from "@/context/ThemeContext";
 import { useLoading } from "@/context/LoadingContext";
 
@@ -64,10 +64,28 @@ export default function Application() {
   // Use Expo DocumentPicker for file uploads
   const handleFilePick = async (questionId: string) => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: "image/*",
+      type: ["image/*", "application/pdf"],
     });
+
     if (!result.canceled) {
-      handleInputChange(questionId, result.assets[0].uri);
+      try {
+        // showLoading();
+        const file = result.assets[0];
+        const fileExtension = file.mimeType?.includes("pdf") ? "pdf" : "png";
+        const uploadResult = await uploadFile(
+          file.uri,
+          file.mimeType || "image/png",
+          `${questionId}.${fileExtension}`
+        );
+
+        // Save uploaded file URL/path immediately
+        handleInputChange(questionId, uploadResult);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        Alert.alert("Upload Error", "Failed to upload file.");
+      } finally {
+        // hideLoading();
+      }
     }
   };
 
@@ -91,25 +109,14 @@ export default function Application() {
     return valid;
   };
 
-  const buildRealFormData = async () => {
+  const buildRealFormData = () => {
     const application: { questionId: string; answer: string }[] = [];
-    const uploadPromises = questions.map(async (question) => {
+
+    questions.forEach((question) => {
       const answer = formData[question.id];
-      if (question.type === "upload" && answer) {
-        const uploadResult = await uploadFile(
-          answer,
-          "image/png",
-          `${question.id}.png`
-        );
-        // application[question.id] = uploadResult;
-        application.push({ questionId: question.id, answer: uploadResult });
-      } else {
-        // application[question.id] = answer;
-        application.push({ questionId: question.id, answer: answer });
-      }
+      application.push({ questionId: question.id, answer: answer || "" });
     });
 
-    await Promise.all(uploadPromises);
     return application;
   };
 
@@ -122,7 +129,7 @@ export default function Application() {
     try {
       setLoading(true);
       showLoading();
-      const realFormData = await buildRealFormData();
+      const realFormData = buildRealFormData();
       await post("events/submitApplication/" + id, {
         questions: realFormData,
       }).then(() => {
@@ -157,6 +164,12 @@ export default function Application() {
     setDropdownVisible(false);
   };
 
+  const handleDeleteFile = async (questionId: string) => {
+    const uri = formData[questionId];
+    handleInputChange(questionId, "");
+    await deleteFile(uri);
+  };
+  
   // Render a single question based on its type
   const renderQuestion = ({ item: question }: { item: Question }) => {
     switch (question.type) {
@@ -182,14 +195,24 @@ export default function Application() {
             <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
-            <TouchableOpacity
-              onPress={() => handleFilePick(question.id)}
-              className="border border-gray-300 p-3 rounded-lg"
-            >
-              <Text className="dark:text-white">
-                {formData[question.id] ? "File Selected" : "Select File"}
-              </Text>
-            </TouchableOpacity>
+            <View className="flex flex-row gap-2">
+              <TouchableOpacity
+                onPress={() => handleFilePick(question.id)}
+                className="flex-1 border border-gray-300 p-3 rounded-lg"
+              >
+                <Text className="dark:text-white">
+                  {formData[question.id] ? "File Selected" : "Select File"}
+                </Text>
+              </TouchableOpacity>
+              {formData[question.id] && (
+                <TouchableOpacity
+                  onPress={() => handleDeleteFile(question.id)}
+                  className="flex justify-center items-center bg-red-500 rounded-lg px-4"
+                >
+                  <Text className="text-white text-center text-2xl">x</Text>
+                </TouchableOpacity>
+              )}
+            </View>
             {errors[question.id] && (
               <Text className="text-red-500 mt-1">{errors[question.id]}</Text>
             )}
@@ -300,29 +323,28 @@ export default function Application() {
       }}
     >
       <View className="container flex-1">
-
-      <FlatList
-        data={questions}
-        keyExtractor={(item) => item.id}
-        renderItem={renderQuestion}
-        ListHeaderComponent={() => (
-          <View className="flex-row items-center gap-3 my-5">
-            <BackButton />
-            <Text
-              style={{
-                fontFamily: "Poppins_Medium",
-                color: Colors[theme ?? "light"].primary,
-              }}
-            >
-              Applying Form
-            </Text>
-          </View>
-        )}
-        ListFooterComponent={() => (
-          <View className="my-5">
-            <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
-          </View>
-        )}
+        <FlatList
+          data={questions}
+          keyExtractor={(item) => item.id}
+          renderItem={renderQuestion}
+          ListHeaderComponent={() => (
+            <View className="flex-row items-center gap-3 my-5">
+              <BackButton />
+              <Text
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme ?? "light"].primary,
+                }}
+              >
+                Applying Form
+              </Text>
+            </View>
+          )}
+          ListFooterComponent={() => (
+            <View className="my-5">
+              <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
+            </View>
+          )}
           showsVerticalScrollIndicator={false}
         />
       </View>

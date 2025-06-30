@@ -19,10 +19,8 @@ import UserInfo, { UserInfoRef } from "@/components/signup/UserInfo";
 import dayjs from "dayjs";
 import { useLoading } from "@/context/LoadingContext";
 import AvatarUpload from "@/components/signup/AvatarUpload";
+import * as DocumentPicker from "expo-document-picker";
 import {
-  validateEmail,
-  validatePassword,
-  validateName,
   validatePhoneNumber,
   validateAge,
   validateRequired,
@@ -41,14 +39,18 @@ export interface formData {
   avatar: string; // added
   phoneNumber: string;
   dateOfBirth: string | null;
+  schoolType: "school" | "university" | "";
   college: string;
-  university: string;
+  school: string;
   experiences: string;
   jobTitle: string;
   age: string;
   address: string;
   languages: string[];
   skills: string[];
+  government: string;
+  nationalNumber: string;
+  gender: "male" | "female" | "";
 }
 
 const SignUp = () => {
@@ -69,14 +71,18 @@ const SignUp = () => {
     avatar: "",
     phoneNumber: "",
     dateOfBirth: null,
+    schoolType: "",
     college: "",
-    university: "",
+    school: "",
     experiences: "",
     jobTitle: "",
     age: "",
     address: "",
     languages: [],
     skills: [],
+    government: "",
+    nationalNumber: "",
+    gender: "",
   });
 
   const resetForm = () => {
@@ -90,14 +96,18 @@ const SignUp = () => {
       avatar: "",
       phoneNumber: "",
       dateOfBirth: null,
+      schoolType: "",
       college: "",
-      university: "",
+      school: "",
       experiences: "",
       jobTitle: "",
       age: "",
       address: "",
       languages: [],
       skills: [],
+      government: "",
+      nationalNumber: "",
+      gender: "",
     });
     setConfirmPassword("");
     setStep(1);
@@ -125,11 +135,10 @@ const SignUp = () => {
     }
   };
 
-  const pickImage = async (side: "front" | "back") => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      aspect: [3, 2],
-      quality: 1,
+  const pickImageAndFiles = async (side: "front" | "back") => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["image/*", "application/pdf"],
+      copyToCacheDirectory: true,
     });
 
     if (!result.canceled) {
@@ -139,7 +148,7 @@ const SignUp = () => {
           [`id_${side}`]: result.assets[0].uri,
         }));
       } catch (error) {
-        console.error("Error picking image:", error);
+        console.error("Error picking file:", error);
       }
     }
   };
@@ -217,9 +226,7 @@ const SignUp = () => {
       const ageError = validateAge(formData.age);
       const jobTitleError = validateRequired(formData.jobTitle, "Job Title");
       const addressError = validateRequired(formData.address, "Address");
-      const universityError = formData.university
-        ? ""
-        : "Please select a university";
+      const schoolError = formData.school ? "" : "Please select a school";
       const collegeError = validateRequired(formData.college, "College");
       const experiencesError = validateRequired(
         formData.experiences,
@@ -235,7 +242,7 @@ const SignUp = () => {
         ageError ||
         jobTitleError ||
         addressError ||
-        universityError ||
+        schoolError ||
         collegeError ||
         experiencesError ||
         languageError ||
@@ -258,7 +265,22 @@ const SignUp = () => {
     }
     const realFormData = new FormData();
     Object.entries(formData).forEach(([key, val]) => {
-      if (key === "id_front" || key === "id_back" || key === "avatar") {
+      if ((key === "id_front" || key === "id_back") && val) {
+        let type = "image/jpeg";
+        let name = `${key}.jpg`;
+        if (val.endsWith(".pdf")) {
+          type = "application/pdf";
+          name = `${key}.pdf`;
+        } else if (val.match(/\.(png|jpeg|jpg)$/)) {
+          // keep as image/jpeg
+          name = `${key}.${val.split(".").pop()}`;
+        }
+        realFormData.append(key, {
+          uri: val as string,
+          type,
+          name,
+        } as any);
+      } else if (key === "avatar" && val) {
         realFormData.append(key, {
           uri: val as string,
           type: "image/jpeg",
@@ -312,7 +334,7 @@ const SignUp = () => {
           <IdUpload
             setFormData={setFormData}
             formData={formData}
-            pickImage={(side) => pickImage(side)}
+            pickImage={(side) => pickImageAndFiles(side)}
             onBack={() => setStep(1)}
             resetForm={resetForm}
           />

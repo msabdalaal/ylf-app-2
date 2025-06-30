@@ -19,9 +19,10 @@ import { Alert } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useLoading } from "@/context/LoadingContext";
 import MultiSelect from "@/components/inputs/multiSelect";
+import universities, { governorates } from "@/constants/universities";
+import { Picker } from "@react-native-picker/picker";
 
 type Props = {};
-const FormData = global.FormData;
 
 export default function Edit({}: Props) {
   const {
@@ -29,14 +30,49 @@ export default function Edit({}: Props) {
     updateState,
   } = useContext(ApplicationContext);
   const [isEditing, setIsEditing] = useState(false);
-  const [edits, setEdits] = useState<User>({});
+  const [edits, setEdits] = useState<Partial<User>>({});
   const { theme } = useTheme();
   const { showLoading, hideLoading } = useLoading();
 
   const handleUpdateProfile = async () => {
+    // Validate national number
+    if (isEditing) {
+      const nationalNumber =
+        edits.nationalNumber !== undefined
+          ? edits.nationalNumber
+          : user?.nationalNumber;
+      if (!nationalNumber || !/^\d{14}$/.test(nationalNumber)) {
+        Alert.alert(
+          "Validation Error",
+          "National number must be exactly 14 digits."
+        );
+        return;
+      }
+      // Validate school/university/college
+      const schoolType =
+        edits.schoolType !== undefined ? edits.schoolType : user?.schoolType;
+      const school = edits.school !== undefined ? edits.school : user?.school;
+      const college =
+        edits.college !== undefined ? edits.college : user?.college;
+      if (schoolType === "university") {
+        if (!school) {
+          Alert.alert("Validation Error", "Please select a university.");
+          return;
+        }
+        if (!college) {
+          Alert.alert("Validation Error", "Please enter your college.");
+          return;
+        }
+      } else if (schoolType === "school") {
+        if (!school) {
+          Alert.alert("Validation Error", "Please enter your school name.");
+          return;
+        }
+      }
+    }
     showLoading();
     await patch("users/editProfile", edits)
-      .then((res) => {
+      .then(() => {
         setIsEditing(false);
         updateState("user", { ...user, ...edits });
         setEdits({});
@@ -163,11 +199,6 @@ export default function Edit({}: Props) {
                       size="large"
                       color={Colors.light.primary}
                       className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                      style={
-                        {
-                          // transform: [{ translateX: 38 }, { translateY: -15 }],
-                        }
-                      }
                     />
                   </View>
                 ) : (
@@ -247,31 +278,245 @@ export default function Edit({}: Props) {
               className="mt-4"
             />
 
+            <View className="mt-4">
+              <Text
+                style={{
+                  color: !isEditing
+                    ? theme === "dark"
+                      ? "#6B7280"
+                      : "#9CA3AF"
+                    : theme === "dark"
+                    ? "#E5E5E5"
+                    : Colors.light.text,
+                }}
+                className="mb-2 font-semibold"
+              >
+                School Type
+              </Text>
+              <View
+                className="border border-gray-300 dark:border-gray-600 rounded-lg"
+                style={{
+                  backgroundColor: !isEditing
+                    ? theme === "dark"
+                      ? "#1F2937"
+                      : "#F0F5FA"
+                    : "transparent",
+                }}
+              >
+                <Picker
+                  selectedValue={
+                    edits.schoolType !== undefined
+                      ? edits.schoolType
+                      : user?.schoolType
+                  }
+                  onValueChange={(v: "" | "school" | "university") =>
+                    setEdits((prev) => ({
+                      ...prev,
+                      schoolType: v === "" ? undefined : v,
+                    }))
+                  }
+                  enabled={isEditing}
+                  style={{
+                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                    fontFamily: "Inter",
+                  }}
+                >
+                  <Picker.Item label="Select School Type" value="" />
+                  <Picker.Item label="School" value="school" />
+                  <Picker.Item label="University" value="university" />
+                </Picker>
+              </View>
+            </View>
+
+            {/* University/School Name */}
+            {(edits.schoolType !== undefined
+              ? edits.schoolType
+              : user?.schoolType) === "school" ? (
+              <TextInputComponent
+                value={edits.school !== undefined ? edits.school : user?.school}
+                disabled={!isEditing}
+                label="School Name"
+                placeholder="School Name"
+                onChange={(school) => setEdits((prev) => ({ ...prev, school }))}
+                className="mt-4"
+              />
+            ) : (
+              <View className="mt-4">
+                <Text
+                  className="mb-2 font-semibold"
+                  style={{
+                    color: !isEditing
+                      ? theme === "dark"
+                        ? "#6B7280"
+                        : "#9CA3AF"
+                      : theme === "dark"
+                      ? "#E5E5E5"
+                      : Colors.light.text,
+                  }}
+                >
+                  University
+                </Text>
+                <View
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg"
+                  style={{
+                    backgroundColor: !isEditing
+                      ? theme === "dark"
+                        ? "#1F2937"
+                        : "#F0F5FA"
+                      : "transparent",
+                  }}
+                >
+                  <Picker
+                    selectedValue={
+                      edits.school !== undefined ? edits.school : user?.school
+                    }
+                    onValueChange={(v: string) =>
+                      setEdits((prev) => ({ ...prev, school: v }))
+                    }
+                    enabled={isEditing}
+                    style={{
+                      color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    <Picker.Item label="Select University" value="" />
+                    {universities
+                      .sort((a: string, b: string) => a.localeCompare(b))
+                      .map((u) => (
+                        <Picker.Item key={u} label={u} value={u} />
+                      ))}
+                  </Picker>
+                </View>
+              </View>
+            )}
+            {/* College only if university */}
+            {(edits.schoolType !== undefined
+              ? edits.schoolType
+              : user?.schoolType) === "university" && (
+              <TextInputComponent
+                value={
+                  edits.college !== undefined ? edits.college : user?.college
+                }
+                disabled={!isEditing}
+                label="College"
+                placeholder="College"
+                onChange={(college) =>
+                  setEdits((prev) => ({ ...prev, college }))
+                }
+                className="mt-4"
+              />
+            )}
+
             <TextInputComponent
               value={
-                edits.university !== undefined
-                  ? edits.university
-                  : user?.university
+                edits.nationalNumber !== undefined
+                  ? edits.nationalNumber
+                  : user?.nationalNumber
               }
               disabled={!isEditing}
-              label="University"
-              placeholder="University"
-              onChange={(university) =>
-                setEdits((prev) => ({ ...prev, university }))
+              label="National Number"
+              placeholder="National Number"
+              onChange={(nationalNumber) =>
+                setEdits((prev) => ({ ...prev, nationalNumber }))
               }
               className="mt-4"
             />
 
-            <TextInputComponent
-              value={
-                edits.college !== undefined ? edits.college : user?.college
-              }
-              disabled={!isEditing}
-              label="College"
-              placeholder="College"
-              onChange={(college) => setEdits((prev) => ({ ...prev, college }))}
-              className="mt-4"
-            />
+            <View className="mt-4">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: !isEditing
+                    ? theme === "dark"
+                      ? "#6B7280"
+                      : "#9CA3AF"
+                    : theme === "dark"
+                    ? "#E5E5E5"
+                    : Colors.light.text,
+                }}
+              >
+                Government
+              </Text>
+              <View
+                className="border border-gray-300 dark:border-gray-600 rounded-lg"
+                style={{
+                  backgroundColor: !isEditing
+                    ? theme === "dark"
+                      ? "#1F2937"
+                      : "#F0F5FA"
+                    : "transparent",
+                }}
+              >
+                <Picker
+                  selectedValue={
+                    edits.government !== undefined
+                      ? edits.government
+                      : user?.government
+                  }
+                  onValueChange={(v: string) =>
+                    setEdits((prev) => ({ ...prev, government: v }))
+                  }
+                  enabled={isEditing}
+                  style={{
+                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                    fontFamily: "Inter",
+                  }}
+                >
+                  <Picker.Item label="Select Government" value="" />
+                  {governorates.map((g) => (
+                    <Picker.Item key={g} label={g} value={g} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            <View className="mt-4">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: !isEditing
+                    ? theme === "dark"
+                      ? "#6B7280"
+                      : "#9CA3AF"
+                    : theme === "dark"
+                    ? "#E5E5E5"
+                    : Colors.light.text,
+                }}
+              >
+                Gender
+              </Text>
+              <View
+                className="border border-gray-300 dark:border-gray-600 rounded-lg"
+                style={{
+                  backgroundColor: !isEditing
+                    ? theme === "dark"
+                      ? "#1F2937"
+                      : "#F0F5FA"
+                    : "transparent",
+                }}
+              >
+                <Picker
+                  selectedValue={
+                    edits.gender !== undefined ? edits.gender : user?.gender
+                  }
+                  onValueChange={(v: "male" | "female" | "") =>
+                    setEdits((prev) => ({
+                      ...prev,
+                      gender: v === "" ? undefined : v,
+                    }))
+                  }
+                  enabled={isEditing}
+                  style={{
+                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                    fontFamily: "Inter",
+                  }}
+                >
+                  <Picker.Item label="Select Gender" value="" />
+                  <Picker.Item label="Male" value="male" />
+                  <Picker.Item label="Female" value="female" />
+                </Picker>
+              </View>
+            </View>
 
             {/* Languages Section */}
             {isEditing && (
@@ -308,7 +553,6 @@ export default function Edit({}: Props) {
             {!isEditing && user?.languages && user.languages.length > 0 && (
               <View className="mt-4">
                 <Text
-                  className="dark:text-white"
                   style={{
                     fontFamily: "Poppins_Medium",
                   }}
@@ -354,7 +598,6 @@ export default function Edit({}: Props) {
             {!isEditing && user?.skills && user.skills.length > 0 && (
               <View className="mt-4">
                 <Text
-                  className="dark:text-white"
                   style={{
                     fontFamily: "Poppins_Medium",
                   }}

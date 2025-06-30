@@ -63,17 +63,18 @@ export default function Application() {
 
   const handleFilePick = async (questionId: string) => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: "image/*",
+      type: ["image/*", "application/pdf"],
     });
 
     if (!result.canceled) {
       try {
         // showLoading();
         const file = result.assets[0];
+        const fileExtension = file.mimeType?.includes('pdf') ? 'pdf' : 'png';
         const uploadResult = await uploadFile(
           file.uri,
           file.mimeType || "image/png",
-          `${questionId}.png`
+          `${questionId}.${fileExtension}`
         );
 
         // Save uploaded file URL/path immediately
@@ -324,29 +325,28 @@ export default function Application() {
       }}
     >
       <View className="container">
-
-      <FlatList
-        data={questions}
-        keyExtractor={(item) => item.id}
-        renderItem={renderQuestion}
-        ListHeaderComponent={() => (
-          <View className="flex-row items-center gap-3 my-5">
-            <BackButton />
-            <Text
-              style={{
-                fontFamily: "Poppins_Medium",
-                color: Colors[theme ?? "light"].primary,
-              }}
-            >
-              Applying Form
-            </Text>
-          </View>
-        )}
-        ListFooterComponent={() => (
-          <View className="my-5">
-            <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
-          </View>
-        )}
+        <FlatList
+          data={questions}
+          keyExtractor={(item) => item.id}
+          renderItem={renderQuestion}
+          ListHeaderComponent={() => (
+            <View className="flex-row items-center gap-3 my-5">
+              <BackButton />
+              <Text
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme ?? "light"].primary,
+                }}
+              >
+                Applying Form
+              </Text>
+            </View>
+          )}
+          ListFooterComponent={() => (
+            <View className="my-5">
+              <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
+            </View>
+          )}
           showsVerticalScrollIndicator={false}
         />
       </View>

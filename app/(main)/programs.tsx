@@ -17,8 +17,9 @@ function Programs({}: Props) {
   const [programs, setPrograms] = useState<Program[]>([]);
   const { theme } = useTheme();
   const { showLoading, hideLoading } = useLoading();
-  const getPrograms = useCallback(async () => {
-    showLoading();
+  const [refreshing, setRefreshing] = useState(false);
+  const getPrograms = useCallback(async (showLoader = true) => {
+    if (showLoader) showLoading();
     await get("programs/getAll")
       .then((res) => {
         setPrograms(res.data.data);
@@ -27,12 +28,17 @@ function Programs({}: Props) {
         console.log(err);
       })
       .finally(() => {
-        hideLoading();
+        if (showLoader) hideLoading();
       });
   }, []);
   useEffect(() => {
     getPrograms();
   }, []);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getPrograms(false);
+    setRefreshing(false);
+  };
   const router = useRouter();
   return (
     <View
@@ -57,6 +63,8 @@ function Programs({}: Props) {
         <FlatList
           className="mb-[90px] pb-10"
           data={programs}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           renderItem={(post) => (
             <ProgramCard
               color={post.item.accentColor}

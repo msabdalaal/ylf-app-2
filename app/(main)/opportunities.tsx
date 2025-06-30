@@ -210,7 +210,7 @@ function Opportunities() {
 
         {/* Opportunities List */}
         <FlatList
-          className="mb-2 mt-2"
+          className="mb-[90px] pb-10 mt-2"
           refreshing={refreshing}
           onRefresh={onRefresh}
           data={filteredOpportunities}

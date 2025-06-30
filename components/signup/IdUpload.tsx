@@ -37,11 +37,11 @@ export default function IdUpload({
           color: Colors.light.primary,
         }}
       >
-        National ID Card
+        National ID Card or Birth Certificate
       </Text>
       <Text className="mt-4 dark:text-white" style={{ fontFamily: "Inter" }}>
-        Scan your National ID to confirm your identity and gain access to our
-        services.
+        Scan your National ID or Birth Certificate to confirm your identity and
+        gain access to our services.
       </Text>
 
       <View className="mt-7 space-y-4">
