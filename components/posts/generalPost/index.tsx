@@ -8,6 +8,7 @@ import {
   BackHandler,
 } from "react-native";
 import { useRouter } from "expo-router";
+import * as Linking from "expo-linking";
 import dayjs from "dayjs";
 
 import { Colors } from "@/constants/Colors";
@@ -43,6 +44,45 @@ const normalizeHex = (hex: string) => {
   }
   // Otherwise assume #RRGGBB
   return hex;
+};
+
+// URL regex pattern to detect links
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+// Function to render text with clickable links
+const renderTextWithLinks = (
+  text: string,
+  isDark: boolean,
+  numberOfLines?: number
+) => {
+  const parts = text.split(urlRegex);
+
+  return (
+    <Text
+      numberOfLines={numberOfLines}
+      style={{
+        color: isDark ? "white" : "black",
+      }}
+    >
+      {parts.map((part, index) => {
+        if (urlRegex.test(part)) {
+          return (
+            <Text
+              key={index}
+              style={{
+                color: Colors.light.primary,
+                textDecorationLine: "underline",
+              }}
+              onPress={() => Linking.openURL(part)}
+            >
+              {part}
+            </Text>
+          );
+        }
+        return part;
+      })}
+    </Text>
+  );
 };
 
 const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
@@ -101,13 +141,13 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => router.push(`/post/${post.id}`)}
+          className="mb-4"
         >
-          <Text
-            className="mb-4 dark:text-white"
-            numberOfLines={isEvent || isProgram ? undefined : 3}
-          >
-            {post.content}
-          </Text>
+          {renderTextWithLinks(
+            post.content,
+            theme === "dark",
+            isEvent || isProgram ? undefined : 3
+          )}
         </TouchableOpacity>
       ) : null}
 

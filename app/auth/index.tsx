@@ -10,7 +10,6 @@ import {
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
 
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -27,7 +26,7 @@ import dayjs from "dayjs";
 import { isProfileComplete } from "@/utils/profileComplete";
 import { useLoading } from "@/context/LoadingContext";
 import universities, { governorates } from "@/constants/universities";
-
+import * as DocumentPicker from "expo-document-picker";
 import {
   validatePhoneNumber,
   validateDateOfBirth,
@@ -38,6 +37,7 @@ import {
 } from "@/utils/validation";
 import { AxiosError } from "axios";
 import MultiSelect from "@/components/inputs/multiSelect";
+import * as ImagePicker from "expo-image-picker";
 
 type FormState = {
   phoneNumber: string;
@@ -224,6 +224,34 @@ export default function AuthRedirectScreen() {
   }, [token]);
 
   // pickAvatar or ID
+  const pickImageAndFile = async (
+    setter: React.Dispatch<React.SetStateAction<string | null>>,
+    type?: "avatar" | "idFront" | "idBack"
+  ) => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["image/*", "application/pdf"],
+      copyToCacheDirectory: true,
+    });
+
+    if (!result.canceled) {
+      setter(result.assets[0].uri);
+      // Clear relevant errors when an image is selected
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        if (type === "avatar") {
+          delete newErrors.avatar;
+        } else if (type === "idFront") {
+          delete newErrors.idFront;
+          delete newErrors.idUpload;
+        } else if (type === "idBack") {
+          delete newErrors.idBack;
+          delete newErrors.idUpload;
+        }
+        return newErrors;
+      });
+    }
+  };
+
   const pickImage = async (
     setter: React.Dispatch<React.SetStateAction<string | null>>,
     type?: "avatar" | "idFront" | "idBack"
@@ -277,15 +305,26 @@ export default function AuthRedirectScreen() {
   // upload IDs
   const uploadIds = async () => {
     const form = new FormData();
+    const getFileInfo = (uri: string, side: "front" | "back") => {
+      const isPdf = uri.toLowerCase().endsWith(".pdf");
+      return {
+        type: isPdf ? "application/pdf" : "image/jpeg",
+        name: isPdf ? `id_${side}.pdf` : `id_${side}.jpg`,
+      };
+    };
+
+    const frontInfo = getFileInfo(idFront!, "front");
+    const backInfo = getFileInfo(idBack!, "back");
+
     form.append("id_front", {
       uri: idFront!,
-      type: "image/jpeg",
-      name: "id_front.jpg",
+      type: frontInfo.type,
+      name: frontInfo.name,
     } as any);
     form.append("id_back", {
       uri: idBack!,
-      type: "image/jpeg",
-      name: "id_back.jpg",
+      type: backInfo.type,
+      name: backInfo.name,
     } as any);
 
     showLoading();
@@ -749,7 +788,7 @@ export default function AuthRedirectScreen() {
                 color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
               }}
             >
-              National ID
+              National ID or Birth Certificate
             </Text>
             {errors.idUpload && (
               <Text className="text-red-500 text-sm mb-2">
@@ -768,7 +807,7 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImage(setIdFront, "idFront")}
+                    onPress={() => pickImageAndFile(setIdFront, "idFront")}
                     className={`border ${
                       errors.idFront ? "border-red-500" : "border-gray-400"
                     } border-dashed rounded-lg p-4 flex-row items-center`}
@@ -802,7 +841,7 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImage(setIdBack, "idBack")}
+                    onPress={() => pickImageAndFile(setIdBack, "idBack")}
                     className={`border ${
                       errors.idBack ? "border-red-500" : "border-gray-400"
                     } border-dashed rounded-lg p-4 flex-row items-center`}
