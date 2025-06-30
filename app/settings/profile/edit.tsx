@@ -553,8 +553,15 @@ export default function Edit({}: Props) {
             {!isEditing && user?.languages && user.languages.length > 0 && (
               <View className="mt-4">
                 <Text
+                  className="mb-2 font-semibold"
                   style={{
-                    fontFamily: "Poppins_Medium",
+                    color: !isEditing
+                      ? theme === "dark"
+                        ? "#6B7280"
+                        : "#9CA3AF"
+                      : theme === "dark"
+                      ? "#E5E5E5"
+                      : Colors.light.text,
                   }}
                 >
                   Languages
@@ -598,8 +605,15 @@ export default function Edit({}: Props) {
             {!isEditing && user?.skills && user.skills.length > 0 && (
               <View className="mt-4">
                 <Text
+                  className="mb-2 font-semibold"
                   style={{
-                    fontFamily: "Poppins_Medium",
+                    color: !isEditing
+                      ? theme === "dark"
+                        ? "#6B7280"
+                        : "#9CA3AF"
+                      : theme === "dark"
+                      ? "#E5E5E5"
+                      : Colors.light.text,
                   }}
                 >
                   Skills
