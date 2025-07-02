@@ -330,7 +330,7 @@ function Feed() {
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingBottom: 80, // يعوض المساحة السفلية ويخلي المؤشر يبان
+            paddingBottom: 80,
             paddingTop: 12,
           }}
         />

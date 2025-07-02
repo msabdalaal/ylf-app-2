@@ -209,8 +209,9 @@ function Opportunities() {
         </Modal>
 
         {/* Opportunities List */}
+
         <FlatList
-          className="mb-[90px] pb-10 mt-2"
+          className="mt-2"
           refreshing={refreshing}
           onRefresh={onRefresh}
           data={filteredOpportunities}
@@ -223,6 +224,7 @@ function Opportunities() {
           )}
           keyExtractor={(post) => post.id?.toString() || ""}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          contentContainerStyle={{ paddingBottom: 155 }}
         />
       </View>
     </View>
