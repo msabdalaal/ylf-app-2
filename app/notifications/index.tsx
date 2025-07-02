@@ -1,9 +1,7 @@
 import { View, Text, FlatList, Image } from "react-native";
 import React, {
   useCallback,
-  useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -221,9 +219,11 @@ export default function Notifications() {
   // Utility to render text with clickable links
   function renderTextWithLinks(text: string, isDark: boolean) {
     if (!text) return null;
-    // Regex to match URLs (http, https, www)
+    // Improved regex to match URLs including TLDs and trailing slashes/paths
+    // This will match e.g. https://gg.deals/ as a whole, not just https://gg
+    // It matches http(s):// or www., then domain, then optional path/query/fragment
     const urlRegex =
-      /((https?:\/\/|www\.)[\w\-._~:/?#[\]@!$&'()*+,;=%]+)(?=[\s.,;!?)]|$)/gi;
+      /((https?:\/\/|www\.)[a-zA-Z0-9\-._~%]+(\.[a-zA-Z]{2,})(:[0-9]+)?(\/[^\s]*)?)/gi;
     const parts = [];
     let lastIndex = 0;
     let match;
@@ -241,8 +241,13 @@ export default function Notifications() {
         );
       }
       let url = match[0];
-      // Ensure url has protocol
-      let openUrl = url.startsWith("http") ? url : `https://${url}`;
+      // Ensure url has protocol for www. links
+      let openUrl =
+        url.startsWith("http://") || url.startsWith("https://")
+          ? url
+          : url.startsWith("www.")
+          ? `https://${url}`
+          : url;
       parts.push(
         <Text
           key={key++}

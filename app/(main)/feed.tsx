@@ -23,9 +23,7 @@ import PostComponent from "@/components/posts/generalPost";
 import NotificationIcon from "@/components/notificationIcon";
 import { usePosts } from "@/context/postsContext";
 
-type Props = {};
-
-function Feed({}: Props) {
+function Feed() {
   const { setPosts, posts } = usePosts();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState("");

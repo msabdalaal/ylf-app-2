@@ -12,7 +12,6 @@ import * as Linking from "expo-linking";
 import dayjs from "dayjs";
 
 import { Colors } from "@/constants/Colors";
-import Dots from "@/assets/icons/dots";
 import Comments from "@/assets/icons/comments";
 import Heart from "@/assets/icons/Heart";
 import FileIcon from "@/assets/icons/file";
@@ -47,7 +46,9 @@ const normalizeHex = (hex: string) => {
 };
 
 // URL regex pattern to detect links
-const urlRegex = /(https?:\/\/[^\s]+)/g;
+// Updated regex to also match www. links (without protocol)
+const urlRegex =
+  /((https?:\/\/|www\.)[a-zA-Z0-9\-._~%]+(\.[a-zA-Z]{2,})(:[0-9]+)?(\/[^\s]*)?)/gi;
 
 // Function to render text with clickable links
 const renderTextWithLinks = (
@@ -55,34 +56,53 @@ const renderTextWithLinks = (
   isDark: boolean,
   numberOfLines?: number
 ) => {
-  const parts = text.split(urlRegex);
-
-  return (
-    <Text
-      numberOfLines={numberOfLines}
-      style={{
-        color: isDark ? "white" : "black",
-      }}
-    >
-      {parts.map((part, index) => {
-        if (urlRegex.test(part)) {
-          return (
-            <Text
-              key={index}
-              style={{
-                color: Colors.light.primary,
-                textDecorationLine: "underline",
-              }}
-              onPress={() => Linking.openURL(part)}
-            >
-              {part}
-            </Text>
-          );
-        }
-        return part;
-      })}
-    </Text>
-  );
+  if (!text) return null;
+  // Find all matches and split text accordingly
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+  while ((match = urlRegex.exec(text)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      parts.push(
+        <Text key={key++} style={{ color: isDark ? "white" : "black" }}>
+          {text.slice(lastIndex, match.index)}
+        </Text>
+      );
+    }
+    let url = match[0];
+    // Ensure url has protocol for www. links
+    let openUrl =
+      url.startsWith("http://") || url.startsWith("https://")
+        ? url
+        : url.startsWith("www.")
+        ? `https://${url}`
+        : url;
+    parts.push(
+      <Text
+        key={key++}
+        style={{
+          color: Colors.light.primary,
+          textDecorationLine: "underline",
+        }}
+        onPress={() => Linking.openURL(openUrl)}
+        suppressHighlighting
+      >
+        {url}
+      </Text>
+    );
+    lastIndex = match.index + url.length;
+  }
+  // Add any remaining text
+  if (lastIndex < text.length) {
+    parts.push(
+      <Text key={key++} style={{ color: isDark ? "white" : "black" }}>
+        {text.slice(lastIndex)}
+      </Text>
+    );
+  }
+  return <Text numberOfLines={numberOfLines}>{parts}</Text>;
 };
 
 const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {

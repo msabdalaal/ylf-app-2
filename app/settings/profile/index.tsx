@@ -120,13 +120,15 @@ const profile = (props: Props) => {
                   <View className="h-20 w-20 bg-white dark:bg-gray-800 rounded-full shadow-sm overflow-hidden mb-2">
                     <View
                       style={{ backgroundColor: "#015CA4" }}
-                      className="absolute w-full h-full rounded-full z-0 p-1"
+                      className="absolute w-full h-full rounded-full items-center justify-center z-0 p-2"
                     >
-                      <Image
-                        src={imageUrl(program.program.logo.path)}
-                        resizeMode="contain"
-                        className="w-full h-full z-10"
-                      />
+                      <View className="w-full h-full rounded-full z-0 overflow-hidden">
+                        <Image
+                          src={imageUrl(program.program.logo.path)}
+                          resizeMode="contain"
+                          className="w-full h-full z-10"
+                        />
+                      </View>
                     </View>
                   </View>
                   <Text
@@ -231,13 +233,15 @@ const profile = (props: Props) => {
                       <View className="h-20 w-20 bg-white dark:bg-gray-800 rounded-full shadow-sm overflow-hidden mb-2">
                         <View
                           style={{ backgroundColor: "#015CA4" }}
-                          className="absolute w-full h-full rounded-full z-0 p-1"
+                          className="absolute w-full h-full rounded-full items-center justify-center z-0 p-2"
                         >
-                          <Image
-                            src={imageUrl(group.program.logo.path)}
-                            resizeMode="contain"
-                            className="w-full h-full z-10"
-                          />
+                          <View className="w-full h-full rounded-full z-0 overflow-hidden">
+                            <Image
+                              src={imageUrl(group.program.logo.path)}
+                              resizeMode="contain"
+                              className="w-full h-full z-10"
+                            />
+                          </View>
                         </View>
                       </View>
                       <Text
