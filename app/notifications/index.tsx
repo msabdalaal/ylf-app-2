@@ -10,19 +10,18 @@ import React, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
-import { get, post } from "@/hooks/axios";
+import { get } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { Notification, Program } from "@/constants/types";
-import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
 import { TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useLoading } from "@/context/LoadingContext";
-import NotificationBell from "@/assets/icons/NotificationBell";
 import { AppState, AppStateStatus } from "react-native";
 import imageUrl from "@/utils/imageUrl";
+import * as Linking from "expo-linking";
 
 export default function Notifications() {
   const { theme } = useTheme();
@@ -116,7 +115,7 @@ export default function Notifications() {
                   color: isDark ? "#9CA3AF" : Colors.light.text,
                 }}
               >
-                {item.body}
+                {renderTextWithLinks(item.body, isDark)}
               </Text>
               <Text
                 className="text-xs mt-1"
@@ -218,6 +217,60 @@ export default function Notifications() {
       subscription.remove();
     };
   }, [handleAppStateChange]);
+
+  // Utility to render text with clickable links
+  function renderTextWithLinks(text: string, isDark: boolean) {
+    if (!text) return null;
+    // Regex to match URLs (http, https, www)
+    const urlRegex =
+      /((https?:\/\/|www\.)[\w\-._~:/?#[\]@!$&'()*+,;=%]+)(?=[\s.,;!?)]|$)/gi;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    let key = 0;
+    while ((match = urlRegex.exec(text)) !== null) {
+      // Add text before the link
+      if (match.index > lastIndex) {
+        parts.push(
+          <Text
+            key={key++}
+            style={{ color: isDark ? "white" : Colors.light.text }}
+          >
+            {text.slice(lastIndex, match.index)}
+          </Text>
+        );
+      }
+      let url = match[0];
+      // Ensure url has protocol
+      let openUrl = url.startsWith("http") ? url : `https://${url}`;
+      parts.push(
+        <Text
+          key={key++}
+          style={{
+            color: Colors.light.primary,
+            textDecorationLine: "underline",
+          }}
+          onPress={() => Linking.openURL(openUrl)}
+          suppressHighlighting
+        >
+          {url}
+        </Text>
+      );
+      lastIndex = match.index + url.length;
+    }
+    // Add any remaining text
+    if (lastIndex < text.length) {
+      parts.push(
+        <Text
+          key={key++}
+          style={{ color: isDark ? "white" : Colors.light.text }}
+        >
+          {text.slice(lastIndex)}
+        </Text>
+      );
+    }
+    return parts;
+  }
 
   return (
     <SafeAreaView

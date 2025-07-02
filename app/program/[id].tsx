@@ -331,7 +331,7 @@ export default function Program() {
             }}
             href={`/program/${program.id}/application`}
           >
-            {program.forGroups ? "Apply as a Group" : "Apply Now"}
+            {program.forGroups ? "Apply as a Group / Team" : "Apply Now"}
           </PrimaryLink>
         </View>
       )}

@@ -7,6 +7,7 @@ import {
   FlatList,
   Modal,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
@@ -61,13 +62,39 @@ export default function Application() {
     }
   };
 
+  // Add per-input file uploading state
+  const [fileUploading, setFileUploading] = useState<{
+    [key: string]: boolean;
+  }>({});
+
   // Use Expo DocumentPicker for file uploads
   const handleFilePick = async (questionId: string) => {
+    setFileUploading((prev) => ({ ...prev, [questionId]: true }));
     const result = await DocumentPicker.getDocumentAsync({
-      type: "image/*",
+      type:
+        questions.find((q) => q.id === questionId)?.fileFormat?.length === 0
+          ? ["image/*", "application/pdf"]
+          : questions.find((q) => q.id === questionId)?.fileFormat,
     });
     if (!result.canceled) {
-      handleInputChange(questionId, result.assets[0].uri);
+      try {
+        const file = result.assets[0];
+        // You may want to set the extension/mimeType as in other forms
+        const fileExtension = file.mimeType?.includes("pdf") ? "pdf" : "png";
+        const uploadResult = await uploadFile(
+          file.uri,
+          file.mimeType || "image/png",
+          `${questionId}.${fileExtension}`
+        );
+        handleInputChange(questionId, uploadResult);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        Alert.alert("Upload Error", "Failed to upload file.");
+      } finally {
+        setFileUploading((prev) => ({ ...prev, [questionId]: false }));
+      }
+    } else {
+      setFileUploading((prev) => ({ ...prev, [questionId]: false }));
     }
   };
 
@@ -157,6 +184,9 @@ export default function Application() {
     setDropdownVisible(false);
   };
 
+  // Disable submit if any file is uploading
+  const isAnyFileUploading = Object.values(fileUploading).some(Boolean);
+
   // Render a single question based on its type
   const renderQuestion = ({ item: question }: { item: Question }) => {
     switch (question.type) {
@@ -182,14 +212,46 @@ export default function Application() {
             <Text className="mb-2 dark:text-white">
               {question.question + (question.required ? " *" : "")}
             </Text>
-            <TouchableOpacity
-              onPress={() => handleFilePick(question.id)}
-              className="border border-gray-300 p-3 rounded-lg"
-            >
-              <Text className="dark:text-white">
-                {formData[question.id] ? "File Selected" : "Select File"}
-              </Text>
-            </TouchableOpacity>
+            <View className="flex flex-row gap-2">
+              <TouchableOpacity
+                onPress={() => handleFilePick(question.id)}
+                className="flex-1 border border-gray-300 p-3 rounded-lg"
+                disabled={
+                  !!formData[question.id] || !!fileUploading[question.id]
+                }
+                style={{
+                  opacity:
+                    !!formData[question.id] || fileUploading[question.id]
+                      ? 0.6
+                      : 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {fileUploading[question.id] ? (
+                  <>
+                    <Text className="dark:text-white mr-2">Uploading...</Text>
+                    <ActivityIndicator
+                      size="small"
+                      color={Colors.light.primary}
+                    />
+                  </>
+                ) : (
+                  <Text className="dark:text-white">
+                    {formData[question.id] ? "File Selected" : "Select File"}
+                  </Text>
+                )}
+              </TouchableOpacity>
+              {formData[question.id] && !fileUploading[question.id] && (
+                <TouchableOpacity
+                  onPress={() => handleInputChange(question.id, "")}
+                  className="flex justify-center items-center bg-red-500 rounded-lg px-4"
+                >
+                  <Text className="text-white text-center text-2xl">x</Text>
+                </TouchableOpacity>
+              )}
+            </View>
             {errors[question.id] && (
               <Text className="text-red-500 mt-1">{errors[question.id]}</Text>
             )}
@@ -318,7 +380,12 @@ export default function Application() {
         )}
         ListFooterComponent={() => (
           <View className="my-5">
-            <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
+            <PrimaryButton
+              onPress={handleSubmit}
+              disabled={loading || isAnyFileUploading}
+            >
+              Submit
+            </PrimaryButton>
           </View>
         )}
         showsVerticalScrollIndicator={false}

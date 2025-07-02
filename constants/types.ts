@@ -118,6 +118,7 @@ export interface Question {
   question: string;
   required: boolean;
   type: "complete" | "upload" | "rightWrong" | "mcq";
+  fileFormat?: string[];
 }
 
 export interface Opportunity {

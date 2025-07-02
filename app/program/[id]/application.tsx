@@ -7,6 +7,7 @@ import {
   FlatList,
   Modal,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "@/components/buttons/backButton";
@@ -61,16 +62,24 @@ export default function Application() {
     }
   };
 
+  const [fileUploading, setFileUploading] = useState<{
+    [key: string]: boolean;
+  }>({});
+
   const handleFilePick = async (questionId: string) => {
+    setFileUploading((prev) => ({ ...prev, [questionId]: true }));
     const result = await DocumentPicker.getDocumentAsync({
-      type: ["image/*", "application/pdf"],
+      type:
+        questions.find((q) => q.id === questionId)?.fileFormat?.length === 0
+          ? ["image/*", "application/pdf"]
+          : questions.find((q) => q.id === questionId)?.fileFormat,
     });
 
     if (!result.canceled) {
       try {
         // showLoading();
         const file = result.assets[0];
-        const fileExtension = file.mimeType?.includes('pdf') ? 'pdf' : 'png';
+        const fileExtension = file.mimeType?.includes("pdf") ? "pdf" : "png";
         const uploadResult = await uploadFile(
           file.uri,
           file.mimeType || "image/png",
@@ -83,8 +92,11 @@ export default function Application() {
         console.error("Upload failed:", error);
         Alert.alert("Upload Error", "Failed to upload file.");
       } finally {
+        setFileUploading((prev) => ({ ...prev, [questionId]: false }));
         // hideLoading();
       }
+    } else {
+      setFileUploading((prev) => ({ ...prev, [questionId]: false }));
     }
   };
 
@@ -172,6 +184,9 @@ export default function Application() {
     await deleteFile(uri);
   };
 
+  // Disable submit if any file is uploading
+  const isAnyFileUploading = Object.values(fileUploading).some(Boolean);
+
   // Render a single question based on its type
   const renderQuestion = ({ item: question }: { item: Question }) => {
     switch (question.type) {
@@ -201,12 +216,32 @@ export default function Application() {
               <TouchableOpacity
                 onPress={() => handleFilePick(question.id)}
                 className="flex-1 border border-gray-300 p-3 rounded-lg"
+                disabled={!!formData[question.id] || !!fileUploading[question.id]}
+                style={{
+                  opacity:
+                    !!formData[question.id] || fileUploading[question.id]
+                      ? 0.6
+                      : 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <Text className="dark:text-white">
-                  {formData[question.id] ? "File Selected" : "Select File"}
-                </Text>
+                {fileUploading[question.id] ? (
+                  <>
+                    <Text className="dark:text-white mr-2">Uploading...</Text>
+                    <ActivityIndicator
+                      size="small"
+                      color={Colors.light.primary}
+                    />
+                  </>
+                ) : (
+                  <Text className="dark:text-white">
+                    {formData[question.id] ? "File Selected" : "Select File"}
+                  </Text>
+                )}
               </TouchableOpacity>
-              {formData[question.id] && (
+              {formData[question.id] && !fileUploading[question.id] && (
                 <TouchableOpacity
                   onPress={() => handleDeleteFile(question.id)}
                   className="flex justify-center items-center bg-red-500 rounded-lg px-4"
@@ -344,7 +379,12 @@ export default function Application() {
           )}
           ListFooterComponent={() => (
             <View className="my-5">
-              <PrimaryButton onPress={handleSubmit}>Submit</PrimaryButton>
+              <PrimaryButton
+                onPress={handleSubmit}
+                disabled={loading || isAnyFileUploading}
+              >
+                Submit
+              </PrimaryButton>
             </View>
           )}
           showsVerticalScrollIndicator={false}

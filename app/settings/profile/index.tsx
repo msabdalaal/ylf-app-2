@@ -118,11 +118,16 @@ const profile = (props: Props) => {
               user.programApplications.map((program, index) => (
                 <View key={index} className="items-center">
                   <View className="h-20 w-20 bg-white dark:bg-gray-800 rounded-full shadow-sm overflow-hidden mb-2">
-                    <Image
-                      src={imageUrl(program.program.logo.path)}
-                      resizeMode="contain"
-                      className="w-full h-full"
-                    />
+                    <View
+                      style={{ backgroundColor: "#015CA4" }}
+                      className="absolute w-full h-full rounded-full z-0 p-1"
+                    >
+                      <Image
+                        src={imageUrl(program.program.logo.path)}
+                        resizeMode="contain"
+                        className="w-full h-full z-10"
+                      />
+                    </View>
                   </View>
                   <Text
                     className="text-sm dark:text-white text-center"
@@ -178,53 +183,78 @@ const profile = (props: Props) => {
                         backgroundColor: Colors[theme ?? "light"].primary,
                       }}
                     >
-                      <Text
-                        className="text-sm text-white dark:text-black font-bold"
-                        style={{ fontFamily: "Poppins_Medium" }}
-                      >
-                        {group.referenceCode}
-                      </Text>
+                      <View className="flex-col items-center justify-center">
+                        <Text
+                          className="text-[10px] text-white dark:text-black font-bold"
+                          style={{ fontFamily: "Poppins_Medium" }}
+                        >
+                          Reference Code
+                        </Text>
+                        <Text
+                          className="text-sm text-white dark:text-black font-bold"
+                          style={{ fontFamily: "Poppins_Medium" }}
+                        >
+                          {group.referenceCode}
+                        </Text>
+                      </View>
                       <Text className="text-white text-sm">📋</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               ))}
           </View>
-          {Array.isArray(user?.groups) && user?.groups?.length > 0 && (
-            <Text
-              className="mt-6 mb-3 dark:text-white"
-              style={{
-                fontFamily: "Poppins_Medium",
-                color: Colors[theme ?? "light"].primary,
-              }}
-            >
-              Member of:
-            </Text>
-          )}
-          <View className="flex-row items-center gap-4 mt-2 mb-4">
-            {Array.isArray(user?.groups) &&
-              user?.groups?.length > 0 &&
-              user.groups.map((group, index) => (
-                <View key={index} className="items-center">
-                  <View className="h-20 w-20 bg-white dark:bg-gray-800 rounded-full shadow-sm overflow-hidden mb-2">
-                    <Image
-                      src={imageUrl(group.program.logo.path)}
-                      resizeMode="contain"
-                      className="w-full h-full"
-                    />
-                  </View>
-                  <Text
-                    className="text-sm dark:text-white text-center mb-1"
-                    style={{ fontFamily: "Poppins_Medium" }}
-                  >
-                    {group.name}
-                  </Text>
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    {group.program.name}
-                  </Text>
+          {(() => {
+            if (!Array.isArray(user?.groups) || user?.groups?.length === 0)
+              return null;
+            const filteredGroups = user.groups.filter(
+              (group) =>
+                !Array.isArray(user?.groupLeader) ||
+                !user.groupLeader.some(
+                  (leaderGroup) => leaderGroup.id === group.id
+                )
+            );
+            if (filteredGroups.length === 0) return null;
+            return (
+              <>
+                <Text
+                  className="mt-6 mb-3 dark:text-white"
+                  style={{
+                    fontFamily: "Poppins_Medium",
+                    color: Colors[theme ?? "light"].primary,
+                  }}
+                >
+                  Member of:
+                </Text>
+                <View className="flex-row items-center gap-4 mt-2 mb-4">
+                  {filteredGroups.map((group, index) => (
+                    <View key={index} className="items-center">
+                      <View className="h-20 w-20 bg-white dark:bg-gray-800 rounded-full shadow-sm overflow-hidden mb-2">
+                        <View
+                          style={{ backgroundColor: "#015CA4" }}
+                          className="absolute w-full h-full rounded-full z-0 p-1"
+                        >
+                          <Image
+                            src={imageUrl(group.program.logo.path)}
+                            resizeMode="contain"
+                            className="w-full h-full z-10"
+                          />
+                        </View>
+                      </View>
+                      <Text
+                        className="text-sm dark:text-white text-center mb-1"
+                        style={{ fontFamily: "Poppins_Medium" }}
+                      >
+                        {group.name}
+                      </Text>
+                      <Text className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        {group.program.name}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
-              ))}
-          </View>
+              </>
+            );
+          })()}
           <View className="bg-[#F6F8FA] dark:bg-[#015CA41A] gap-4 justify-start mt-6 items-start p-6 rounded-3xl">
             <View className="flex-row items-center gap-4">
               <View className="bg-white dark:bg-gray-800 w-11 h-11 rounded-full justify-center items-center">
