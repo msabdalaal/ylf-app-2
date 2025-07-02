@@ -104,8 +104,10 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
           break;
         case "nationalNumber":
           if (!value) error = "National number is required";
-          else if (!/^\d{14}$/.test(value))
-            error = "National number must be exactly 14 digits";
+          else if (value.length < 5)
+            error = "National number must be at least 5 characters";
+          else if (value.length > 14)
+            error = "National number must be at most 14 characters";
           break;
         case "gender":
           error = value ? "" : "Please select a gender";
@@ -392,8 +394,8 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
               error={errors.experiences}
             />
             <TextInputComponent
-              label="National Number"
-              placeholder="National Number"
+              label="National ID Number or Passport ID Number"
+              placeholder="National ID Number or Passport ID Number"
               value={formData.nationalNumber}
               onChange={(text) => {
                 setFormData((prev) => ({ ...prev, nationalNumber: text }));

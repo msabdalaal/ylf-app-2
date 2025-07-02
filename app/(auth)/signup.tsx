@@ -369,6 +369,24 @@ const SignUp = () => {
     }
   };
 
+  // Password validation utility (same as in PasswordSetup)
+  function getPasswordErrors(password: string, confirmPassword: string) {
+    const errors: string[] = [];
+    if (password.length < 8) {
+      errors.push("At least 8 characters");
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push("At least one capital letter");
+    }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+      errors.push("At least one special character");
+    }
+    if (confirmPassword && password !== confirmPassword) {
+      errors.push("Passwords do not match");
+    }
+    return errors;
+  }
+
   return (
     <SafeAreaView
       className="flex-1 w-full"
@@ -376,7 +394,15 @@ const SignUp = () => {
     >
       <View className="container flex-1">
         {renderStep()}
-        <PrimaryButton onPress={handleContinue} className="my-6">
+        <PrimaryButton
+          onPress={handleContinue}
+          className="my-6"
+          disabled={
+            loading ||
+            (step === 4 &&
+              getPasswordErrors(formData.password, confirmPassword).length > 0)
+          }
+        >
           {loading ? "Signing Up ..." : step === 5 ? "Sign Up" : "Continue"}
         </PrimaryButton>
         {step === 1 && (

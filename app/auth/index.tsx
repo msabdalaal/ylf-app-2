@@ -117,8 +117,10 @@ export default function AuthRedirectScreen() {
       case "nationalNumber":
         if (!value) {
           error = "National number is required";
-        } else if (!/^\d{14}$/.test(value)) {
-          error = "National number must be exactly 14 digits";
+        } else if (value.length < 5) {
+          error = "National number must be at least 5 characters";
+        } else if (value.length > 14) {
+          error = "National number must be at most 14 characters";
         }
         break;
       case "gender":
@@ -743,8 +745,8 @@ export default function AuthRedirectScreen() {
         )}
         {missingFields.nationalNumber && (
           <TextInputComponent
-            label="National Number"
-            placeholder="National Number"
+            label="National ID Number or Passport ID Number"
+            placeholder="National ID Number or Passport ID Number"
             value={formData.nationalNumber}
             onChange={(v) => updateFormField("nationalNumber", v)}
             className="mt-4"

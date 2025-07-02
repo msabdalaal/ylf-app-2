@@ -14,6 +14,23 @@ interface PasswordSetupProps {
   onBack: () => void;
 }
 
+function getPasswordErrors(password: string, confirmPassword: string) {
+  const errors: string[] = [];
+  if (password.length < 8) {
+    errors.push("At least 8 characters");
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("At least one capital letter");
+  }
+  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+    errors.push("At least one special character");
+  }
+  if (confirmPassword && password !== confirmPassword) {
+    errors.push("Passwords do not match");
+  }
+  return errors;
+}
+
 export default function PasswordSetup({
   formData,
   setFormData,
@@ -21,6 +38,7 @@ export default function PasswordSetup({
   setConfirmPassword,
   onBack,
 }: PasswordSetupProps) {
+  const passwordErrors = getPasswordErrors(formData.password, confirmPassword);
   return (
     <SafeAreaView>
       <BackButton onClick={onBack} />
@@ -51,6 +69,18 @@ export default function PasswordSetup({
           value={confirmPassword}
           onChange={(text) => setConfirmPassword(text)}
         />
+        {passwordErrors.length > 0 && (
+          <View className="mt-2">
+            {passwordErrors.map((err, idx) => (
+              <Text
+                key={idx}
+                style={{ color: "#E41D1D", fontSize: 13, fontFamily: "Inter" }}
+              >
+                • {err}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
