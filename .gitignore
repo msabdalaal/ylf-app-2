@@ -6,3 +6,5 @@ ios
 expo-env.d.ts
 credentials.json
 .DS_Store
+*.aab
+ylf-app-450113-f012b2f38876.json

@@ -12,19 +12,20 @@ import { useTheme } from "@/context/ThemeContext";
 
 import PrimaryButton from "@/components/buttons/primary";
 import SkinnyButton from "@/components/buttons/skinny";
-import { patch } from "@/hooks/axios";
+import { del, patch } from "@/hooks/axios";
 import * as ImagePicker from "expo-image-picker";
-import { getValueFor } from "@/hooks/storage";
+import { getValueFor, remove } from "@/hooks/storage";
 import { Alert } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useLoading } from "@/context/LoadingContext";
 import MultiSelect from "@/components/inputs/multiSelect";
 import universities, { governorates } from "@/constants/universities";
 import { Picker } from "@react-native-picker/picker";
+import { router } from "expo-router";
 
 type Props = {};
 
-export default function Edit({}: Props) {
+export default function Edit() {
   const {
     state: { user },
     updateState,
@@ -155,6 +156,36 @@ export default function Edit({}: Props) {
         setTempAvatarUri(null);
       }
     }
+  };
+
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await del("users/deleteAccount");
+              await remove("token");
+              router.replace("/login");
+            } catch (err: any) {
+              Alert.alert(
+                "Error",
+                err.response?.data?.message || "Failed to delete account"
+              );
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -660,6 +691,15 @@ export default function Edit({}: Props) {
                 onPress={handleUpdateProfile}
               >
                 Update Profile
+              </PrimaryButton>
+            )}
+            {!isEditing && (
+              <PrimaryButton
+                className="mt-4 mb-8 "
+                color="#AF2000"
+                onPress={handleDeleteAccount}
+              >
+                Delete Account
               </PrimaryButton>
             )}
           </View>

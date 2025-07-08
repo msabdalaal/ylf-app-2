@@ -1,15 +1,12 @@
 {
   "expo": {
-    "name": "YLF",
+    "name": "Youth Leaders Foundation - YLF",
     "slug": "ylf-mobile-app",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ylf.app.scheme",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -22,10 +19,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ylf.app",
+      "versionCode": 2,
       "permissions": [
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
       ],
       "googleServicesFile": "./google-services.json"
     },
@@ -61,7 +60,13 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.25"
+            "kotlinVersion": "1.9.25",
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "enableProguardInReleaseBuilds": true,
+            "enableSeparateBuildPerCPUArchitecture": false,
+            "enableShrinkResourcesInReleaseBuilds": true
           }
         }
       ],
@@ -75,7 +80,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos for verification."
+          "photosPermission": "The app accesses your photos for verification.",
+          "cameraPermission": "The app accesses your camera for verification."
         }
       ],
       [

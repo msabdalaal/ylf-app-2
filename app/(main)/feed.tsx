@@ -25,6 +25,9 @@ import { usePosts } from "@/context/postsContext";
 
 function Feed() {
   const { setPosts, posts } = usePosts();
+
+  console.log(posts);
+
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({

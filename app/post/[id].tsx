@@ -42,6 +42,7 @@ export default function Post() {
   const { updatePost } = usePosts();
   const headerHeight = useHeaderHeight();
   const [post, setPost] = useState<Post>();
+  console.log(post);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
   const { id } = useLocalSearchParams();

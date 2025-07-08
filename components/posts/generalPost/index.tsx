@@ -26,7 +26,6 @@ type CombinedPost = BasePost & {
   eventId?: string;
   programId?: string;
   isRegistered?: boolean;
-  videoUrl?: string;
 };
 
 type Props = {
@@ -127,8 +126,16 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
   const isEvent = !!post.eventId;
   const isProgram = !!post.programId && !post.eventId;
   const isFile = !!post.file;
-  const isVideo = !!post.videoUrl;
-  const hasImage = post.images?.length > 0;
+  const isVideo = post.images[0]?.path
+    ?.toLowerCase()
+    .match(/\.(mp4|mov|avi|wmv|flv|webm|mkv)$/);
+  const hasImage =
+    post.images?.length > 0 &&
+    !post.images[0]?.path
+      ?.toLowerCase()
+      .match(/\.(mp4|mov|avi|wmv|flv|webm|mkv)$/);
+
+  console.log(!hasImage && isVideo);
   const user = userOverride ?? post.user;
   // dynamic backgrounds
   const baseColor = color ? normalizeHex(color) : null;
@@ -210,7 +217,7 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
       {/* Video (if no image) */}
       {!hasImage && isVideo && (
         <View className="relative h-60 w-full rounded-3xl mb-4">
-          <VideoScreen videoSource={post.videoUrl!} />
+          <VideoScreen videoSource={imageUrl(post.images[0]?.path)} />
         </View>
       )}
 

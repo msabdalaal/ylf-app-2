@@ -27,6 +27,7 @@ export interface Event {
 
 interface Image {
   path: string;
+  category?: string;
 }
 
 export interface User {

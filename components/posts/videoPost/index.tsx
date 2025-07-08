@@ -2,7 +2,8 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import Comments from "@/assets/icons/comments";
-import Heart from "@/assets/icons/Heart";import { Post } from "@/constants/types";
+import Heart from "@/assets/icons/Heart";
+import { Post } from "@/constants/types";
 import imageUrl from "@/utils/imageUrl";
 import VideoScreen from "../videoPlayer";
 import { useRouter } from "expo-router";
@@ -31,6 +32,7 @@ const VideoPost = ({
       name: "YLF",
       email: "ylf",
       avatar: require("@/assets/images/avatar.png"),
+      groups: [],
     },
     imageId: null,
     images: [],

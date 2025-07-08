@@ -9,6 +9,8 @@ export default function VideoScreen({ videoSource }: { videoSource: string }) {
     // Optional configuration (e.g., player.loop = true)
   });
 
+  console.log(videoSource);
+
   // Create a ref for VideoView to access its instance methods
   const videoViewRef = useRef(null);
 
