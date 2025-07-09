@@ -53,8 +53,10 @@ export default function Edit() {
       const schoolType =
         edits.schoolType !== undefined ? edits.schoolType : user?.schoolType;
       const school = edits.school !== undefined ? edits.school : user?.school;
-      const college =
-        edits.college !== undefined ? edits.college : user?.college;
+      let college = edits.college !== undefined ? edits.college : user?.college;
+      if (schoolType === "school") {
+        edits.college = "";
+      }
       if (schoolType === "university") {
         if (!school) {
           Alert.alert("Validation Error", "Please select a university.");
@@ -72,6 +74,9 @@ export default function Edit() {
       }
     }
     showLoading();
+
+    console.log("edits" + { ...user, ...edits });
+
     await patch("users/editProfile", edits)
       .then(() => {
         setIsEditing(false);

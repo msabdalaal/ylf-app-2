@@ -167,6 +167,8 @@ export default function AuthRedirectScreen() {
         if (!user.dateOfBirth) missing.dateOfBirth = true;
         if (!user.schoolType) missing.schoolType = true;
         if (!user.school) missing.school = true;
+        if (!user.college && user.schoolType == "university")
+          missing.college = true;
         if (!user.experiences) missing.experiences = true;
         if (!user.jobTitle) missing.jobTitle = true;
         if (!user.age) missing.age = true;

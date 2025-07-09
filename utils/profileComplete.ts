@@ -8,6 +8,8 @@ export const isProfileComplete = (user: User) => {
   if (!user.phoneNumber) missingFields.phoneNumber = true;
   if (!user.dateOfBirth) missingFields.dateOfBirth = true;
   if (!user.school) missingFields.school = true;
+  if (!user.college && user.schoolType == "university")
+    missingFields.college = true;
   if (!user.jobTitle) missingFields.jobTitle = true;
   if (!user.age) missingFields.age = true;
   if (!user.address) missingFields.address = true;
