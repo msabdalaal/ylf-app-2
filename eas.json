@@ -8,11 +8,6 @@
       "developmentClient": true,
       "distribution": "internal"
     },
-    "ios-simulator": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "platforms": ["ios"]
-    },
     "preview": {
       "distribution": "internal"
     },
