@@ -66,6 +66,7 @@ export default function TabLayout() {
             borderTopWidth: 0,
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
+            paddingBottom: Platform.OS === "ios" ? 10 : 0,
             bottom: 0,
             left: 0,
             right: 0,
