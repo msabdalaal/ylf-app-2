@@ -6,7 +6,7 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import "../global.css";
-import {  save } from "@/hooks/storage";
+import { save } from "@/hooks/storage";
 import { ApplicationContext, ApplicationProvider } from "@/context";
 import { usePushNotifications } from "../hooks/useExpoNotification";
 import { ThemeProvider } from "@/context/ThemeContext";

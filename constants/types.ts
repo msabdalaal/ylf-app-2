@@ -106,6 +106,7 @@ export interface Program {
   logo: Logo;
   croppedImage?: Logo;
   isRegistered?: boolean;
+  hasPosts?: boolean;
 }
 
 export interface Logo {

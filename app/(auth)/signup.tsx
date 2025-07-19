@@ -28,6 +28,7 @@ import {
   validateLanguage,
   validateSkill,
 } from "@/utils/validation";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 export interface formData {
   name: string;
@@ -54,6 +55,7 @@ export interface formData {
 }
 
 const SignUp = () => {
+  const { signInWithGoogle } = useGoogleSignIn();
   const { updateState } = useContext(ApplicationContext);
   const router = useRouter();
   const { theme } = useTheme();
@@ -153,13 +155,6 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    const redirect = Linking.createURL("/");
-    await WebBrowser.openAuthSessionAsync(
-      `https://mobile.ylf-eg.org/api/auth/google`,
-      redirect
-    );
-  };
   const userInfoRef = useRef<UserInfoRef>(null);
 
   const handleContinue = async () => {
@@ -426,7 +421,7 @@ const SignUp = () => {
             <TouchableOpacity
               className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
               style={{ borderColor: Colors.light.border }}
-              onPress={handleGoogleSignIn}
+              onPress={signInWithGoogle}
             >
               <Image
                 source={require("@/assets/images/iconImages/googleIcon.png")}

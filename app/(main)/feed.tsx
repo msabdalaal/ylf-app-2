@@ -258,7 +258,7 @@ function Feed() {
                   name: "YLF",
                   accentColor: undefined,
                 },
-                ...programs,
+                ...programs.filter((prog) => prog.hasPosts),
               ]}
               showsHorizontalScrollIndicator={false}
               className="my-5"

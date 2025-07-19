@@ -134,22 +134,7 @@ const Login = () => {
     }
   };
   const { signInWithGoogle } = useGoogleSignIn();
-  // const handleGoogleSignIn = async () => {
-  //   // let redirect;
-  //   // if (Platform.OS === "ios") {
-  //   //   redirect = Linking.createURL("auth");
-  //   // } else {
-  //   //   redirect = Linking.createURL("/");
-  //   // }
 
-  //   // console.log(redirect);
-
-  //   // await WebBrowser.openAuthSessionAsync(
-  //   //   `https://mobile.ylf-eg.org/api/auth/google`,
-  //   //   redirect
-  //   // );
-  //   // signInWithGoogle();
-  // };
   const { theme } = useTheme();
 
   return (
