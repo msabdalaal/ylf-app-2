@@ -1,6 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Image,
+  Platform,
+} from "react-native";
 import { useRouter } from "expo-router";
 import * as LocalAuthentication from "expo-local-authentication";
 import * as SecureStore from "expo-secure-store";
@@ -19,6 +26,7 @@ import { ApplicationContext } from "@/context";
 import SkinnyLink from "@/components/links/skinny";
 import { useTheme } from "@/context/ThemeContext";
 import { isProfileComplete } from "@/utils/profileComplete";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -125,15 +133,23 @@ const Login = () => {
       alert("Biometric authentication failed.");
     }
   };
+  const { signInWithGoogle } = useGoogleSignIn();
+  // const handleGoogleSignIn = async () => {
+  //   // let redirect;
+  //   // if (Platform.OS === "ios") {
+  //   //   redirect = Linking.createURL("auth");
+  //   // } else {
+  //   //   redirect = Linking.createURL("/");
+  //   // }
 
-  const handleGoogleSignIn = async () => {
-    const redirect = Linking.createURL("/");
+  //   // console.log(redirect);
 
-    await WebBrowser.openAuthSessionAsync(
-      `https://mobile.ylf-eg.org/api/auth/google`,
-      redirect
-    );
-  };
+  //   // await WebBrowser.openAuthSessionAsync(
+  //   //   `https://mobile.ylf-eg.org/api/auth/google`,
+  //   //   redirect
+  //   // );
+  //   // signInWithGoogle();
+  // };
   const { theme } = useTheme();
 
   return (
@@ -196,7 +212,7 @@ const Login = () => {
           ></View>
         </View>
         <TouchableOpacity
-          onPress={handleGoogleSignIn}
+          onPress={signInWithGoogle}
           className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
           style={{ borderColor: Colors.light.border }}
         >

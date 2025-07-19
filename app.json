@@ -12,8 +12,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ylf.ylf",
+      "associatedDomains": ["applinks:mobile.ylf-eg.org"],
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["ylf.app.scheme"]
+          }
+        ]
       }
     },
     "android": {
@@ -93,7 +99,13 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.50438245803-6akv0sql08lffjbjd4tr5up8k2rd39ef"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
