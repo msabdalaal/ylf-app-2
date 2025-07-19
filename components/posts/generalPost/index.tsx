@@ -152,12 +152,47 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
       style={{ backgroundColor: containerBg }}
     >
       <View className="flex-row items-center gap-3 mb-3">
-        <View className="w-10 h-10 bg-white rounded-full overflow-hidden">
-          <Image
-            src={imageUrl(user.avatar?.path ?? "")}
-            className="w-full h-full"
-            resizeMode="contain"
-          />
+        <View className="w-10 h-10 bg-white rounded-full overflow-hidden items-center justify-center">
+          {user.avatar?.path ? (
+            <Image
+              src={imageUrl(user.avatar.path)}
+              className="w-full h-full"
+              resizeMode="contain"
+            />
+          ) : (
+            <View
+              style={{
+                backgroundColor: color || "#015CA4",
+                width: "100%",
+                height: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: "#fff",
+                  fontWeight: "bold",
+                  fontSize: 18,
+                  fontFamily: "Poppins_Medium",
+                }}
+              >
+                {(() => {
+                  if (!user.name) return "";
+                  const parts = user.name.trim().split(" ");
+                  if (parts.length === 1) {
+                    return parts[0][0]?.toUpperCase();
+                  }
+                  return (
+                    parts[0][0]?.toUpperCase() +
+                    (parts[1][0]?.toUpperCase() ||
+                      parts[parts.length - 1][0]?.toUpperCase() ||
+                      "")
+                  );
+                })()}
+              </Text>
+            </View>
+          )}
         </View>
         <View className="flex-row flex-1 items-center justify-between">
           <Text className="dark:text-white font-medium">{user.name}</Text>

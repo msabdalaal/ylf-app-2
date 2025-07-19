@@ -58,6 +58,8 @@ const styles = StyleSheet.create({
   },
   video: {
     flex: 1,
+    borderTopEndRadius: 20,
+    borderTopStartRadius: 20,
   },
   playButton: {
     position: "absolute",

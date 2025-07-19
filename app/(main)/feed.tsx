@@ -205,100 +205,6 @@ function Feed() {
         />
         <NotificationIcon />
       </View>
-      <View>
-        <FlatList
-          horizontal
-          data={[
-            { id: "", logo: { path: "" }, name: "All", accentColor: undefined },
-            {
-              id: "general",
-              logo: { path: "" },
-              name: "YLF",
-              accentColor: undefined,
-            },
-            ...programs,
-          ]}
-          showsHorizontalScrollIndicator={false}
-          className="my-5"
-          contentContainerStyle={{
-            paddingLeft: 16,
-            paddingRight: 16,
-          }}
-          renderItem={({ item }) => (
-            <View className="justify-center items-center w-20">
-              <View
-                className="rounded-full p-1 w-20 h-20"
-                style={{
-                  borderWidth: 1,
-                  borderColor:
-                    selectedProgram !== item.id
-                      ? "transparent"
-                      : item.accentColor
-                      ? item.accentColor
-                      : theme === "dark"
-                      ? "white"
-                      : "black",
-                }}
-              >
-                <TouchableOpacity
-                  className={`w-full h-full rounded-full p-2 justify-center items-center
-                    ${item.logo.path ? "bg-[#015CA4]" : "bg-gray-200"}
-                    `}
-                  onPress={() => {
-                    if (selectedProgram === item.id) return;
-                    setPosts([]);
-                    setPage(1);
-                    setSelectedProgram(item.id);
-                  }}
-                >
-                  {item.logo.path ? (
-                    <Image
-                      src={imageUrl(item.logo.path)}
-                      resizeMode="contain"
-                      className="w-full h-full rounded-full"
-                    />
-                  ) : item.id === "general" ? (
-                    <View className="justify-center items-center w-full h-full">
-                      <Image
-                        source={require("@/assets/images/splash-icon.png")}
-                        className="w-full h-full"
-                        resizeMode="contain"
-                      />
-                    </View>
-                  ) : (
-                    <View className="w-[4.5rem] h-[4.5rem] justify-center items-center">
-                      <Image
-                        source={require("@/assets/images/All.png")}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              </View>
-              <Text
-                className="text-center"
-                style={{
-                  color:
-                    selectedProgram === item.id && item.accentColor
-                      ? item.accentColor
-                      : theme === "dark"
-                      ? "white"
-                      : "black",
-                  width: 80,
-                  fontFamily: "Poppins_Medium",
-                }}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {item.name}
-              </Text>
-            </View>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-        />
-      </View>
       <View className="container flex-1">
         <FlatList
           refreshing={refreshing}
@@ -336,6 +242,105 @@ function Feed() {
             paddingBottom: 80,
             paddingTop: 12,
           }}
+          ListHeaderComponent={
+            <FlatList
+              horizontal
+              data={[
+                {
+                  id: "",
+                  logo: { path: "" },
+                  name: "All",
+                  accentColor: undefined,
+                },
+                {
+                  id: "general",
+                  logo: { path: "" },
+                  name: "YLF",
+                  accentColor: undefined,
+                },
+                ...programs,
+              ]}
+              showsHorizontalScrollIndicator={false}
+              className="my-5"
+              contentContainerStyle={{
+                paddingLeft: 16,
+                paddingRight: 16,
+              }}
+              renderItem={({ item }) => (
+                <View className="justify-center items-center w-20">
+                  <View
+                    className="rounded-full p-1 w-20 h-20"
+                    style={{
+                      borderWidth: 1,
+                      borderColor:
+                        selectedProgram !== item.id
+                          ? "transparent"
+                          : item.accentColor
+                          ? item.accentColor
+                          : theme === "dark"
+                          ? "white"
+                          : "black",
+                    }}
+                  >
+                    <TouchableOpacity
+                      className={`w-full h-full rounded-full p-2 justify-center items-center
+                        ${item.logo.path ? "bg-[#015CA4]" : "bg-gray-200"}
+                        `}
+                      onPress={() => {
+                        if (selectedProgram === item.id) return;
+                        setPosts([]);
+                        setPage(1);
+                        setSelectedProgram(item.id);
+                      }}
+                    >
+                      {item.logo.path ? (
+                        <Image
+                          src={imageUrl(item.logo.path)}
+                          resizeMode="contain"
+                          className="w-full h-full rounded-full"
+                        />
+                      ) : item.id === "general" ? (
+                        <View className="justify-center items-center w-full h-full">
+                          <Image
+                            source={require("@/assets/images/splash-icon.png")}
+                            className="w-full h-full"
+                            resizeMode="contain"
+                          />
+                        </View>
+                      ) : (
+                        <View className="w-[4.5rem] h-[4.5rem] justify-center items-center">
+                          <Image
+                            source={require("@/assets/images/All.png")}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                          />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                  <Text
+                    className="text-center"
+                    style={{
+                      color:
+                        selectedProgram === item.id && item.accentColor
+                          ? item.accentColor
+                          : theme === "dark"
+                          ? "white"
+                          : "black",
+                      width: 80,
+                      fontFamily: "Poppins_Medium",
+                    }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+              )}
+              keyExtractor={(item) => item.id.toString()}
+              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+            />
+          }
         />
       </View>
     </View>

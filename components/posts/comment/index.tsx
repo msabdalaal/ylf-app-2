@@ -3,7 +3,6 @@ import { Colors } from "@/constants/Colors";
 import { Comment as CommentType } from "@/constants/types";
 import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
-import { del } from "@/hooks/axios";
 import imageUrl from "@/utils/imageUrl";
 import dayjs from "dayjs";
 import React, { useContext } from "react";
@@ -28,11 +27,46 @@ export default function Comment({ comment, onDelete }: Props) {
 
   return (
     <View key={comment.id} className="flex-row gap-2">
-      <View className="w-10 h-10 bg-white rounded-full overflow-hidden ">
-        <Image
-          src={imageUrl(comment?.user?.avatar?.path ?? "")}
-          className="w-full h-full object-cover"
-        />
+      <View className="w-10 h-10 bg-white rounded-full overflow-hidden items-center justify-center ">
+        {comment?.user?.avatar?.path ? (
+          <Image
+            src={imageUrl(comment.user.avatar.path)}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <View
+            style={{
+              backgroundColor: Colors.light.primary,
+              width: "100%",
+              height: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontWeight: "bold",
+                fontSize: 18,
+                fontFamily: "Poppins_Medium",
+              }}
+            >
+              {(() => {
+                const name = comment?.user?.name || "";
+                const parts = name.trim().split(" ");
+                if (parts.length === 1) {
+                  return parts[0][0]?.toUpperCase() || "";
+                }
+                return (
+                  parts[0][0]?.toUpperCase() +
+                  (parts[1][0]?.toUpperCase() ||
+                    parts[parts.length - 1][0]?.toUpperCase() ||
+                    "")
+                );
+              })()}
+            </Text>
+          </View>
+        )}
       </View>
       <View
         className="px-3 pt-1 pb-3 flex-1 rounded-lg"
