@@ -10,7 +10,7 @@ import {
   AppStateStatus,
 } from "react-native";
 import { get, post } from "@/hooks/axios";
-import { remove } from "@/hooks/storage";
+import { getValueFor, remove, save } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { usePathname, useRouter } from "expo-router";
 import { produce } from "immer";
@@ -53,6 +53,9 @@ function Feed() {
   const loadFirstPage = useCallback(async () => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
+
+    const now = Date.now();
+    await save("lastFeedUpdate", now.toString());
 
     setRefreshing(true);
     // Clear current posts and reset page counter
@@ -164,7 +167,16 @@ function Feed() {
         if (currentPath === "/feed") {
           console.log("Currently on feed path, refreshing data");
           // Refresh data when app comes to foreground and we're on feed
-          loadFirstPage();
+          (async () => {
+            const lastUpdated = await getValueFor("lastFeedUpdate");
+            const now = Date.now();
+            if (Number(lastUpdated) && now - Number(lastUpdated) > 60 * 1000) {
+              await loadFirstPage();
+              await save("lastFeedUpdate", now.toString());
+            } else {
+              console.log("refetch-ed soon");
+            }
+          })();
         } else {
           console.log("Not on feed path, skipping refresh");
         }

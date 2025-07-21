@@ -7,6 +7,8 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  Platform,
+  ActionSheetIOS,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
@@ -280,6 +282,29 @@ export default function AuthRedirectScreen() {
         }
         return newErrors;
       });
+    }
+  };
+
+  const pickIdImage = (
+    setter: React.Dispatch<React.SetStateAction<string | null>>,
+    type?: "avatar" | "idFront" | "idBack"
+  ) => {
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ["Cancel", "Files", "Gallery"],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            pickImageAndFile(setter, type);
+          } else if (buttonIndex === 2) {
+            pickImage(setter, type);
+          }
+        }
+      );
+    } else {
+      pickImageAndFile(setter, type);
     }
   };
 
@@ -811,7 +836,7 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImageAndFile(setIdFront, "idFront")}
+                    onPress={() => pickIdImage(setIdFront, "idFront")}
                     className={`border ${
                       errors.idFront ? "border-red-500" : "border-gray-400"
                     } border-dashed rounded-lg p-4 flex-row items-center`}
@@ -845,7 +870,7 @@ export default function AuthRedirectScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    onPress={() => pickImageAndFile(setIdBack, "idBack")}
+                    onPress={() => pickIdImage(setIdBack, "idBack")}
                     className={`border ${
                       errors.idBack ? "border-red-500" : "border-gray-400"
                     } border-dashed rounded-lg p-4 flex-row items-center`}

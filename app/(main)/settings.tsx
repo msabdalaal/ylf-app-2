@@ -9,17 +9,18 @@ import { useTheme } from "@/context/ThemeContext";
 import Moon from "@/assets/icons/moon";
 import Sun from "@/assets/icons/sun";
 import System from "@/assets/icons/system";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 type Props = {};
 
 function Settings({}: Props) {
   const router = useRouter();
   const { theme, toggleTheme, isSystemTheme, toggleSystemTheme } = useTheme();
-
-  const logout = async () => {
-    await remove("token");
-    router.replace("/login");
-  };
+  const { logout } = useGoogleSignIn();
+  // const logout = async () => {
+  //   await remove("token");
+  //   router.replace("/login");
+  // };
 
   return (
     <View

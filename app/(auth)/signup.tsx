@@ -1,6 +1,13 @@
 import React, { useCallback, useContext, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  Platform,
+  ActionSheetIOS,
+} from "react-native";
 import PrimaryButton from "@/components/buttons/primary";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
@@ -9,7 +16,6 @@ import { save } from "@/hooks/storage";
 import validator from "validator";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import * as ImagePicker from "expo-image-picker";
 import { ApplicationContext } from "@/context";
 import { useTheme } from "@/context/ThemeContext";
 import InitialSignup from "@/components/signup/InitialSignup";
@@ -20,6 +26,7 @@ import dayjs from "dayjs";
 import { useLoading } from "@/context/LoadingContext";
 import AvatarUpload from "@/components/signup/AvatarUpload";
 import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
 import {
   validatePhoneNumber,
   validateAge,
@@ -155,6 +162,38 @@ const SignUp = () => {
     }
   };
 
+  const pickImage = async (side: "front" | "back") => {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+    if (!res.canceled) {
+      setFormData((prev) => ({
+        ...prev,
+        [`id_${side}`]: res.assets[0].uri,
+      }));
+    }
+  };
+  // New function to handle picking ID image with options on iOS
+  const pickIdImage = (side: "front" | "back") => {
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ["Cancel", "Files", "Gallery"],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            pickImageAndFiles(side);
+          } else if (buttonIndex === 2) {
+            pickImage(side);
+          }
+        }
+      );
+    } else {
+      pickImageAndFiles(side);
+    }
+  };
   const userInfoRef = useRef<UserInfoRef>(null);
 
   const handleContinue = async () => {
@@ -329,7 +368,7 @@ const SignUp = () => {
           <IdUpload
             setFormData={setFormData}
             formData={formData}
-            pickImage={(side) => pickImageAndFiles(side)}
+            pickImage={pickIdImage}
             onBack={() => setStep(1)}
             resetForm={resetForm}
           />

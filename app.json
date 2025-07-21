@@ -28,7 +28,6 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ylf.app",
-      "versionCode": 2,
       "permissions": [
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",

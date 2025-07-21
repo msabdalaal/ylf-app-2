@@ -8,6 +8,7 @@ import { isProfileComplete } from "@/utils/profileComplete";
 import { ApplicationContext } from "@/context";
 import { remove, save } from "./storage";
 import { useRouter } from "expo-router";
+import { Alert } from "react-native";
 
 // TODO: Replace with your actual webClientId and iosClientId if needed
 const WEB_CLIENT_ID =
@@ -37,12 +38,33 @@ export function useGoogleSignIn() {
     return user;
   }, []);
 
+  // Logout function for Google Sign-In
+  const logout = useCallback(async () => {
+    try {
+      await GoogleSignin.signOut();
+      await remove("token");
+      updateState("user", null);
+      router.replace("/login");
+    } catch (error) {
+      console.error("Google Sign-Out error:", error);
+      Alert.alert(
+        "Logout Error",
+        "An error occurred while logging out of Google. Please try again."
+      );
+    }
+  }, [updateState]);
+
   // Call this to trigger Google Sign-In
   const signInWithGoogle = async () => {
     try {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
+      const isSignedIn = await GoogleSignin.hasPreviousSignIn();
+      if (isSignedIn) {
+        // If already signed in, sign out first
+        await logout();
+      }
       const { data } = await GoogleSignin.signIn();
 
       if (data?.user) {
@@ -66,21 +88,33 @@ export function useGoogleSignIn() {
       }
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled the login flow
+        Alert.alert(
+          "Sign-In Cancelled",
+          "Google sign-in was cancelled by the user."
+        );
         return null;
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // operation (e.g. sign in) is in progress already
+        Alert.alert(
+          "Sign-In In Progress",
+          "A Google sign-in operation is already in progress. Please wait."
+        );
         return null;
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // play services not available or outdated
+        Alert.alert(
+          "Play Services Not Available",
+          "Google Play Services is not available or outdated on this device."
+        );
         return null;
       } else {
-        // some other error
         console.error("Google Sign-In error:", error);
+        Alert.alert(
+          "Sign-In Error",
+          "An unexpected error occurred during Google sign-in. Please try again."
+        );
         return null;
       }
     }
   };
 
-  return { signInWithGoogle };
+  return { signInWithGoogle, logout };
 }

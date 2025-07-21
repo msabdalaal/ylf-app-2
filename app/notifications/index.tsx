@@ -1,10 +1,5 @@
 import { View, Text, FlatList, Image } from "react-native";
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import BackButton from "@/components/buttons/backButton";
@@ -20,6 +15,7 @@ import { useLoading } from "@/context/LoadingContext";
 import { AppState, AppStateStatus } from "react-native";
 import imageUrl from "@/utils/imageUrl";
 import * as Linking from "expo-linking";
+import { getValueFor, save } from "@/hooks/storage";
 
 export default function Notifications() {
   const { theme } = useTheme();
@@ -162,6 +158,10 @@ export default function Notifications() {
   );
 
   const getNotifications = async (refresh = false) => {
+
+    const now = Date.now();
+    await save("lastNotificationUpdate", now.toString());
+
     showLoading();
     await get("users/getUserNotifications")
       .then((res) => {
@@ -197,7 +197,16 @@ export default function Notifications() {
       ) {
         console.log("Notifications screen has come to the foreground!");
         // Refresh notifications when app comes to foreground
-        getNotifications();
+        (async () => {
+          const lastUpdated = await getValueFor("lastNotificationUpdate");
+          const now = Date.now();
+          if (Number(lastUpdated) && now - Number(lastUpdated) > 60 * 1000) {
+            await getNotifications();
+            await save("lastNotificationUpdate", now.toString());
+          }else{
+            console.log("refetch-ed soon")
+          }
+        })();
       }
       appState.current = nextAppState;
     },

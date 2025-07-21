@@ -3,6 +3,7 @@ import { Colors } from "@/constants/Colors";
 import { useLoading } from "@/context/LoadingContext";
 import { useTheme } from "@/context/ThemeContext";
 import { get } from "@/hooks/axios";
+import { getValueFor, save } from "@/hooks/storage";
 import { AxiosError } from "axios";
 import { usePathname, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -23,6 +24,9 @@ export default function NotificationIcon({}: Props) {
   const { hideLoading, showLoading } = useLoading();
 
   const getNotifications = async () => {
+    const now = Date.now();
+    await save("lastNotificationUpdate", now.toString());
+
     showLoading();
     await get("users/getUserNotifications")
       .then((res) => {
@@ -61,7 +65,16 @@ export default function NotificationIcon({}: Props) {
         if (currentPath === "/feed" || currentPath === "/programs") {
           console.log("Refetching notifications");
           // Refresh data when app comes to foreground and we're on feed
-          getNotifications();
+          (async () => {
+            const lastUpdated = await getValueFor("lastNotificationUpdate");
+            const now = Date.now();
+            if (Number(lastUpdated) && now - Number(lastUpdated) > 60 * 1000) {
+              await getNotifications();
+              await save("lastNotificationUpdate", now.toString());
+            } else {
+              console.log("refetch-ed soon");
+            }
+          })();
         } else {
           console.log("Not on wanted path, skipping refresh");
         }
