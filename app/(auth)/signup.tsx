@@ -62,7 +62,6 @@ export interface formData {
 }
 
 const SignUp = () => {
-  const { signInWithGoogle } = useGoogleSignIn();
   const { updateState } = useContext(ApplicationContext);
   const router = useRouter();
   const { theme } = useTheme();
@@ -421,6 +420,15 @@ const SignUp = () => {
     return errors;
   }
 
+  const { signInWithGoogle } = useGoogleSignIn();
+  const handleGoogleSignInWeb = async () => {
+    const redirect = Linking.createURL("/");
+
+    await WebBrowser.openAuthSessionAsync(
+      `https://mobile.ylf-eg.org/api/auth/google`,
+      redirect
+    );
+  };
   return (
     <SafeAreaView
       className="flex-1 w-full"
@@ -460,7 +468,13 @@ const SignUp = () => {
             <TouchableOpacity
               className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
               style={{ borderColor: Colors.light.border }}
-              onPress={signInWithGoogle}
+              onPress={() => {
+                if (Platform.OS === "ios") {
+                  signInWithGoogle();
+                } else {
+                  handleGoogleSignInWeb();
+                }
+              }}
             >
               <Image
                 source={require("@/assets/images/iconImages/googleIcon.png")}

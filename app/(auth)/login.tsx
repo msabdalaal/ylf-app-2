@@ -134,7 +134,14 @@ const Login = () => {
     }
   };
   const { signInWithGoogle } = useGoogleSignIn();
+  const handleGoogleSignInWeb = async () => {
+    const redirect = Linking.createURL("/");
 
+    await WebBrowser.openAuthSessionAsync(
+      `https://mobile.ylf-eg.org/api/auth/google`,
+      redirect
+    );
+  };
   const { theme } = useTheme();
 
   return (
@@ -197,7 +204,13 @@ const Login = () => {
           ></View>
         </View>
         <TouchableOpacity
-          onPress={signInWithGoogle}
+          onPress={() => {
+            if (Platform.OS === "ios") {
+              signInWithGoogle();
+            } else {
+              handleGoogleSignInWeb();
+            }
+          }}
           className="border-2 rounded-xl py-4 w-full flex-row gap-2 justify-center mt-8"
           style={{ borderColor: Colors.light.border }}
         >
