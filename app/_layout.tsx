@@ -95,7 +95,6 @@ function RootLayoutComponent() {
         await save("pushToken", newToken.data);
 
         if (state?.user && state.expoPushToken !== newToken.data) {
-          console.log("Updating push token:", newToken.data);
           updateState("expoPushToken", newToken.data);
         }
       } catch (error) {
@@ -108,7 +107,6 @@ function RootLayoutComponent() {
 
   useEffect(() => {
     if (notification) {
-      console.log("Received notification:", notification);
     }
   }, [notification]);
 

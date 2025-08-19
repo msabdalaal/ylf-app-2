@@ -74,7 +74,6 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
       await post("users/registerNotification", {
         token: state.expoPushToken,
       });
-      console.log("Push token registered:", state.expoPushToken);
     } catch (error) {
       console.error("Token registration error:", error);
       // Retry logic
@@ -93,7 +92,6 @@ export const ApplicationProvider: FC<PropsWithChildren> = ({ children }) => {
       try {
         const pending = await getPendingComments();
         if (pending.length > 0 && isMounted) {
-          console.log(`Found ${pending.length} pending comments, retrying...`);
           await retryPendingComments();
         }
       } catch (error) {

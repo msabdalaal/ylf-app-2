@@ -28,6 +28,11 @@ import { useTheme } from "@/context/ThemeContext";
 import { isProfileComplete } from "@/utils/profileComplete";
 import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
+const SignInWithAppleButton =
+  Platform.OS === "ios"
+    ? require("@/components/signInWithAppleButton").SignInWithAppleButton
+    : () => null;
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -225,6 +230,9 @@ const Login = () => {
             Login with Google
           </Text>
         </TouchableOpacity>
+        <View className="mt-2">
+          {Platform.OS === "ios" ? <SignInWithAppleButton /> : null}
+        </View>
       </View>
     </SafeAreaView>
   );

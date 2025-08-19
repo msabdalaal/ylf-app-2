@@ -1,6 +1,4 @@
-import Logout from "@/assets/icons/logout";
 import BackButton from "@/components/buttons/backButton";
-import NormalPost from "@/components/posts/normalPost";
 import { Colors } from "@/constants/Colors";
 import type { Comment as CommentType, Post, Program } from "@/constants/types";
 import { get, post as AxiosPost, del } from "@/hooks/axios";
@@ -14,7 +12,6 @@ import {
   Platform,
   Text,
   View,
-  Keyboard,
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,12 +22,9 @@ import { setupNotifications } from "@/utils/notificationHandler";
 import { useTheme } from "@/context/ThemeContext";
 import { useLoading } from "@/context/LoadingContext";
 import PostComponent from "@/components/posts/generalPost";
-import { v4 as uuidv4 } from "uuid";
 import {
   addPendingComment,
-  getPendingComments,
   removePendingComment,
-  retryPendingComments,
   PendingComment,
 } from "@/utils/commentQueue";
 import { useNetInfo } from "@react-native-community/netinfo";
@@ -42,7 +36,6 @@ export default function Post() {
   const { updatePost } = usePosts();
   const headerHeight = useHeaderHeight();
   const [post, setPost] = useState<Post>();
-  console.log(post);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
   const { id } = useLocalSearchParams();
@@ -123,7 +116,6 @@ export default function Post() {
   const handlePostComment = async () => {
     if (!newComment.trim()) return;
     const tempId = `temp_${Date.now()}`;
-    console.log(tempId);
     const commentData = {
       id: tempId,
       postId: id as string,

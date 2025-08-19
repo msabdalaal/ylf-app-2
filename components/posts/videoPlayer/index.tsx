@@ -4,20 +4,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
 
 export default function VideoScreen({ videoSource }: { videoSource: string }) {
-  // Create the VideoPlayer instance using the hook
   const player = useVideoPlayer(videoSource, (player) => {
-    // Optional configuration (e.g., player.loop = true)
   });
 
-  console.log(videoSource);
-
-  // Create a ref for VideoView to access its instance methods
   const videoViewRef = useRef(null);
-
-  // State to track if the video has started (i.e. custom play button has been pressed)
   const [hasStarted, setHasStarted] = useState(false);
 
-  // When the custom play button is pressed, start playback and mark that playback has started
   const handleCustomPlay = () => {
     if (!hasStarted) {
       setHasStarted(true);
@@ -28,18 +20,15 @@ export default function VideoScreen({ videoSource }: { videoSource: string }) {
   return (
     <View style={styles.container}>
       <VideoView
-        // Changing the key forces VideoView to remount with new props.
         key={hasStarted ? "native" : "custom"}
         ref={videoViewRef}
         style={styles.video}
         player={player}
-        // Use native controls only after the custom play button has been used.
         nativeControls={hasStarted}
         allowsFullscreen
         allowsPictureInPicture
       />
 
-      {/* Show the custom play button only if the video has not yet started */}
       {!hasStarted && (
         <TouchableOpacity style={styles.playButton} onPress={handleCustomPlay}>
           <Ionicons name="play" size={30} color="white" />

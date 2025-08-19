@@ -24,7 +24,6 @@ export default async function uploadFile(
   if (response.ok) {
     return data.path;
   } else {
-    console.log(data);
     alert(data.message);
   }
 }

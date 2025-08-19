@@ -24,7 +24,6 @@ export default function WelcomeLayout() {
           : parsedUrl.pathname;
         if (path === "auth") {
           // Navigate or complete the login process
-          console.log("Redirected back from Google");
         }
       } catch (error) {
         console.error("Failed to parse URL:", error);

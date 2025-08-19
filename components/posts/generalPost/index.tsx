@@ -135,7 +135,6 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
       ?.toLowerCase()
       .match(/\.(mp4|mov|avi|wmv|flv|webm|mkv)$/);
 
-  console.log(!hasImage && isVideo);
   const user = userOverride ?? post.user;
   // dynamic backgrounds
   const baseColor = color ? normalizeHex(color) : null;

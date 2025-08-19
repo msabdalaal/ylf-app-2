@@ -30,9 +30,7 @@ export default function NotificationIcon({}: Props) {
     showLoading();
     await get("users/getUserNotifications")
       .then((res) => {
-        // console.log(res);
         const newNotifications = res.data.data.filter((n: any) => !n.read);
-        // console.log(newNotifications);
         setNotificationCount(newNotifications.length);
       })
       .catch((err) => {
@@ -57,14 +55,8 @@ export default function NotificationIcon({}: Props) {
         appState.current.match(/inactive|background/) &&
         nextAppState === "active"
       ) {
-        console.log("App has come to the foreground!");
-
-        // Check if current path is feed before refreshing
         const currentPath = pathname;
-        console.log(pathname);
         if (currentPath === "/feed" || currentPath === "/programs") {
-          console.log("Refetching notifications");
-          // Refresh data when app comes to foreground and we're on feed
           (async () => {
             const lastUpdated = await getValueFor("lastNotificationUpdate");
             const now = Date.now();
@@ -72,11 +64,8 @@ export default function NotificationIcon({}: Props) {
               await getNotifications();
               await save("lastNotificationUpdate", now.toString());
             } else {
-              console.log("refetch-ed soon");
             }
           })();
-        } else {
-          console.log("Not on wanted path, skipping refresh");
         }
       }
       appState.current = nextAppState;

@@ -195,7 +195,6 @@ export default function Notifications() {
         appState.current.match(/inactive|background/) &&
         nextAppState === "active"
       ) {
-        console.log("Notifications screen has come to the foreground!");
         // Refresh notifications when app comes to foreground
         (async () => {
           const lastUpdated = await getValueFor("lastNotificationUpdate");
@@ -203,8 +202,6 @@ export default function Notifications() {
           if (Number(lastUpdated) && now - Number(lastUpdated) > 60 * 1000) {
             await getNotifications();
             await save("lastNotificationUpdate", now.toString());
-          }else{
-            console.log("refetch-ed soon")
           }
         })();
       }

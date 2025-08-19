@@ -25,9 +25,6 @@ import { usePosts } from "@/context/postsContext";
 
 function Feed() {
   const { setPosts, posts } = usePosts();
-
-  console.log(posts);
-
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState("");
   const [pagination, setPagination] = useState({
@@ -159,14 +156,8 @@ function Feed() {
         appState.current.match(/inactive|background/) &&
         nextAppState === "active"
       ) {
-        console.log("App has come to the foreground!");
-
-        // Check if current path is feed before refreshing
         const currentPath = pathname;
-        console.log(pathname);
         if (currentPath === "/feed") {
-          console.log("Currently on feed path, refreshing data");
-          // Refresh data when app comes to foreground and we're on feed
           (async () => {
             const lastUpdated = await getValueFor("lastFeedUpdate");
             const now = Date.now();
@@ -174,11 +165,8 @@ function Feed() {
               await loadFirstPage();
               await save("lastFeedUpdate", now.toString());
             } else {
-              console.log("refetch-ed soon");
             }
           })();
-        } else {
-          console.log("Not on feed path, skipping refresh");
         }
       }
       appState.current = nextAppState;

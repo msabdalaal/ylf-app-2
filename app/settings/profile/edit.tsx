@@ -75,8 +75,6 @@ export default function Edit() {
     }
     showLoading();
 
-    console.log("edits" + { ...user, ...edits });
-
     await patch("users/editProfile", edits)
       .then(() => {
         setIsEditing(false);

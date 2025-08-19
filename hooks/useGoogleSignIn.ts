@@ -69,7 +69,6 @@ export function useGoogleSignIn() {
 
       if (data?.user) {
         const { email, name, photo } = data.user;
-        console.log(email, name, photo);
 
         const result = await post("auth/google/signin", { email, name, photo });
         const access_token = result.data.access_token;

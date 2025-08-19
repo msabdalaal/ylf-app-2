@@ -32,6 +32,7 @@ interface Image {
 
 export interface User {
   id?: string;
+  appleUserId?: string;
   name?: string;
   email?: string;
   phoneNumber?: string;

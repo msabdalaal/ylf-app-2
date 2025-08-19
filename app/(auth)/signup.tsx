@@ -37,6 +37,12 @@ import {
 } from "@/utils/validation";
 import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
+const SignInWithAppleButton =
+  Platform.OS === "ios"
+    ? require("@/components/signInWithAppleButton").SignInWithAppleButton
+    : () => null;
+
+
 export interface formData {
   name: string;
   email: string;
@@ -487,6 +493,9 @@ const SignUp = () => {
                 Sign Up with Google
               </Text>
             </TouchableOpacity>
+            <View className="mt-2">
+              {Platform.OS === "ios" ? <SignInWithAppleButton /> : null}
+            </View>
           </>
         )}
       </View>
