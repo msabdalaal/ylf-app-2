@@ -4,7 +4,7 @@ import type { Comment as CommentType, Post, Program } from "@/constants/types";
 import { get, post as AxiosPost, del } from "@/hooks/axios";
 import { AxiosError } from "axios";
 import { useLocalSearchParams } from "expo-router/build/hooks";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -31,8 +31,12 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import { useFocusEffect } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { usePosts } from "@/context/postsContext";
+import { ApplicationContext } from "@/context";
 
 export default function Post() {
+  const {
+    state: { user },
+  } = useContext(ApplicationContext);
   const { updatePost } = usePosts();
   const headerHeight = useHeaderHeight();
   const [post, setPost] = useState<Post>();
@@ -238,87 +242,94 @@ export default function Post() {
                   programs.find((p) => p.id === post.programId)?.accentColor ||
                   ""
                 }
+                fullPost
               />
             )}
-            <Text
-              className="mt-6"
-              style={{
-                fontFamily: "Poppins_Medium",
-                color: Colors[theme == "dark" ? "dark" : "light"].primary,
-              }}
-            >
-              Comments
-            </Text>
-          </View>
-
-          <View className="flex-1 px-4">
-            {comments.length > 0 ? (
-              <FlatList
-                data={comments}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <View
-                    className={`relative mb-3 ${
-                      pendingComments.some((c) => c.id === item.id)
-                        ? "opacity-70"
-                        : ""
-                    }`}
-                  >
-                    <Comment onDelete={deleteComment} comment={item} />
-                    {pendingComments.some((c) => c.id === item.id) && (
-                      <View className="absolute top-1 right-1 bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 rounded-full">
-                        <Text className="text-xs text-yellow-800 dark:text-yellow-200">
-                          {isOnline
-                            ? "Sending..."
-                            : "Offline - will send when online"}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-                keyExtractor={(comment) => comment.id}
-                contentContainerStyle={{
-                  paddingBottom: 24,
+            {Number(user?.age) >= 18 && (
+              <Text
+                className="mt-6"
+                style={{
+                  fontFamily: "Poppins_Medium",
+                  color: Colors[theme == "dark" ? "dark" : "light"].primary,
                 }}
-                showsVerticalScrollIndicator={false}
-              />
-            ) : (
-              <Text className="dark:text-white text-center py-4">
-                There are no comments yet
+              >
+                Comments
               </Text>
             )}
           </View>
+
+          {Number(user?.age) >= 18 && (
+            <View className="flex-1 px-4">
+              {comments.length > 0 ? (
+                <FlatList
+                  data={comments}
+                  scrollEnabled={false}
+                  renderItem={({ item }) => (
+                    <View
+                      className={`relative mb-3 ${
+                        pendingComments.some((c) => c.id === item.id)
+                          ? "opacity-70"
+                          : ""
+                      }`}
+                    >
+                      <Comment onDelete={deleteComment} comment={item} />
+                      {pendingComments.some((c) => c.id === item.id) && (
+                        <View className="absolute top-1 right-1 bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 rounded-full">
+                          <Text className="text-xs text-yellow-800 dark:text-yellow-200">
+                            {isOnline
+                              ? "Sending..."
+                              : "Offline - will send when online"}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                  keyExtractor={(comment) => comment.id}
+                  contentContainerStyle={{
+                    paddingBottom: 24,
+                  }}
+                  showsVerticalScrollIndicator={false}
+                />
+              ) : (
+                <Text className="dark:text-white text-center py-4">
+                  There are no comments yet
+                </Text>
+              )}
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
 
-      <View
-        className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 pt-3 pb-6"
-        style={{
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 5,
-          paddingBottom: Platform.OS === "ios" ? 34 : 24, // Extra padding for iOS home indicator
-        }}
-      >
-        <View className="flex-row items-center gap-3">
-          <TextInputComponent
-            value={newComment}
-            onChange={setNewComment}
-            className="flex-1"
-            onEnter={handlePostComment}
-            placeholder="Write a comment..."
-          />
-          <SkinnyButton
-            onPress={handlePostComment}
-            className="m-0 px-4 py-2 self-end"
-            disabled={!newComment.trim()}
-          >
-            {loading ? "Posting..." : "Post"}
-          </SkinnyButton>
+      {Number(user?.age) >= 18 && (
+        <View
+          className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 pt-3 pb-6"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 5,
+            paddingBottom: Platform.OS === "ios" ? 34 : 24, // Extra padding for iOS home indicator
+          }}
+        >
+          <View className="flex-row items-center gap-3">
+            <TextInputComponent
+              value={newComment}
+              onChange={setNewComment}
+              className="flex-1"
+              onEnter={handlePostComment}
+              placeholder="Write a comment..."
+            />
+            <SkinnyButton
+              onPress={handlePostComment}
+              className="m-0 px-4 py-2 self-end"
+              disabled={!newComment.trim()}
+            >
+              {loading ? "Posting..." : "Post"}
+            </SkinnyButton>
+          </View>
         </View>
-      </View>
+      )}
     </KeyboardAvoidingView>
   );
 }

@@ -22,6 +22,7 @@ import MultiSelect from "@/components/inputs/multiSelect";
 import universities, { governorates } from "@/constants/universities";
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
+import { IOSPickBlocker } from "@/components/IOSPickerBlocker";
 
 type Props = {};
 
@@ -42,10 +43,14 @@ export default function Edit() {
         edits.nationalNumber !== undefined
           ? edits.nationalNumber
           : user?.nationalNumber;
-      if (!nationalNumber || !/^\d{14}$/.test(nationalNumber)) {
+      if (
+        !nationalNumber ||
+        nationalNumber.length < 5 ||
+        nationalNumber.length > 14
+      ) {
         Alert.alert(
           "Validation Error",
-          "National number must be exactly 14 digits."
+          "National number must be 5 to 14 digits."
         );
         return;
       }
@@ -337,28 +342,30 @@ export default function Edit() {
                     : "transparent",
                 }}
               >
-                <Picker
-                  selectedValue={
-                    edits.schoolType !== undefined
-                      ? edits.schoolType
-                      : user?.schoolType
-                  }
-                  onValueChange={(v: "" | "school" | "university") =>
-                    setEdits((prev) => ({
-                      ...prev,
-                      schoolType: v === "" ? undefined : v,
-                    }))
-                  }
-                  enabled={isEditing}
-                  style={{
-                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-                    fontFamily: "Inter",
-                  }}
-                >
-                  <Picker.Item label="Select School Type" value="" />
-                  <Picker.Item label="School" value="school" />
-                  <Picker.Item label="University" value="university" />
-                </Picker>
+                <IOSPickBlocker disabled={!isEditing}>
+                  <Picker
+                    selectedValue={
+                      edits.schoolType !== undefined
+                        ? edits.schoolType
+                        : user?.schoolType
+                    }
+                    onValueChange={(v: "" | "school" | "university") =>
+                      setEdits((prev) => ({
+                        ...prev,
+                        schoolType: v === "" ? undefined : v,
+                      }))
+                    }
+                    enabled={isEditing}
+                    style={{
+                      color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    <Picker.Item label="Select School Type" value="" />
+                    <Picker.Item label="School" value="school" />
+                    <Picker.Item label="University" value="university" />
+                  </Picker>
+                </IOSPickBlocker>
               </View>
             </View>
 
@@ -400,26 +407,31 @@ export default function Edit() {
                       : "transparent",
                   }}
                 >
-                  <Picker
-                    selectedValue={
-                      edits.school !== undefined ? edits.school : user?.school
-                    }
-                    onValueChange={(v: string) =>
-                      setEdits((prev) => ({ ...prev, school: v }))
-                    }
-                    enabled={isEditing}
-                    style={{
-                      color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-                      fontFamily: "Inter",
-                    }}
-                  >
-                    <Picker.Item label="Select University" value="" />
-                    {universities
-                      .sort((a: string, b: string) => a.localeCompare(b))
-                      .map((u) => (
+                  <IOSPickBlocker disabled={!isEditing}>
+                    <Picker
+                      selectedValue={
+                        edits.school !== undefined ? edits.school : user?.school
+                      }
+                      onValueChange={(v: string) =>
+                        setEdits((prev) => ({ ...prev, school: v }))
+                      }
+                      enabled={isEditing}
+                      style={{
+                        color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                        fontFamily: "Inter",
+                      }}
+                    >
+                      <Picker.Item label="Select University" value="" />
+                      {[
+                        ...universities.sort((a: string, b: string) =>
+                          a.localeCompare(b)
+                        ),
+                        "Other",
+                      ].map((u) => (
                         <Picker.Item key={u} label={u} value={u} />
                       ))}
-                  </Picker>
+                    </Picker>
+                  </IOSPickBlocker>
                 </View>
               </View>
             )}
@@ -529,26 +541,28 @@ export default function Edit() {
                     : "transparent",
                 }}
               >
-                <Picker
-                  selectedValue={
-                    edits.gender !== undefined ? edits.gender : user?.gender
-                  }
-                  onValueChange={(v: "male" | "female" | "") =>
-                    setEdits((prev) => ({
-                      ...prev,
-                      gender: v === "" ? undefined : v,
-                    }))
-                  }
-                  enabled={isEditing}
-                  style={{
-                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-                    fontFamily: "Inter",
-                  }}
-                >
-                  <Picker.Item label="Select Gender" value="" />
-                  <Picker.Item label="Male" value="male" />
-                  <Picker.Item label="Female" value="female" />
-                </Picker>
+                <IOSPickBlocker disabled={!isEditing}>
+                  <Picker
+                    selectedValue={
+                      edits.gender !== undefined ? edits.gender : user?.gender
+                    }
+                    onValueChange={(v: "male" | "female" | "") =>
+                      setEdits((prev) => ({
+                        ...prev,
+                        gender: v === "" ? undefined : v,
+                      }))
+                    }
+                    enabled={isEditing}
+                    style={{
+                      color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    <Picker.Item label="Select Gender" value="" />
+                    <Picker.Item label="Male" value="male" />
+                    <Picker.Item label="Female" value="female" />
+                  </Picker>
+                </IOSPickBlocker>
               </View>
             </View>
 

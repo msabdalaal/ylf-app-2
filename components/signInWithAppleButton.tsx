@@ -8,6 +8,22 @@ import { ApplicationContext } from "@/context";
 import { isProfileComplete } from "@/utils/profileComplete";
 import { useRouter } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
+import * as SecureStore from "expo-secure-store";
+
+// Helper functions for SecureStore
+async function ssSet(key: string, value?: string | null) {
+  try {
+    if (value == null) return;
+    await SecureStore.setItemAsync(key, value);
+  } catch {}
+}
+async function ssGet(key: string) {
+  try {
+    return await SecureStore.getItemAsync(key);
+  } catch {
+    return null;
+  }
+}
 
 export function SignInWithAppleButton() {
   const { theme } = useTheme();
@@ -25,8 +41,8 @@ export function SignInWithAppleButton() {
   }, []);
   const signInWithApple = async () => {
     try {
-      console.log("here");
       const rawNonce = randomUUID();
+      // Apple only provides full name & email on first sign-in; we persist them in SecureStore for reuse.
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
@@ -35,21 +51,27 @@ export function SignInWithAppleButton() {
         nonce: rawNonce,
       });
 
-      console.log(credential);
-      console.log(credential.fullName?.givenName, credential.email);
+      if (credential.user) {
+        // Compose name/email from credential when available, otherwise fallback to SecureStore.
+        const composedName = (
+          (credential.fullName?.givenName || "") +
+          " " +
+          (credential.fullName?.familyName || "")
+        ).trim();
 
-      if (
-        (credential.fullName?.givenName && credential.email) ||
-        credential.user
-      ) {
-        const result = await post("auth/google/signin", {
-          email: credential.email,
+        let name = composedName || (await ssGet("appleName")) || "";
+        let email = credential.email || (await ssGet("appleEmail")) || "";
+
+        // Persist for future logins (Apple only returns email/fullName on first consent)
+        await ssSet("appleUserId", credential.user);
+        await ssSet("appleName", composedName || name);
+        await ssSet("appleEmail", credential.email || email);
+
+        const result = await post("auth/apple/signin", {
           appleUserId: credential.user,
-          name: (
-            credential.fullName?.givenName +
-            " " +
-            credential.fullName?.familyName
-          ).trim(),
+          // Send email/name only if we have values
+          ...(email ? { email } : {}),
+          ...(name ? { name } : {}),
         });
         const access_token = result.data.access_token;
         await save("token", access_token);

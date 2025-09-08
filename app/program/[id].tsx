@@ -2,7 +2,7 @@ import BackButton from "@/components/buttons/backButton";
 import { Colors } from "@/constants/Colors";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Image,
+  // Image,
   ScrollView,
   Text,
   View,
@@ -28,7 +28,7 @@ import { useLoading } from "@/context/LoadingContext";
 import { adjustColorOpacity } from "@/components/cards/programCards";
 import { Dimensions } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-
+import { Image } from "expo-image";
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
@@ -200,10 +200,13 @@ export default function Program() {
             showHeader ? "rounded-3xl" : "rounded-b-3xl"
           }`}
         >
-          <View style={{ filter: "brightness(0.7)" }} className="w-full">
+          <View style={{ filter: "brightness(0.7)" }} className="w-full h-full">
             <Image
-              src={imageUrl(program.Image?.[0]?.path)}
-              className="w-full h-full object-cover"
+              source={{ uri: imageUrl(program.Image?.[0]?.path) }}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="cover"
+              cachePolicy="disk"
+              transition={300}
             />
           </View>
           <View className={`absolute w-full h-full`}>
@@ -240,9 +243,11 @@ export default function Program() {
                   </Text>
                 </View>
                 <Image
-                  src={imageUrl(program.logo?.path)}
-                  className="w-24 h-24"
-                  resizeMode="contain"
+                  source={{ uri: imageUrl(program.logo?.path) }}
+                  style={{ width: 96, height: 96 }}
+                  contentFit="contain"
+                  cachePolicy="disk"
+                  transition={200}
                 />
               </View>
             </View>

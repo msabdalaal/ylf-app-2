@@ -211,8 +211,10 @@ const Login = () => {
         <TouchableOpacity
           onPress={() => {
             if (Platform.OS === "ios") {
+              console.log("hello");
               signInWithGoogle();
             } else {
+              console.log("hi");
               handleGoogleSignInWeb();
             }
           }}

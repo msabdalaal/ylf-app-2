@@ -352,11 +352,14 @@ const UserInfo = React.forwardRef<UserInfoRef, UserInfoProps>(
                       }}
                     >
                       <Picker.Item label="Select University" value="" />
-                      {universities
-                        .sort((a: string, b: string) => a.localeCompare(b))
-                        .map((u) => (
-                          <Picker.Item key={u} label={u} value={u} />
-                        ))}
+                      {[
+                        ...universities.sort((a: string, b: string) =>
+                          a.localeCompare(b)
+                        ),
+                        "Other",
+                      ].map((u) => (
+                        <Picker.Item key={u} label={u} value={u} />
+                      ))}
                     </Picker>
                   </View>
                   {errors.school ? (

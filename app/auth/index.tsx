@@ -669,8 +669,8 @@ export default function AuthRedirectScreen() {
                     }}
                   >
                     <Picker.Item label="Select University" value="" />
-                    {universities
-                      .sort((a: string, b: string) => a.localeCompare(b))
+                    {[...universities
+                      .sort((a: string, b: string) => a.localeCompare(b)),"Other"]
                       .map((u) => (
                         <Picker.Item key={u} label={u} value={u} />
                       ))}

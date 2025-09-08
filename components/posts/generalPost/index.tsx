@@ -33,6 +33,7 @@ type Props = {
   userOverride?: User;
   handleLike: (id: string) => void;
   color?: string;
+  fullPost?: boolean;
 };
 
 const normalizeHex = (hex: string) => {
@@ -104,7 +105,13 @@ const renderTextWithLinks = (
   return <Text numberOfLines={numberOfLines}>{parts}</Text>;
 };
 
-const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
+const Post: FC<Props> = ({
+  post,
+  userOverride,
+  handleLike,
+  color,
+  fullPost,
+}) => {
   const { theme } = useTheme();
   const router = useRouter();
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -144,7 +151,6 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
   const footerBg = baseColor
     ? "#0000004D" // fallback overlay
     : Colors[theme ?? "light"].postFooter;
-
   return (
     <View
       className="rounded-[2rem] p-3 w-full mb-4"
@@ -207,7 +213,7 @@ const Post: FC<Props> = ({ post, userOverride, handleLike, color }) => {
           {renderTextWithLinks(
             post.content,
             theme === "dark",
-            isEvent || isProgram ? undefined : 3
+            fullPost ? undefined : 3
           )}
         </TouchableOpacity>
       ) : null}

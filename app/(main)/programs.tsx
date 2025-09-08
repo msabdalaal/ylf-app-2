@@ -9,11 +9,9 @@ import { get } from "@/hooks/axios";
 import imageUrl from "@/utils/imageUrl";
 import { RelativePathString, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 
-type Props = {};
-
-function Programs({}: Props) {
+function Programs() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const { theme } = useTheme();
   const { showLoading, hideLoading } = useLoading();

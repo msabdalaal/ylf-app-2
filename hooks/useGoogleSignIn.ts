@@ -66,11 +66,11 @@ export function useGoogleSignIn() {
         await logout();
       }
       const { data } = await GoogleSignin.signIn();
-
       if (data?.user) {
         const { email, name, photo } = data.user;
 
         const result = await post("auth/google/signin", { email, name, photo });
+        console.log(result);
         const access_token = result.data.access_token;
         await save("token", access_token);
 

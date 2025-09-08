@@ -42,7 +42,6 @@ const SignInWithAppleButton =
     ? require("@/components/signInWithAppleButton").SignInWithAppleButton
     : () => null;
 
-
 export interface formData {
   name: string;
   email: string;
@@ -476,8 +475,10 @@ const SignUp = () => {
               style={{ borderColor: Colors.light.border }}
               onPress={() => {
                 if (Platform.OS === "ios") {
+                  console.log("hello");
                   signInWithGoogle();
                 } else {
+                  console.log("hi");
                   handleGoogleSignInWeb();
                 }
               }}
