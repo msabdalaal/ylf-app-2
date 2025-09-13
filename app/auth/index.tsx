@@ -9,6 +9,7 @@ import {
   Image,
   Platform,
   ActionSheetIOS,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
@@ -534,441 +535,480 @@ export default function AuthRedirectScreen() {
       className="flex-1 pt-5"
       style={{ backgroundColor: Colors[theme].background }}
     >
-      <ScrollView className="container">
-        <Text
-          className="text-xl mb-4"
-          style={{ fontFamily: "Poppins_Medium", color: Colors[theme].primary }}
-        >
-          Complete Your Profile
-        </Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        // tweak this if you have a taller header
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      >
+        <ScrollView className="container">
+          <Text
+            className="text-xl mb-4"
+            style={{
+              fontFamily: "Poppins_Medium",
+              color: Colors[theme].primary,
+            }}
+          >
+            Complete Your Profile
+          </Text>
 
-        {/* Avatar Upload */}
-        {missingFields.avatar && (
-          <View className="mb-6">
-            <Text
-              className="mb-2"
-              style={{
-                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-              }}
-            >
-              Profile Picture
-            </Text>
-            {avatarUri ? (
-              <View className="items-center mb-2">
-                <Image
-                  source={{ uri: avatarUri }}
-                  className="w-32 h-32 rounded-full"
-                />
-                <TouchableOpacity
-                  onPress={() => setAvatarUri(null)}
-                  className="mt-4"
-                >
-                  <Text style={{ color: Colors[theme ?? "light"].primary }}>
-                    Change Photo
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={() => pickImage(setAvatarUri, "avatar")}
-                className={`border ${
-                  errors.avatar ? "border-red-500" : "border-gray-400"
-                } border-dashed rounded-lg p-4 flex-row items-center`}
-              >
-                <Upload />
-                <Text
-                  className={`ml-2 ${
-                    errors.avatar ? "text-red-500" : "dark:text-white"
-                  }`}
-                >
-                  Upload Profile Picture
-                </Text>
-              </TouchableOpacity>
-            )}
-            {errors.avatar && (
-              <Text className="text-red-500 text-sm mt-1">{errors.avatar}</Text>
-            )}
-          </View>
-        )}
-
-        {/* Other missing fields */}
-        {missingFields.phoneNumber && (
-          <TextInputComponent
-            label="Phone Number"
-            placeholder="Phone Number"
-            value={formData.phoneNumber}
-            onChange={(v) => updateFormField("phoneNumber", v)}
-            error={errors.phoneNumber}
-          />
-        )}
-        {missingFields.dateOfBirth && (
-          <DatePicker
-            label="Date of Birth"
-            value={
-              formData.dateOfBirth ? dayjs(formData.dateOfBirth).toDate() : null
-            }
-            onChange={(d) => handleDateChange(d)}
-            error={errors.dateOfBirth}
-          />
-        )}
-        {missingFields.schoolType && (
-          <View className="mt-4">
-            <Text
-              className="mb-2 font-semibold"
-              style={{
-                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-              }}
-            >
-              School Type
-            </Text>
-            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
-              <Picker
-                selectedValue={formData.schoolType}
-                onValueChange={(v: string) => updateFormField("schoolType", v)}
+          {/* Avatar Upload */}
+          {missingFields.avatar && (
+            <View className="mb-6">
+              <Text
+                className="mb-2"
                 style={{
                   color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
                 }}
               >
-                <Picker.Item label="Select School Type" value="" />
-                <Picker.Item label="School" value="school" />
-                <Picker.Item label="University" value="university" />
-              </Picker>
-            </View>
-            {errors.schoolType && (
-              <Text className="text-red-500 text-sm mt-1">
-                {errors.schoolType}
+                Profile Picture
               </Text>
-            )}
-          </View>
-        )}
-        {missingFields.school && (
-          <View className="mt-4">
-            <Text
-              className="mb-2 font-semibold"
-              style={{
-                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-              }}
-            >
-              {formData.schoolType === "school" ? "School Name" : "University"}
-            </Text>
-            {formData.schoolType === "school" ? (
-              <TextInputComponent
-                placeholder="School Name"
-                value={formData.school}
-                onChange={(v) => updateFormField("school", v)}
-                error={errors.school}
+              {avatarUri ? (
+                <View className="items-center mb-2">
+                  <Image
+                    source={{ uri: avatarUri }}
+                    className="w-32 h-32 rounded-full"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setAvatarUri(null)}
+                    className="mt-4"
+                  >
+                    <Text style={{ color: Colors[theme ?? "light"].primary }}>
+                      Change Photo
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => pickImage(setAvatarUri, "avatar")}
+                  className={`border ${
+                    errors.avatar ? "border-red-500" : "border-gray-400"
+                  } border-dashed rounded-lg p-4 flex-row items-center`}
+                >
+                  <Upload />
+                  <Text
+                    className={`ml-2 ${
+                      errors.avatar ? "text-red-500" : "dark:text-white"
+                    }`}
+                  >
+                    Upload Profile Picture
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {errors.avatar && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.avatar}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {/* Other missing fields */}
+          {missingFields.phoneNumber && (
+            <TextInputComponent
+              label="Phone Number"
+              placeholder="Phone Number"
+              value={formData.phoneNumber}
+              onChange={(v) => updateFormField("phoneNumber", v)}
+              error={errors.phoneNumber}
+            />
+          )}
+          {missingFields.dateOfBirth && (
+            <View className="mt-4">
+              <DatePicker
+                label="Date of Birth"
+                value={
+                  formData.dateOfBirth
+                    ? dayjs(formData.dateOfBirth).toDate()
+                    : null
+                }
+                onChange={(d) => handleDateChange(d)}
+                error={errors.dateOfBirth}
               />
-            ) : (
-              <View>
-                <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
-                  <Picker
-                    selectedValue={formData.school}
-                    onValueChange={(v: string) => updateFormField("school", v)}
+            </View>
+          )}
+          {missingFields.schoolType && (
+            <View className="mt-4">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                School Type
+              </Text>
+              <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                <Picker
+                  selectedValue={formData.schoolType}
+                  onValueChange={(v: string) =>
+                    updateFormField("schoolType", v)
+                  }
+                  style={{
+                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                  }}
+                >
+                  <Picker.Item label="Select School Type" value="" />
+                  <Picker.Item label="School" value="school" />
+                  <Picker.Item label="University" value="university" />
+                </Picker>
+              </View>
+              {errors.schoolType && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.schoolType}
+                </Text>
+              )}
+            </View>
+          )}
+          {missingFields.school && (
+            <View className="mt-4">
+              {formData.schoolType === "school" ? (
+                <>
+                  <Text
+                    className="mb-2 font-semibold"
                     style={{
                       color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
                     }}
                   >
-                    <Picker.Item label="Select University" value="" />
-                    {[...universities
-                      .sort((a: string, b: string) => a.localeCompare(b)),"Other"]
-                      .map((u) => (
+                    School Name
+                  </Text>
+                  <TextInputComponent
+                    placeholder="School Name"
+                    value={formData.school}
+                    onChange={(v) => updateFormField("school", v)}
+                    error={errors.school}
+                  />
+                </>
+              ) : formData.schoolType === "university" ? (
+                <View>
+                  <Text
+                    className="mb-2 font-semibold"
+                    style={{
+                      color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                    }}
+                  >
+                    University
+                  </Text>
+                  <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                    <Picker
+                      selectedValue={formData.school}
+                      onValueChange={(v: string) =>
+                        updateFormField("school", v)
+                      }
+                      style={{
+                        color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                      }}
+                    >
+                      <Picker.Item label="Select University" value="" />
+                      {[
+                        ...universities.sort((a: string, b: string) =>
+                          a.localeCompare(b)
+                        ),
+                        "Other",
+                      ].map((u) => (
                         <Picker.Item key={u} label={u} value={u} />
                       ))}
-                  </Picker>
+                    </Picker>
+                  </View>
+                  {errors.school && (
+                    <Text className="text-red-500 text-sm mt-1">
+                      {errors.school}
+                    </Text>
+                  )}
                 </View>
-                {errors.school && (
-                  <Text className="text-red-500 text-sm mt-1">
-                    {errors.school}
-                  </Text>
-                )}
-              </View>
-            )}
-          </View>
-        )}
-        {missingFields.college && formData.schoolType === "university" && (
-          <TextInputComponent
-            label="College"
-            placeholder="College"
-            value={formData.college}
-            onChange={(v) => updateFormField("college", v)}
-            className="mt-4"
-            error={errors.college}
-          />
-        )}
-        {missingFields.experiences && (
-          <TextInputComponent
-            label="Work Experience"
-            placeholder="Experience"
-            value={formData.experiences}
-            onChange={(v) => updateFormField("experiences", v)}
-            className="mt-4"
-            error={errors.experiences}
-          />
-        )}
-        {missingFields.jobTitle && (
-          <TextInputComponent
-            label="Job Title"
-            placeholder="Job Title"
-            value={formData.jobTitle}
-            onChange={(v) => updateFormField("jobTitle", v)}
-            className="mt-4"
-            error={errors.jobTitle}
-          />
-        )}
-        {missingFields.age && (
-          <TextInputComponent
-            label="Age"
-            placeholder="Age"
-            value={formData.age}
-            onChange={(v) => updateFormField("age", v)}
-            className="mt-4"
-            error={errors.age}
-          />
-        )}
-        {missingFields.address && (
-          <TextInputComponent
-            label="Address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={(v) => updateFormField("address", v)}
-            className="mt-4"
-            error={errors.address}
-          />
-        )}
-        {missingFields.government && (
-          <View className="mt-4">
-            <Text
-              className="mb-2 font-semibold"
-              style={{
-                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-              }}
-            >
-              Government
-            </Text>
-            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
-              <Picker
-                selectedValue={formData.government}
-                onValueChange={(v: string) => updateFormField("government", v)}
+              ) : null}
+            </View>
+          )}
+          {formData.schoolType === "university" && (
+            <TextInputComponent
+              label="College"
+              placeholder="College"
+              value={formData.college}
+              onChange={(v) => updateFormField("college", v)}
+              className="mt-4"
+              error={errors.college}
+            />
+          )}
+          {missingFields.experiences && (
+            <TextInputComponent
+              label="Work Experience"
+              placeholder="Experience"
+              value={formData.experiences}
+              onChange={(v) => updateFormField("experiences", v)}
+              className="mt-4"
+              error={errors.experiences}
+            />
+          )}
+          {missingFields.jobTitle && (
+            <TextInputComponent
+              label="Job Title"
+              placeholder="Job Title"
+              value={formData.jobTitle}
+              onChange={(v) => updateFormField("jobTitle", v)}
+              className="mt-4"
+              error={errors.jobTitle}
+            />
+          )}
+          {missingFields.age && (
+            <TextInputComponent
+              label="Age"
+              placeholder="Age"
+              value={formData.age}
+              onChange={(v) => updateFormField("age", v)}
+              className="mt-4"
+              error={errors.age}
+            />
+          )}
+          {missingFields.address && (
+            <TextInputComponent
+              label="Address"
+              placeholder="Address"
+              value={formData.address}
+              onChange={(v) => updateFormField("address", v)}
+              className="mt-4"
+              error={errors.address}
+            />
+          )}
+          {missingFields.government && (
+            <View className="mt-4">
+              <Text
+                className="mb-2 font-semibold"
                 style={{
                   color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
                 }}
               >
-                <Picker.Item label="Select Government" value="" />
-                {governorates
-                  .sort((a: string, b: string) => a.localeCompare(b))
-                  .map((g) => (
-                    <Picker.Item key={g} label={g} value={g} />
-                  ))}
-              </Picker>
-            </View>
-            {errors.government && (
-              <Text className="text-red-500 text-sm mt-1">
-                {errors.government}
+                Government
               </Text>
-            )}
-          </View>
-        )}
-        {missingFields.nationalNumber && (
-          <TextInputComponent
-            label="National ID Number or Passport ID Number"
-            placeholder="National ID Number or Passport ID Number"
-            value={formData.nationalNumber}
-            onChange={(v) => updateFormField("nationalNumber", v)}
-            className="mt-4"
-            error={errors.nationalNumber}
-          />
-        )}
-        {missingFields.gender && (
-          <View className="mt-4">
-            <Text
-              className="mb-2 font-semibold"
-              style={{
-                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-              }}
-            >
-              Gender
-            </Text>
-            <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
-              <Picker
-                selectedValue={formData.gender}
-                onValueChange={(v: string) => updateFormField("gender", v)}
+              <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                <Picker
+                  selectedValue={formData.government}
+                  onValueChange={(v: string) =>
+                    updateFormField("government", v)
+                  }
+                  style={{
+                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                  }}
+                >
+                  <Picker.Item label="Select Government" value="" />
+                  {governorates
+                    .sort((a: string, b: string) => a.localeCompare(b))
+                    .map((g) => (
+                      <Picker.Item key={g} label={g} value={g} />
+                    ))}
+                </Picker>
+              </View>
+              {errors.government && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.government}
+                </Text>
+              )}
+            </View>
+          )}
+          {missingFields.nationalNumber && (
+            <TextInputComponent
+              label="National ID Number or Passport ID Number"
+              placeholder="National ID Number or Passport ID Number"
+              value={formData.nationalNumber}
+              onChange={(v) => updateFormField("nationalNumber", v)}
+              className="mt-4"
+              error={errors.nationalNumber}
+            />
+          )}
+          {missingFields.gender && (
+            <View className="mt-4">
+              <Text
+                className="mb-2 font-semibold"
                 style={{
                   color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
                 }}
               >
-                <Picker.Item label="Select Gender" value="" />
-                <Picker.Item label="Male" value="male" />
-                <Picker.Item label="Female" value="female" />
-              </Picker>
+                Gender
+              </Text>
+              <View className="border border-gray-300 dark:border-gray-600 rounded-lg">
+                <Picker
+                  selectedValue={formData.gender}
+                  onValueChange={(v: string) => updateFormField("gender", v)}
+                  style={{
+                    color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                  }}
+                >
+                  <Picker.Item label="Select Gender" value="" />
+                  <Picker.Item label="Male" value="male" />
+                  <Picker.Item label="Female" value="female" />
+                </Picker>
+              </View>
+              {errors.gender && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.gender}
+                </Text>
+              )}
             </View>
-            {errors.gender && (
-              <Text className="text-red-500 text-sm mt-1">{errors.gender}</Text>
-            )}
-          </View>
-        )}
+          )}
 
-        {/* ID Uploads */}
-        {(missingFields.idFront || missingFields.idBack) && (
-          <View className="mt-6">
-            <Text
-              className="mb-2 font-semibold"
-              style={{
-                color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
-              }}
-            >
-              National ID or Birth Certificate
-            </Text>
-            {errors.idUpload && (
-              <Text className="text-red-500 text-sm mb-2">
-                {errors.idUpload}
+          {/* ID Uploads */}
+          {(missingFields.idFront || missingFields.idBack) && (
+            <View className="mt-6">
+              <Text
+                className="mb-2 font-semibold"
+                style={{
+                  color: theme === "dark" ? "#E5E5E5" : Colors.light.text,
+                }}
+              >
+                National ID or Birth Certificate
               </Text>
-            )}
-            {missingFields.idFront && (
-              <View className="mb-4">
-                <Text className="mb-1 dark:text-white">Front Side</Text>
-                {idFront ? (
-                  <View className="flex-row justify-between items-center">
-                    <Text className="dark:text-white">Selected</Text>
-                    <TouchableOpacity onPress={() => setIdFront(null)}>
-                      <Text className="text-red-500">Remove</Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => pickIdImage(setIdFront, "idFront")}
-                    className={`border ${
-                      errors.idFront ? "border-red-500" : "border-gray-400"
-                    } border-dashed rounded-lg p-4 flex-row items-center`}
-                  >
-                    <Upload />
-                    <Text
-                      className={`ml-2 ${
-                        errors.idFront ? "text-red-500" : "dark:text-white"
-                      }`}
+              {errors.idUpload && (
+                <Text className="text-red-500 text-sm mb-2">
+                  {errors.idUpload}
+                </Text>
+              )}
+              {missingFields.idFront && (
+                <View className="mb-4">
+                  <Text className="mb-1 dark:text-white">Front Side</Text>
+                  {idFront ? (
+                    <View className="flex-row justify-between items-center">
+                      <Text className="dark:text-white">Selected</Text>
+                      <TouchableOpacity onPress={() => setIdFront(null)}>
+                        <Text className="text-red-500">Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => pickIdImage(setIdFront, "idFront")}
+                      className={`border ${
+                        errors.idFront ? "border-red-500" : "border-gray-400"
+                      } border-dashed rounded-lg p-4 flex-row items-center`}
                     >
-                      Upload Front
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                {errors.idFront && (
-                  <Text className="text-red-500 text-sm mt-1">
-                    {errors.idFront}
-                  </Text>
-                )}
-              </View>
-            )}
-            {missingFields.idBack && (
-              <View className="mb-4">
-                <Text className="mb-1 dark:text-white">Back Side</Text>
-                {idBack ? (
-                  <View className="flex-row justify-between items-center">
-                    <Text className="dark:text-white">Selected</Text>
-                    <TouchableOpacity onPress={() => setIdBack(null)}>
-                      <Text className="text-red-500">Remove</Text>
+                      <Upload />
+                      <Text
+                        className={`ml-2 ${
+                          errors.idFront ? "text-red-500" : "dark:text-white"
+                        }`}
+                      >
+                        Upload Front
+                      </Text>
                     </TouchableOpacity>
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => pickIdImage(setIdBack, "idBack")}
-                    className={`border ${
-                      errors.idBack ? "border-red-500" : "border-gray-400"
-                    } border-dashed rounded-lg p-4 flex-row items-center`}
-                  >
-                    <Upload />
-                    <Text
-                      className={`ml-2 ${
-                        errors.idBack ? "text-red-500" : "dark:text-white"
-                      }`}
-                    >
-                      Upload Back
+                  )}
+                  {errors.idFront && (
+                    <Text className="text-red-500 text-sm mt-1">
+                      {errors.idFront}
                     </Text>
-                  </TouchableOpacity>
-                )}
-                {errors.idBack && (
-                  <Text className="text-red-500 text-sm mt-1">
-                    {errors.idBack}
-                  </Text>
-                )}
-              </View>
-            )}
-          </View>
-        )}
+                  )}
+                </View>
+              )}
+              {missingFields.idBack && (
+                <View className="mb-4">
+                  <Text className="mb-1 dark:text-white">Back Side</Text>
+                  {idBack ? (
+                    <View className="flex-row justify-between items-center">
+                      <Text className="dark:text-white">Selected</Text>
+                      <TouchableOpacity onPress={() => setIdBack(null)}>
+                        <Text className="text-red-500">Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => pickIdImage(setIdBack, "idBack")}
+                      className={`border ${
+                        errors.idBack ? "border-red-500" : "border-gray-400"
+                      } border-dashed rounded-lg p-4 flex-row items-center`}
+                    >
+                      <Upload />
+                      <Text
+                        className={`ml-2 ${
+                          errors.idBack ? "text-red-500" : "dark:text-white"
+                        }`}
+                      >
+                        Upload Back
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {errors.idBack && (
+                    <Text className="text-red-500 text-sm mt-1">
+                      {errors.idBack}
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
 
-        {/* Languages */}
-        {missingFields.languages && (
-          <View className="mt-6">
-            <MultiSelect
-              label="Language"
-              options={["English", "Arabic", "French", "Spanish"]}
-              value={formData.languages}
-              onChange={(v) => {
-                setFormData((p) => ({ ...p, languages: v }));
-                let languageErrors = false;
+          {/* Languages */}
+          {missingFields.languages && (
+            <View className="mt-6">
+              <MultiSelect
+                label="Language"
+                options={["English", "Arabic", "French", "Spanish"]}
+                value={formData.languages}
+                onChange={(v) => {
+                  setFormData((p) => ({ ...p, languages: v }));
+                  let languageErrors = false;
 
-                if (v.length === 0 || !v[0]) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    languages: "At least one language is required",
-                  }));
-                  languageErrors = true;
-                } else {
-                  setErrors((prev) => ({
-                    ...prev,
-                    languages: "",
-                  }));
-                }
-              }}
-              freeType
-              placeholder="Language Selector"
-            />
-            {errors.languages && (
-              <Text className="text-red-500 text-sm mb-2">
-                {errors.languages}
-              </Text>
-            )}
-          </View>
-        )}
+                  if (v.length === 0 || !v[0]) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      languages: "At least one language is required",
+                    }));
+                    languageErrors = true;
+                  } else {
+                    setErrors((prev) => ({
+                      ...prev,
+                      languages: "",
+                    }));
+                  }
+                }}
+                freeType
+                placeholder="Language Selector"
+              />
+              {errors.languages && (
+                <Text className="text-red-500 text-sm mb-2">
+                  {errors.languages}
+                </Text>
+              )}
+            </View>
+          )}
 
-        {/* Skills */}
-        {missingFields.skills && (
-          <View className="mt-6">
-            <MultiSelect
-              label="Skills"
-              value={formData.skills}
-              onChange={(v) => {
-                setFormData((p) => ({ ...p, skills: v }));
-                let skillErrors = false;
+          {/* Skills */}
+          {missingFields.skills && (
+            <View className="mt-6">
+              <MultiSelect
+                label="Skills"
+                value={formData.skills}
+                onChange={(v) => {
+                  setFormData((p) => ({ ...p, skills: v }));
+                  let skillErrors = false;
 
-                if (v.length === 0 || !v[0]) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    skills: "At least one skill is required",
-                  }));
-                  skillErrors = true;
-                } else {
-                  setErrors((prev) => ({
-                    ...prev,
-                    skills: "",
-                  }));
-                }
-              }}
-              placeholder="Skills"
-              freeType={true} // Enable free typing
-            />
-            {errors.skills && (
-              <Text className="text-red-500 text-sm mb-2">{errors.skills}</Text>
-            )}
-          </View>
-        )}
+                  if (v.length === 0 || !v[0]) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      skills: "At least one skill is required",
+                    }));
+                    skillErrors = true;
+                  } else {
+                    setErrors((prev) => ({
+                      ...prev,
+                      skills: "",
+                    }));
+                  }
+                }}
+                placeholder="Skills"
+                freeType={true} // Enable free typing
+              />
+              {errors.skills && (
+                <Text className="text-red-500 text-sm mb-2">
+                  {errors.skills}
+                </Text>
+              )}
+            </View>
+          )}
 
-        <PrimaryButton
-          onPress={handleComplete}
-          disabled={loading}
-          className="mt-8"
-        >
-          Complete Profile
-        </PrimaryButton>
-      </ScrollView>
+          <PrimaryButton
+            onPress={handleComplete}
+            disabled={loading}
+            className="my-8"
+          >
+            Complete Profile
+          </PrimaryButton>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
